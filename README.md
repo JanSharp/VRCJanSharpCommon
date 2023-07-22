@@ -33,6 +33,7 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 - UpdateManager prefab
 - LocalEventOnInteract to send a custom event to any Udon behaviour locally
 - LocalToggleOnInteract to toggle a single GameObject locally
+- InteractProxy to pass VRChat's interact event from one object to another. Useful when the interact is on an object that gets toggled, but the script should not get toggled
 
 # Ideas
 
