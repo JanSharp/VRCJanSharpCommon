@@ -35,6 +35,8 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 - LocalToggleOnInteract to toggle a single GameObject locally
 - LocalToggleOnValueChanged to toggle multiple objects to match the state of a UI Toggle
 - InteractProxy to pass VRChat's interact event from one object to another. Useful when the interact is on an object that gets toggled, but the script should not get toggled
+- ArrList to make it easier to make list like arrays. They are statically typed, unlike DataLists
+- ArrQueue to make it easier to make queue like arrays. First in, first out
 
 # Ideas
 
