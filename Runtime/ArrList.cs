@@ -120,17 +120,25 @@ namespace JanSharp
             return result;
         }
 
+        ///<summary>
+        ///Returns -1 when there was no such value in the list to remove.
+        ///</summary>
         public static int Remove<T>(ref T[] list, ref int count, T value)
         {
             int index = IndexOf(ref list, ref count, value);
-            RemoveAt(ref list, ref count, index);
+            if (index != -1)
+                RemoveAt(ref list, ref count, index);
             return index;
         }
 
+        ///<summary>
+        ///Returns -1 when there was no such value in the list to remove.
+        ///</summary>
         public static int RemoveLast<T>(ref T[] list, ref int count, T value)
         {
             int index = LastIndexOf(ref list, ref count, value);
-            RemoveAt(ref list, ref count, index);
+            if (index != -1)
+                RemoveAt(ref list, ref count, index);
             return index;
         }
 
