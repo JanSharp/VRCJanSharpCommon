@@ -66,7 +66,7 @@ namespace JanSharp
                 data.behaviours.Clear();
 
             foreach (GameObject obj in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
-                foreach (UdonBehaviour udonBehaviour in obj.GetComponentsInChildren<UdonBehaviour>())
+                foreach (UdonBehaviour udonBehaviour in obj.GetComponentsInChildren<UdonBehaviour>(true))
                     if (UdonSharpEditorUtility.IsUdonSharpBehaviour(udonBehaviour))
                     {
                         UdonSharpBehaviour behaviour = UdonSharpEditorUtility.GetProxyBehaviour(udonBehaviour);
