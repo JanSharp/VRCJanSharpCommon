@@ -1,6 +1,22 @@
 
 # Changelog
 
+## [0.1.3] - 2023-08-05
+
+### Changed
+
+- Change LICENSE.txt to LICENSE.md so Unity sees it in the package manager window ([`9a6b5bb`](https://github.com/JanSharp/VRCJanSharpCommon/commit/9a6b5bb31eee6317bf4c0c9fd82e41f4df1c93b1))
+
+### Added
+
+- Add ArrList and ArrQueue library files ([`c4e76e1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/c4e76e12307a7ee9bbd3c7d660cc30fde3d24686), [`65d0c0e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/65d0c0e26f4d457cc2d087eacafccad381ede854))
+- Add vpm dependency on `com.vrchat.worlds` for clarity ([`114cd86`](https://github.com/JanSharp/VRCJanSharpCommon/commit/114cd86db82e4889027cfbcc827b46e00c231c6a))
+
+### Fixed
+
+- Fix build error on publish ([`036bb38`](https://github.com/JanSharp/VRCJanSharpCommon/commit/036bb385cb462063e2b7a13d54af3127170d6deb))
+- Fix that OnBuild was ignoring inactive objects ([`a8b2c83`](https://github.com/JanSharp/VRCJanSharpCommon/commit/a8b2c8325d611e514a51540eb9d59e56ede58c6a))
+
 ## [0.1.2] - 2023-07-23
 
 ### Changed
@@ -32,6 +48,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[0.1.3]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.3
 [0.1.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.2
 [0.1.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.1
 [0.1.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.0
