@@ -23,6 +23,12 @@ namespace JanSharp
             setNewValue(property.GetArrayElementAtIndex(property.arraySize - 1));
         }
 
+        public static IEnumerable<SerializedProperty> EnumerateArrayProperty(SerializedProperty property)
+        {
+            for (int i = 0; i < property.arraySize; i++)
+                yield return property.GetArrayElementAtIndex(i);
+        }
+
         public static void ConditionalButton<T>(GUIContent buttonContent, IEnumerable<T> targets, System.Action<IEnumerable<T>> onButtonClick)
         {
             if (targets.Any() && GUILayout.Button(buttonContent))
