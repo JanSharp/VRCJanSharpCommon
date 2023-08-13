@@ -66,13 +66,16 @@ namespace JanSharp
                 data.behaviours.Clear();
 
             foreach (GameObject obj in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
-                foreach (UdonBehaviour udonBehaviour in obj.GetComponentsInChildren<UdonBehaviour>(true))
-                    if (UdonSharpEditorUtility.IsUdonSharpBehaviour(udonBehaviour))
+                foreach (UdonSharpBehaviour behaviour in obj.GetComponentsInChildren<UdonSharpBehaviour>(true))
+                {
+                    Type behaviourType = behaviour.GetType();
+                    while (behaviourType != typeof(UdonSharpBehaviour))
                     {
-                        UdonSharpBehaviour behaviour = UdonSharpEditorUtility.GetProxyBehaviour(udonBehaviour);
-                        if (typesToLookFor.TryGetValue(behaviour.GetType(), out OnBuildCallbackData data))
+                        if (typesToLookFor.TryGetValue(behaviourType, out OnBuildCallbackData data))
                             data.behaviours.Add(behaviour);
+                        behaviourType = behaviourType.BaseType;
                     }
+                }
 
             foreach (OrderedOnBuildCallbackData orderedData in typesToLookForList.OrderBy(d => d.order))
                 foreach (UdonSharpBehaviour behaviour in orderedData.data.behaviours)
