@@ -11,10 +11,12 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 
 ## Editor
 
+<!-- cSpell:ignore occluders, occludees -->
+
 - OnBuildUtil, allowing multiple registrations and a defined order
   - In an editor script, mark a class with the [InitializeOnLoad](https://docs.unity3d.com/ScriptReference/InitializeOnLoadAttribute.html) attribute
   - In its static constructor call `OnBuildUtil.RegisterType<T>(...)` passing in a function with type T as a parameter and returning a boolean
-  - The registered callbacks will run on every component of the registered type T in the current scene when entering play mode and when VRChat builds the project
+  - The registered callbacks will run on every component of the registered type T and any types deriving from T in the current scene when entering play mode and when VRChat builds the project
   - If your callback returns false it indicates failure and prevents VRChat from publishing. Entering play mode does not get aborted however
     - You should always `Debug.LogError` the reason for the abort
   - Since the RegisterType method takes an optional order argument, it is supported to register the same type twice but with different order
@@ -24,6 +26,7 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
   - Uses the `Normal Color` of the selected UI components, like buttons, to update all the other colors like highlighted, pressed and so on
   - All currently selected GameObjects in the hierarchy are affected, if they have a Selectable UI component
   - Yes, Selectable is a base class derived by several other components
+- OcclusionVisibilityWindow to help visualize which objects are occluders and occludees (and static batchers)
 
 ## Runtime
 
