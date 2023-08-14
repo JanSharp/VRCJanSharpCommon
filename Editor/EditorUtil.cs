@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEditor;
+using UnityEditor.Events;
 using System.Linq;
 
 namespace JanSharp
@@ -27,6 +29,87 @@ namespace JanSharp
         {
             for (int i = 0; i < property.arraySize; i++)
                 yield return property.GetArrayElementAtIndex(i);
+        }
+
+        public struct PersistentEventListenerWrapper
+        {
+            /* (UI Toggle onValueChanged)
+              onValueChanged:
+                m_PersistentCalls:
+                  m_Calls:
+                  - m_Target: {fileID: 2039029658}
+                    m_MethodName: SendCustomEvent
+                    m_Mode: 5
+                    m_Arguments:
+                      m_ObjectArgument: {fileID: 0}
+                      m_ObjectArgumentAssemblyTypeName: 
+                      m_IntArgument: 0
+                      m_FloatArgument: 0
+                      m_StringArgument: OnValueChanged
+                      m_BoolArgument: 0
+                    m_CallState: 2
+            */
+
+            private UnityEventBase unityEvent;
+            private SerializedProperty unityEventProp;
+            private SerializedProperty callProp;
+            private SerializedProperty CallProp
+            {
+                get
+                {
+                    if (callProp != null)
+                        return callProp;
+                    callProp = unityEventProp
+                        .FindPropertyRelative("m_PersistentCalls")
+                        .FindPropertyRelative("m_Calls")
+                        .GetArrayElementAtIndex(index);
+                    return callProp;
+                }
+            }
+            private SerializedProperty argsProp;
+            private SerializedProperty ArgsProp
+            {
+                get
+                {
+                    if (argsProp != null)
+                        return argsProp;
+                    argsProp = CallProp.FindPropertyRelative("m_Arguments");
+                    return argsProp;
+                }
+            }
+            private int index;
+
+            public Object Target => unityEvent.GetPersistentTarget(index);
+            public string MethodName => unityEvent.GetPersistentMethodName(index);
+            public PersistentListenerMode ListenerMode
+                => (PersistentListenerMode)CallProp.FindPropertyRelative("m_Mode").intValue;
+            public Object ObjectArgument => ArgsProp.FindPropertyRelative("m_ObjectArgument").objectReferenceValue;
+            public float FloatArgument => ArgsProp.FindPropertyRelative("m_FloatArgument").floatValue;
+            public int IntArgument => ArgsProp.FindPropertyRelative("m_IntArgument").intValue;
+            public string StringArgument => ArgsProp.FindPropertyRelative("m_StringArgument").stringValue;
+            public bool BoolArgument => ArgsProp.FindPropertyRelative("m_BoolArgument").boolValue;
+            public UnityEventCallState CallState
+                => (UnityEventCallState)CallProp.FindPropertyRelative("m_CallState").intValue;
+
+            public PersistentEventListenerWrapper(
+                UnityEventBase unityEvent,
+                SerializedProperty unityEventProp,
+                int index)
+            {
+                this.unityEvent = unityEvent;
+                this.index = index;
+                this.unityEventProp = unityEventProp;
+                callProp = null;
+                argsProp = null;
+            }
+        }
+
+        public static IEnumerable<PersistentEventListenerWrapper> EnumeratePersistentEventListeners(
+            UnityEventBase unityEvent,
+            SerializedProperty unityEventProperty)
+        {
+            for (int i = 0; i < unityEvent.GetPersistentEventCount(); i++)
+                yield return new PersistentEventListenerWrapper(unityEvent, unityEventProperty, i);
         }
 
         public static void ConditionalButton<T>(GUIContent buttonContent, IEnumerable<T> targets, System.Action<IEnumerable<T>> onButtonClick)

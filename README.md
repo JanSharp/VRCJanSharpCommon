@@ -37,6 +37,7 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 - InteractProxy to pass VRChat's interact event from one object to another. Useful when the interact is on an object that gets toggled, but the script should not get toggled
 - ArrList to make it easier to make list like arrays. They are statically typed, unlike DataLists
 - ArrQueue to make it easier to make queue like arrays. First in, first out
+- UIToggleInteractProxy to send an Interact event whenever a UI Toggle gets turned on, turned off or both. Allows for generic OnInteract scripts to be hooked up to toggles. For that to makes sense it usually requires a pair of OnInteract scripts, one for turning on one for turning off
 
 # Ideas
 
