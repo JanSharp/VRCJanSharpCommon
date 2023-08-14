@@ -1,6 +1,20 @@
 
 # Changelog
 
+## [0.2.0] - 2023-08-14
+
+### Changed
+
+- **Breaking:** Support inheritance in OnBuild ([`e823f90`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e823f90bdfe72493d5fc0e025201fe46cc24b0be), [`da7b8c8`](https://github.com/JanSharp/VRCJanSharpCommon/commit/da7b8c8570a718367f46ec7c67821544dea92bc9))
+
+### Added
+
+- Add UIToggleSync ([`748679f`](https://github.com/JanSharp/VRCJanSharpCommon/commit/748679f051b6cc56da5b7b25b9e032a75a4570e7))
+- Add UIToggleInteractProxy ([`9ceb055`](https://github.com/JanSharp/VRCJanSharpCommon/commit/9ceb05599860d4c8470c491f25271d08af80f1b3))
+- Add Occlusion Visibility Window ([`fbcf53d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/fbcf53d80a726220fadbd2fa6f9e396df16009fb), [`da7b8c8`](https://github.com/JanSharp/VRCJanSharpCommon/commit/da7b8c8570a718367f46ec7c67821544dea92bc9))
+- Add EnumerateArrayProperty to EditorUtil ([`78019b9`](https://github.com/JanSharp/VRCJanSharpCommon/commit/78019b90d9b20e92d4b1b19f0cedaf24221084f4))
+- Add ConditionalRegisterCustomEventListenerButton to EditorUtil ([`0793f4f`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0793f4f11e0d3b75f37f0fe1af6defa8f02fb971))
+
 ## [0.1.3] - 2023-08-05
 
 ### Changed
@@ -48,6 +62,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[0.2.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.2.0
 [0.1.3]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.3
 [0.1.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.2
 [0.1.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.1
