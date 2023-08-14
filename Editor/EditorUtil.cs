@@ -5,6 +5,9 @@ using UnityEngine.Events;
 using UnityEditor;
 using UnityEditor.Events;
 using System.Linq;
+using UdonSharp;
+using UdonSharpEditor;
+using VRC.Udon;
 
 namespace JanSharp
 {
@@ -112,10 +115,55 @@ namespace JanSharp
                 yield return new PersistentEventListenerWrapper(unityEvent, unityEventProperty, i);
         }
 
-        public static void ConditionalButton<T>(GUIContent buttonContent, IEnumerable<T> targets, System.Action<IEnumerable<T>> onButtonClick)
+        public static void ConditionalButton<T>(
+            GUIContent buttonContent,
+            IEnumerable<T> targets,
+            System.Action<IEnumerable<T>> onButtonClick)
         {
             if (targets.Any() && GUILayout.Button(buttonContent))
                 onButtonClick(targets);
+        }
+
+        public static void ConditionalRegisterCustomEventListenerButton<TTarget, TEventSource, TUnityEvent>(
+            GUIContent buttonContent,
+            IEnumerable<TTarget> targets,
+            System.Func<TTarget, TEventSource> getEventSource,
+            System.Func<TEventSource, TUnityEvent> getUnityEvent,
+            string unityEventSerializedPropertyPath,
+            string customEventName
+        )
+            where TTarget : UdonSharpBehaviour
+            where TEventSource : Object
+            where TUnityEvent : UnityEventBase
+        {
+            EditorUtil.ConditionalButton(
+                buttonContent,
+                targets
+                    .Select(t => (
+                        source: getEventSource(t),
+                        udonBehaviour: UdonSharpEditorUtility.GetBackingUdonBehaviour(t)
+                    ))
+                    .Where(d => d.source != null
+                        && !EditorUtil.EnumeratePersistentEventListeners(
+                            getUnityEvent(d.source),
+                            new SerializedObject(d.source).FindProperty(unityEventSerializedPropertyPath)
+                        )
+                        .Any(l => l.Target is UdonBehaviour targetBehaviour
+                            && targetBehaviour == d.udonBehaviour
+                            && l.MethodName == nameof(UdonBehaviour.SendCustomEvent)
+                            && l.StringArgument == customEventName)
+                    ),
+                d => {
+                    foreach (var target in d)
+                    {
+                        UnityEventTools.AddStringPersistentListener(
+                            getUnityEvent(target.source),
+                            target.udonBehaviour.SendCustomEvent,
+                            customEventName
+                        );
+                    }
+                }
+            );
         }
 
         public static IEnumerable<T> EmptyIfNull<T>(IEnumerable<T> enumerable)

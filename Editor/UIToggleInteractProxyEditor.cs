@@ -66,36 +66,14 @@ namespace JanSharp
                 }
             );
 
-            EditorUtil.ConditionalButton(
+            EditorUtil.ConditionalRegisterCustomEventListenerButton(
                 new GUIContent("Setup OnValueChanged listener", "Add the OnValueChanged listener to the "
                     + "UI Toggle component for this UdonBehaviour to receive the event, which is required."),
-                targets.Cast<UIToggleInteractProxy>()
-                    .Select(p => {
-                        SerializedObject proxy = new SerializedObject(p);
-                        return (
-                            toggle: (Toggle)proxy.FindProperty("toggle").objectReferenceValue,
-                            udonBehaviour: UdonSharpEditorUtility.GetBackingUdonBehaviour(p)
-                        );
-                    })
-                    .Where(p => p.toggle != null
-                        && !EditorUtil.EnumeratePersistentEventListeners(
-                            p.toggle.onValueChanged,
-                            new SerializedObject(p.toggle).FindProperty("onValueChanged")
-                        )
-                        .Any(l => l.Target is UdonBehaviour
-                            && l.MethodName == nameof(UdonBehaviour.SendCustomEvent)
-                            && l.StringArgument == "OnValueChanged")
-                    ),
-                proxies => {
-                    foreach (var proxy in proxies)
-                    {
-                        UnityEventTools.AddStringPersistentListener(
-                            proxy.toggle.onValueChanged,
-                            proxy.udonBehaviour.SendCustomEvent,
-                            "OnValueChanged"
-                        );
-                    }
-                }
+                targets.Cast<UIToggleInteractProxy>(),
+                p => (Toggle)new SerializedObject(p).FindProperty("toggle").objectReferenceValue,
+                t => t.onValueChanged,
+                "onValueChanged",
+                nameof(UIToggleInteractProxy.OnValueChanged)
             );
         }
     }
