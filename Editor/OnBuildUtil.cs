@@ -69,10 +69,12 @@ namespace JanSharp
                 foreach (UdonSharpBehaviour behaviour in obj.GetComponentsInChildren<UdonSharpBehaviour>(true))
                 {
                     Type behaviourType = behaviour.GetType();
-                    while (behaviourType != typeof(UdonSharpBehaviour))
+                    while (true)
                     {
                         if (typesToLookFor.TryGetValue(behaviourType, out OnBuildCallbackData data))
                             data.behaviours.Add(behaviour);
+                        if (behaviourType == typeof(UdonSharpBehaviour))
+                            break;
                         behaviourType = behaviourType.BaseType;
                     }
                 }
