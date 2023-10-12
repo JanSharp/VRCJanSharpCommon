@@ -1,6 +1,17 @@
 
 # Changelog
 
+## [0.2.1] - 2023-10-12
+
+### Changed
+
+- Support registering for UdonSharpBehaviour itself, to run an OnBuild handler on every UdonSharpBehaviour ([`d962d98`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d962d983e79f1b8ea53a04643b114bacd4e79b0a))
+- Update vrc worlds dependency to 3.4.x ([`4de25c0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/4de25c0f2484ec591200375bfe07071546a23731))
+
+### Removed
+
+- Remove udonsharp dependency as it has been merged into worlds ([`4de25c0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/4de25c0f2484ec591200375bfe07071546a23731))
+
 ## [0.2.0] - 2023-08-14
 
 ### Changed
@@ -62,6 +73,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[0.2.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.2.1
 [0.2.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.2.0
 [0.1.3]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.3
 [0.1.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.1.2
