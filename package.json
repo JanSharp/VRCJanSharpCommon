@@ -11,8 +11,7 @@
   },
   "license": "MIT",
   "vpmDependencies": {
-    "com.vrchat.worlds": "^3.1.x",
-    "com.vrchat.udonsharp": "^1.1.x"
+    "com.vrchat.worlds": "^3.4.x"
   },
   "url": "https://github.com/JanSharp/VRCJanSharpCommon/releases/download/v0.2.1/com.jansharp.common.zip",
   "changelogUrl": "https://github.com/JanSharp/VRCJanSharpCommon/blob/v0.2.1/CHANGELOG.md"
