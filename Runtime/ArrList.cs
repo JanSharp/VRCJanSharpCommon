@@ -16,7 +16,13 @@ namespace JanSharp
             list = copy;
         }
 
+        [Obsolete("The count argument was not used, has been removed and this function signature is now deprecated.")]
         public static void EnsureCapacity<T>(ref T[] list, ref int count, int capacity)
+        {
+            EnsureCapacity(ref list, capacity);
+        }
+
+        public static void EnsureCapacity<T>(ref T[] list, int capacity)
         {
             int length = list.Length;
             if (length < capacity)
@@ -68,7 +74,7 @@ namespace JanSharp
             if (otherCount == -1)
                 otherCount = otherArray.Length;
             int newCount = count + otherCount;
-            EnsureCapacity(ref list, ref count, newCount);
+            EnsureCapacity(ref list, newCount);
             for (int i = 0; i < otherCount; i++)
                 list[count + i] = otherArray[i];
             count = newCount;
@@ -103,7 +109,7 @@ namespace JanSharp
             if (otherCount == -1)
                 otherCount = otherArray.Length;
             int newCount = count + otherCount;
-            EnsureCapacity(ref list, ref count, newCount);
+            EnsureCapacity(ref list, newCount);
             for (int i = count - 1; i >= index; i--)
                 list[i + otherCount] = list[i];
             for (int i = 0; i < otherCount; i++)

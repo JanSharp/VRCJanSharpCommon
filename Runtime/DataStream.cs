@@ -28,20 +28,20 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, sbyte value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 1);
+            ArrList.EnsureCapacity(ref stream, streamSize + 1);
             // Logical AND away the top bits, including the int's sign bit, putting it in bounds of a `byte`.
             stream[streamSize++] = (byte)((int)value & 0xff);
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, byte value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 1);
+            ArrList.EnsureCapacity(ref stream, streamSize + 1);
             stream[streamSize++] = value;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, short value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 2);
+            ArrList.EnsureCapacity(ref stream, streamSize + 2);
             // Logical AND away the top bits, including the int's sign bit, putting it in bounds of `byte`s.
             int bytes = (int)value & 0xffff;
             stream[streamSize++] = (byte)(bytes >> 8);
@@ -50,7 +50,7 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, ushort value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 2);
+            ArrList.EnsureCapacity(ref stream, streamSize + 2);
             // Bit shifts and logical ops only exist for 4 and 8 byte numbers.
             // Which means this deduplicates the System.Convert.ToUInt32 calls.
             uint bytes = (uint)value;
@@ -60,7 +60,7 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, int value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 4);
+            ArrList.EnsureCapacity(ref stream, streamSize + 4);
             // Logical AND away the top bits, including the long's sign bit, putting it in bounds of `byte`s.
             long bytes = (long)value & 0xffffffffL;
             stream[streamSize++] = (byte)(bytes >> 24);
@@ -71,7 +71,7 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, uint value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 4);
+            ArrList.EnsureCapacity(ref stream, streamSize + 4);
             stream[streamSize++] = (byte)(value >> 24);
             stream[streamSize++] = (byte)((value >> 16) & 0xffu);
             stream[streamSize++] = (byte)((value >> 8) & 0xffu);
@@ -80,7 +80,7 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, long value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 8);
+            ArrList.EnsureCapacity(ref stream, streamSize + 8);
             // Convert negative values into positive ones without changing any of the bits.
             // Do so by logical ANDing away the sign bit, converting to unsigned and re-adding the highest bit.
             ulong bytes = value >= 0 ? (ulong)value : (0x8000000000000000uL | (ulong)(value & 0x7fffffffffffffffL));
@@ -96,7 +96,7 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, ulong value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 8);
+            ArrList.EnsureCapacity(ref stream, streamSize + 8);
             stream[streamSize++] = (byte)(value >> 56);
             stream[streamSize++] = (byte)((value >> 48) & 0xffuL);
             stream[streamSize++] = (byte)((value >> 40) & 0xffuL);
@@ -148,7 +148,7 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, char value)
         {
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + 1);
+            ArrList.EnsureCapacity(ref stream, streamSize + 1);
             stream[streamSize++] = (byte)value;
         }
 
@@ -161,7 +161,7 @@ namespace JanSharp
             }
             int length = value.Length;
             Write(ref stream, ref streamSize, length + 1);
-            ArrList.EnsureCapacity(ref stream, ref streamSize, streamSize + length);
+            ArrList.EnsureCapacity(ref stream, streamSize + length);
             // TODO: C# chars are UTF16. For special characters this logic results in incorrect bytes.
             for (int i = 0; i < length; i++)
                 stream[streamSize++] = (byte)value[i];
