@@ -37,9 +37,16 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 - ArrQueue to make it easier to make queue like arrays. First in, first out
 - ArithBitConverter for floating point to and from binary conversions, because we don't have BitConverter
 - DataStream for binary serialization and deserialization using byte arrays. Uses ArrList and ArithBitConverter
+- CRC32 for byte arrays
 - UIToggleInteractProxy to send an Interact event whenever a UI Toggle gets turned on, turned off or both. Allows for generic OnInteract scripts to be hooked up to toggles. For that to makes sense it usually requires a pair of OnInteract scripts, one for turning on one for turning off
 - UIToggleSync to make synced toggles without writing scripts for them every time
 
 # Ideas
 
 Honestly I'm not sure. It feels like this is missing a lot of stuff, but then I'm not sure what really belongs in here. But I suppose the editor scripting this provides is already decent. But still, I'm not marking it as `1.0.0` yet.
+
+# Licensed Third Party Code
+
+A big thank you to all the open source contributors out there!
+
+- [crc32](https://github.com/stbrumme/crc32), Copyright (c) 2011-2016 Stephan Brumme
