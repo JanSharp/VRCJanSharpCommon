@@ -36,6 +36,7 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 - ArrList to make it easier to make list like arrays. They are statically typed, unlike DataLists
 - ArrQueue to make it easier to make queue like arrays. First in, first out
 - ArithBitConverter for floating point to and from binary conversions, because we don't have BitConverter
+- DataStream for binary serialization and deserialization using byte arrays. Uses ArrList and ArithBitConverter
 - UIToggleInteractProxy to send an Interact event whenever a UI Toggle gets turned on, turned off or both. Allows for generic OnInteract scripts to be hooked up to toggles. For that to makes sense it usually requires a pair of OnInteract scripts, one for turning on one for turning off
 - UIToggleSync to make synced toggles without writing scripts for them every time
 
