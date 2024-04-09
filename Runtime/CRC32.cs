@@ -23,8 +23,14 @@ namespace JanSharp
 {
     public static class CRC32
     {
-        ///<summary>Just make a uint[] field, leave it null and pass it in as the first arg. We cannot use
-        ///static (so non const) fields with UdonSharp yet so this is a workaround.</summary>
+        ///<summary>
+        ///<para>Just make a uint[] field, leave it null and pass it in as the first arg. We cannot use static
+        ///(so non const) fields with UdonSharp yet so this is a workaround.</para>
+        ///<para>Do not do `Compute(ref foo, bar, length: baz)`, UdonSharp in the worlds package 3.4.2 does
+        ///not set the value of length properly, it ends up being -1. Which then means "the length of `data`"
+        ///which is of course not what you'd want.</para>
+        ///<para>Do `Compute(ref foo, bar, 0, baz)` instead.</para>
+        ///</summary>
         public static uint Compute(ref uint[] crc32LookupCache, byte[] data, int startIndex = 0, int length = -1, uint previousCrc32 = 0u)
         {
             if (crc32LookupCache == null)
