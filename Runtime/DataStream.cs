@@ -148,8 +148,41 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, char value)
         {
-            ArrList.EnsureCapacity(ref stream, streamSize + 1);
-            stream[streamSize++] = (byte)value;
+            //  byte 1  |  byte 2  |  byte 3  |  byte 4
+            // 0xxxxxxx |          |          |
+            // 110xxxxx | 10xxxxxx |          |
+            // 1110xxxx | 10xxxxxx | 10xxxxxx |
+            // 11110xxx | 10xxxxxx | 10xxxxxx | 10xxxxxx
+            // For the 4 bytes there is an artificial limitation of 20 bits for the actual value for some
+            // specific reason in relation to utf-16. I don't know the details and it doesn't matter to me
+            // because I am not doing any validation.
+            uint codePoint = System.Convert.ToUInt32(value);
+            if (codePoint <= 0x007fu)
+            {
+                ArrList.EnsureCapacity(ref stream, streamSize + 1);
+                stream[streamSize++] = (byte)codePoint;
+                return;
+            }
+            if (codePoint <= 0x07ffu)
+            {
+                ArrList.EnsureCapacity(ref stream, streamSize + 2);
+                stream[streamSize++] = (byte)(0xc0u | (codePoint >> 6));
+                stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
+                return;
+            }
+            if (codePoint <= 0xffffu)
+            {
+                ArrList.EnsureCapacity(ref stream, streamSize + 3);
+                stream[streamSize++] = (byte)(0xe0u | (codePoint >> 12));
+                stream[streamSize++] = (byte)(0x80u | ((codePoint >> 6) & 0x3fu));
+                stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
+                return;
+            }
+            ArrList.EnsureCapacity(ref stream, streamSize + 4);
+            stream[streamSize++] = (byte)(0xf0u | (codePoint >> 18));
+            stream[streamSize++] = (byte)(0x80u | ((codePoint >> 12) & 0x3fu));
+            stream[streamSize++] = (byte)(0x80u | ((codePoint >> 6) & 0x3fu));
+            stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, string value)
@@ -161,10 +194,34 @@ namespace JanSharp
             }
             int length = value.Length;
             Write(ref stream, ref streamSize, length + 1);
-            ArrList.EnsureCapacity(ref stream, streamSize + length);
-            // TODO: C# chars are UTF16. For special characters this logic results in incorrect bytes.
-            for (int i = 0; i < length; i++)
-                stream[streamSize++] = (byte)value[i];
+            ArrList.EnsureCapacity(ref stream, streamSize + length * 4);
+            foreach (char c in value)
+            {
+                // Copy paste of Write(char), slightly modified. Basically properly inlined.
+                uint codePoint = (uint)c;
+                if (codePoint <= 0x007fu)
+                {
+                    stream[streamSize++] = (byte)codePoint;
+                    continue;
+                }
+                if (codePoint <= 0x07ffu)
+                {
+                    stream[streamSize++] = (byte)(0xc0u | (codePoint >> 6));
+                    stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
+                    continue;
+                }
+                if (codePoint <= 0xffffu)
+                {
+                    stream[streamSize++] = (byte)(0xe0u | (codePoint >> 12));
+                    stream[streamSize++] = (byte)(0x80u | ((codePoint >> 6) & 0x3fu));
+                    stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
+                    continue;
+                }
+                stream[streamSize++] = (byte)(0xf0u | (codePoint >> 18));
+                stream[streamSize++] = (byte)(0x80u | ((codePoint >> 12) & 0x3fu));
+                stream[streamSize++] = (byte)(0x80u | ((codePoint >> 6) & 0x3fu));
+                stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
+            }
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, System.DateTime value)
@@ -302,7 +359,22 @@ namespace JanSharp
 
         public static char ReadChar(ref byte[] stream, ref int position)
         {
-            return (char)stream[position++];
+            uint firstByte = (uint)stream[position++];
+            if ((firstByte & 0x80u) == 0u)
+                return (char)firstByte;
+            if ((firstByte & 0x60u) == 0x40u)
+                return (char)(((firstByte & 0x1fu) << 6)
+                    | (stream[position++] & 0x3fu)); // Not validated, but we can't throw exceptions so whatever.
+            if ((firstByte & 0x30u) == 0x20u)
+                return (char)(((firstByte & 0x0fu) << 12)
+                    | ((stream[position++] & 0x3fu) << 6) // Same here, and so on...
+                    | (stream[position++] & 0x3fu));
+            if ((firstByte & 0x18u) == 0x10u)
+                return (char)(((firstByte & 0x07u) << 18)
+                    | ((stream[position++] & 0x3fu) << 12)
+                    | ((stream[position++] & 0x3fu) << 6)
+                    | (stream[position++] & 0x3fu));
+            return (char)firstByte; // Invalid but we can't throw exceptions so just return this random value.
         }
 
         public static string ReadString(ref byte[] stream, ref int position)
@@ -313,7 +385,37 @@ namespace JanSharp
             length--;
             char[] chars = new char[length];
             for (int i = 0; i < length; i++)
-                chars[i] = (char)stream[position++];
+            {
+                // Copy paste of ReadChar, slightly modified. Basically properly inlined.
+                uint firstByte = (uint)stream[position++];
+                if ((firstByte & 0x80u) == 0u)
+                {
+                    chars[i] = (char)firstByte;
+                    continue;
+                }
+                if ((firstByte & 0x60u) == 0x40u)
+                {
+                    chars[i] = (char)(((firstByte & 0x1fu) << 6)
+                        | (stream[position++] & 0x3fu)); // Not validated, but we can't throw exceptions so whatever.
+                    continue;
+                }
+                if ((firstByte & 0x30u) == 0x20u)
+                {
+                    chars[i] = (char)(((firstByte & 0x0fu) << 12)
+                        | ((stream[position++] & 0x3fu) << 6) // Same here, and so on...
+                        | (stream[position++] & 0x3fu));
+                    continue;
+                }
+                if ((firstByte & 0x18u) == 0x10u)
+                {
+                    chars[i] = (char)(((firstByte & 0x07u) << 18)
+                        | ((stream[position++] & 0x3fu) << 12)
+                        | ((stream[position++] & 0x3fu) << 6)
+                        | (stream[position++] & 0x3fu));
+                    continue;
+                }
+                chars[i] = (char)firstByte; // Invalid but we can't throw exceptions so just return this random value.
+            }
             return new string(chars);
         }
 
