@@ -229,6 +229,14 @@ namespace JanSharp
             Write(ref stream, ref streamSize, value.ToBinary());
         }
 
+        public static void Write(ref byte[] stream, ref int streamSize, byte[] bytes)
+        {
+            int length = bytes.Length;
+            ArrList.EnsureCapacity(ref stream, streamSize + length);
+            bytes.CopyTo(stream, streamSize); // streamSize is the start/target index.
+            streamSize += length;
+        }
+
         public static sbyte ReadSByte(ref byte[] stream, ref int position)
         {
             // byte value = stream[position++];
@@ -422,6 +430,14 @@ namespace JanSharp
         public static System.DateTime ReadDateTime(ref byte[] stream, ref int position)
         {
             return System.DateTime.FromBinary(ReadLong(ref stream, ref position));
+        }
+
+        public static byte[] ReadBytes(ref byte[] stream, ref int position, int byteCount)
+        {
+            byte[] value = new byte[byteCount];
+            for (int i = 0; i < byteCount; i++)
+                value[i] = stream[position++];
+            return value;
         }
     }
 }
