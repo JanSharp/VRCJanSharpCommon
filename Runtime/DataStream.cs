@@ -189,11 +189,11 @@ namespace JanSharp
         {
             if (value == null)
             {
-                Write(ref stream, ref streamSize, 0);
+                WriteSmall(ref stream, ref streamSize, 0u); // Small uint is faster to serialize.
                 return;
             }
             int length = value.Length;
-            Write(ref stream, ref streamSize, length + 1);
+            WriteSmall(ref stream, ref streamSize, (uint)(length + 1)); // Also use uint.
             ArrList.EnsureCapacity(ref stream, streamSize + length * 4);
             foreach (char c in value)
             {
@@ -387,7 +387,7 @@ namespace JanSharp
 
         public static string ReadString(ref byte[] stream, ref int position)
         {
-            int length = ReadInt(ref stream, ref position);
+            int length = (int)ReadSmallUInt(ref stream, ref position); // Small uint is faster to deserialize.
             if (length == 0)
                 return null;
             length--;
