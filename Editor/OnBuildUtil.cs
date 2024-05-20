@@ -56,7 +56,7 @@ namespace JanSharp
             typesToLookForList.Add(new OrderedOnBuildCallbackData(data, order, callback.Method, callback.Target));
         }
 
-        [MenuItem("Tools/Run all OnBuild handlers")]
+        [MenuItem("Tools/JanSharp/Run All OnBuild handlers", priority = 10005)]
         public static bool RunOnBuild()
         {
             Stopwatch sw = new Stopwatch();
