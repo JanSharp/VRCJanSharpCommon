@@ -71,7 +71,6 @@ namespace JanSharp
                     + "UI Toggle component for this UdonBehaviour to receive the event, which is required."),
                 targets.Cast<UIToggleInteractProxy>(),
                 p => (Toggle)new SerializedObject(p).FindProperty("toggle").objectReferenceValue,
-                t => t.onValueChanged,
                 "onValueChanged",
                 nameof(UIToggleInteractProxy.OnValueChanged)
             );

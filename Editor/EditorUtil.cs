@@ -45,7 +45,7 @@ namespace JanSharp
                     m_Mode: 5
                     m_Arguments:
                       m_ObjectArgument: {fileID: 0}
-                      m_ObjectArgumentAssemblyTypeName: 
+                      m_ObjectArgumentAssemblyTypeName:
                       m_IntArgument: 0
                       m_FloatArgument: 0
                       m_StringArgument: OnValueChanged
@@ -53,7 +53,6 @@ namespace JanSharp
                     m_CallState: 2
             */
 
-            private UnityEventBase unityEvent;
             private SerializedProperty unityEventProp;
             private SerializedProperty callProp;
             private SerializedProperty CallProp
@@ -82,37 +81,125 @@ namespace JanSharp
             }
             private int index;
 
-            public Object Target => unityEvent.GetPersistentTarget(index);
-            public string MethodName => unityEvent.GetPersistentMethodName(index);
-            public PersistentListenerMode ListenerMode
-                => (PersistentListenerMode)CallProp.FindPropertyRelative("m_Mode").intValue;
-            public Object ObjectArgument => ArgsProp.FindPropertyRelative("m_ObjectArgument").objectReferenceValue;
-            public float FloatArgument => ArgsProp.FindPropertyRelative("m_FloatArgument").floatValue;
-            public int IntArgument => ArgsProp.FindPropertyRelative("m_IntArgument").intValue;
-            public string StringArgument => ArgsProp.FindPropertyRelative("m_StringArgument").stringValue;
-            public bool BoolArgument => ArgsProp.FindPropertyRelative("m_BoolArgument").boolValue;
-            public UnityEventCallState CallState
-                => (UnityEventCallState)CallProp.FindPropertyRelative("m_CallState").intValue;
-
-            public PersistentEventListenerWrapper(
-                UnityEventBase unityEvent,
-                SerializedProperty unityEventProp,
-                int index)
+            public Object Target
             {
-                this.unityEvent = unityEvent;
-                this.index = index;
+                get => CallProp.FindPropertyRelative("m_Target").objectReferenceValue;
+                set => CallProp.FindPropertyRelative("m_Target").objectReferenceValue = value;
+            }
+            public string MethodName
+            {
+                get => CallProp.FindPropertyRelative("m_MethodName").stringValue;
+                set => CallProp.FindPropertyRelative("m_MethodName").stringValue = value;
+            }
+            public PersistentListenerMode ListenerMode
+            {
+                get => (PersistentListenerMode)CallProp.FindPropertyRelative("m_Mode").intValue;
+                set => CallProp.FindPropertyRelative("m_Mode").intValue = (int)value;
+            }
+            /// <summary>
+            /// This likely is not a sufficient or correct implementation to get/set the object reference
+            /// argument, since alongside the m_ObjectArgument property - which is accessed by this getter and
+            /// setter - there is also the m_ObjectArgumentAssemblyTypeName property, which may or may not be
+            /// handled automatically. I do not know.
+            /// </summary>
+            public Object ObjectArgument
+            {
+                get => ArgsProp.FindPropertyRelative("m_ObjectArgument").objectReferenceValue;
+                set => ArgsProp.FindPropertyRelative("m_ObjectArgument").objectReferenceValue = value;
+            }
+            public float FloatArgument
+            {
+                get => ArgsProp.FindPropertyRelative("m_FloatArgument").floatValue;
+                set => ArgsProp.FindPropertyRelative("m_FloatArgument").floatValue = value;
+            }
+            public int IntArgument
+            {
+                get => ArgsProp.FindPropertyRelative("m_IntArgument").intValue;
+                set => ArgsProp.FindPropertyRelative("m_IntArgument").intValue = value;
+            }
+            public string StringArgument
+            {
+                get => ArgsProp.FindPropertyRelative("m_StringArgument").stringValue;
+                set => ArgsProp.FindPropertyRelative("m_StringArgument").stringValue = value;
+            }
+            public bool BoolArgument
+            {
+                get => ArgsProp.FindPropertyRelative("m_BoolArgument").boolValue;
+                set => ArgsProp.FindPropertyRelative("m_BoolArgument").boolValue = value;
+            }
+            public UnityEventCallState CallState
+            {
+                get => (UnityEventCallState)CallProp.FindPropertyRelative("m_CallState").intValue;
+                set => CallProp.FindPropertyRelative("m_CallState").intValue = (int)value;
+            }
+
+            public PersistentEventListenerWrapper(SerializedProperty unityEventProp, int index)
+            {
                 this.unityEventProp = unityEventProp;
+                this.index = index;
                 callProp = null;
                 argsProp = null;
             }
         }
 
-        public static IEnumerable<PersistentEventListenerWrapper> EnumeratePersistentEventListeners(
-            UnityEventBase unityEvent,
-            SerializedProperty unityEventProperty)
+        public static PersistentEventListenerWrapper AddPersistentEventListener(SerializedProperty unityEventProp)
         {
-            for (int i = 0; i < unityEvent.GetPersistentEventCount(); i++)
-                yield return new PersistentEventListenerWrapper(unityEvent, unityEventProperty, i);
+            SerializedProperty callsProp = unityEventProp
+                .FindPropertyRelative("m_PersistentCalls")
+                .FindPropertyRelative("m_Calls");
+            callsProp.arraySize++;
+            return new PersistentEventListenerWrapper(unityEventProp, callsProp.arraySize - 1);
+        }
+
+        /// <summary>
+        /// Make sure to call <see cref="SerializedObject.ApplyModifiedProperties"/> after calling this.
+        /// </summary>
+        /// <param name="unityEventProp"></param>
+        public static void AddPersistentSendCustomEventListener(
+            SerializedProperty unityEventProp,
+            UdonBehaviour target,
+            string customEventName)
+        {
+            var listener = AddPersistentEventListener(unityEventProp);
+            listener.Target = target;
+            listener.MethodName = nameof(UdonBehaviour.SendCustomEvent);
+            listener.ListenerMode = PersistentListenerMode.String;
+            listener.StringArgument = customEventName;
+            listener.CallState = UnityEventCallState.RuntimeOnly;
+        }
+
+        /// <summary>
+        /// Make sure to call <see cref="SerializedObject.ApplyModifiedProperties"/> after calling this.
+        /// </summary>
+        /// <param name="unityEventProp"></param>
+        public static void AddPersistentInteractListener(
+            SerializedProperty unityEventProp,
+            UdonBehaviour target)
+        {
+            var listener = AddPersistentEventListener(unityEventProp);
+            listener.Target = target;
+            listener.MethodName = nameof(UdonBehaviour.Interact);
+            listener.ListenerMode = PersistentListenerMode.Void;
+            listener.CallState = UnityEventCallState.RuntimeOnly;
+        }
+
+        public static bool HasCustomEventListener(
+            SerializedProperty unityEventProp,
+            UdonBehaviour target,
+            string customEventName)
+        {
+            return EditorUtil.EnumeratePersistentEventListeners(unityEventProp)
+                .Any(l => l.Target is UdonBehaviour targetBehaviour
+                    && targetBehaviour == target
+                    && l.MethodName == nameof(UdonBehaviour.SendCustomEvent)
+                    && l.StringArgument == customEventName);
+        }
+
+        public static IEnumerable<PersistentEventListenerWrapper> EnumeratePersistentEventListeners(SerializedProperty unityEventProperty)
+        {
+            SerializedProperty calls = unityEventProperty.FindPropertyRelative("m_PersistentCalls.m_Calls");
+            for (int i = 0; i < calls.arraySize; i++)
+                yield return new PersistentEventListenerWrapper(unityEventProperty, i);
         }
 
         public static void ConditionalButton<T>(
@@ -124,17 +211,15 @@ namespace JanSharp
                 onButtonClick(targets);
         }
 
-        public static void ConditionalRegisterCustomEventListenerButton<TTarget, TEventSource, TUnityEvent>(
+        public static void ConditionalRegisterCustomEventListenerButton<TTarget, TEventSource>(
             GUIContent buttonContent,
             IEnumerable<TTarget> targets,
             System.Func<TTarget, TEventSource> getEventSource,
-            System.Func<TEventSource, TUnityEvent> getUnityEvent,
             string unityEventSerializedPropertyPath,
             string customEventName
         )
             where TTarget : UdonSharpBehaviour
             where TEventSource : Object
-            where TUnityEvent : UnityEventBase
         {
             EditorUtil.ConditionalButton(
                 buttonContent,
@@ -144,23 +229,19 @@ namespace JanSharp
                         udonBehaviour: UdonSharpEditorUtility.GetBackingUdonBehaviour(t)
                     ))
                     .Where(d => d.source != null
-                        && !EditorUtil.EnumeratePersistentEventListeners(
-                            getUnityEvent(d.source),
-                            new SerializedObject(d.source).FindProperty(unityEventSerializedPropertyPath)
-                        )
-                        .Any(l => l.Target is UdonBehaviour targetBehaviour
-                            && targetBehaviour == d.udonBehaviour
-                            && l.MethodName == nameof(UdonBehaviour.SendCustomEvent)
-                            && l.StringArgument == customEventName)
+                        && !HasCustomEventListener(new SerializedObject(d.source).FindProperty(unityEventSerializedPropertyPath),
+                            d.udonBehaviour,
+                            customEventName)
                     ),
                 d => {
                     foreach (var target in d)
                     {
-                        UnityEventTools.AddStringPersistentListener(
-                            getUnityEvent(target.source),
-                            target.udonBehaviour.SendCustomEvent,
-                            customEventName
-                        );
+                        SerializedObject proxy = new SerializedObject(target.source);
+                        AddPersistentSendCustomEventListener(
+                            proxy.FindProperty(unityEventSerializedPropertyPath),
+                            target.udonBehaviour,
+                            customEventName);
+                        proxy.ApplyModifiedProperties();
                     }
                 }
             );
