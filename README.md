@@ -40,6 +40,7 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 - CRC32 for byte arrays
 - Base64 conversion between byte arrays and strings, specifically to be able to attempt decoding without throwing exceptions on invalid input
 - UIToggleInteractProxy to send an Interact event whenever a UI Toggle gets turned on, turned off or both. Allows for generic OnInteract scripts to be hooked up to toggles. For that to makes sense it usually requires a pair of OnInteract scripts, one for turning on one for turning off
+- UIToggleSendLocalEvent is very similar to UIToggleInteractProxy except that it sends a given custom event to the target udon behaviour instead of only supporting interacts
 - UIToggleSync to make synced toggles without writing scripts for them every time
 
 # Ideas

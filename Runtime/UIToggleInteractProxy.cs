@@ -14,7 +14,7 @@ namespace JanSharp
         [SerializeField] private Toggle toggle;
         [SerializeField] [HideInInspector] private bool wasOn; // Set in OnBuild.
 
-        [Space(8f)]
+        [Space]
 
         [Tooltip("Can be null.")]
         /// <summary>Can be null.</summary>
