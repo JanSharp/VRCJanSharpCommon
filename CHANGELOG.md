@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.4.1] - 2024-05-27
+
+### Fixed
+
+- Fix Set Toggle Group to itself erroring ([`d3b71ed`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d3b71ed086f5c7cc03a795f4b4c493b738b2818c))
+
 ## [0.4.0] - 2024-05-27
 
 _The persistent calls change is breaking because EditorUtils function signatures with UnityEvent/-Base params have been changed._
@@ -103,6 +109,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[0.4.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.4.1
 [0.4.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.4.0
 [0.3.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.3.0
 [0.2.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.2.1
