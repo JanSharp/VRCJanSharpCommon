@@ -35,8 +35,8 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 - InteractProxy to pass VRChat's interact event from one object to another. Useful when the interact is on an object that gets toggled, but the script should not get toggled
 - ArrList to make it easier to make list like arrays. They are statically typed, unlike DataLists
 - ArrQueue to make it easier to make queue like arrays. First in, first out
-- ArithBitConverter for floating point to and from binary conversions, because we don't have BitConverter
-- DataStream for binary serialization and deserialization using byte arrays. Uses ArrList and ArithBitConverter
+- ArithBitConverter for floating point to and from binary conversions, because we don't have BitConverter - note that we do have BitConverter in the latest version of Udon now, but if you're still on unity 2019 then you don't. However there is a chance that this gets removed in the future
+- DataStream for binary serialization and deserialization using byte arrays. Uses ArrList and ArithBitConverter - consider this experimental
 - CRC32 for byte arrays
 - Base64 conversion between byte arrays and strings, specifically to be able to attempt decoding without throwing exceptions on invalid input
 - UIToggleInteractProxy to send an Interact event whenever a UI Toggle gets turned on, turned off or both. Allows for generic OnInteract scripts to be hooked up to toggles. For that to makes sense it usually requires a pair of OnInteract scripts, one for turning on one for turning off
