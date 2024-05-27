@@ -1,6 +1,28 @@
 
 # Changelog
 
+## [0.4.0] - 2024-05-27
+
+_The persistent calls change is breaking because EditorUtils function signatures with UnityEvent/-Base params have been changed._
+
+### Changed
+
+- Deprecate count param for ArrList EnsureCapacity ([`889f438`](https://github.com/JanSharp/VRCJanSharpCommon/commit/889f43863bb6ea222bebc815939619bcaf5b7605))
+- Move Run all OnBuild handlers under Tools/JanSharp ([`03e45fe`](https://github.com/JanSharp/VRCJanSharpCommon/commit/03e45fe99fa596dd5bcd81519dceae30bec3392c))
+
+### Added
+
+- Add UIToggleSendLocalEvent script ([`05e5042`](https://github.com/JanSharp/VRCJanSharpCommon/commit/05e50426284a7d58b5fa1995051d845c24572896))
+- Add UIToggleGroupSync script ([`3f4b96b`](https://github.com/JanSharp/VRCJanSharpCommon/commit/3f4b96b28d3d41cd99150202b30bf5407bf9a068))
+- Add DataStream for binary serialization ([`f82387b`](https://github.com/JanSharp/VRCJanSharpCommon/commit/f82387b580c5d25fbcb832a9dcf73fadddf30f7b), [`f4614b0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/f4614b037746da94c785ce6735c19a34c9b51538), [`403ea35`](https://github.com/JanSharp/VRCJanSharpCommon/commit/403ea353ee7ef88d435d39a88904754492bb6fea), [`3d7acec`](https://github.com/JanSharp/VRCJanSharpCommon/commit/3d7acec36c72b7276d55b2d721d3e11ec771ed4c), [`b0033fe`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b0033fe9dac90a0bc32c8171bbe13aa5999dc0b3), [`6997dcc`](https://github.com/JanSharp/VRCJanSharpCommon/commit/6997dccd0bdc2b669293aecdd83b68b1a72057cc))
+- Add ArithBitConverter for float to byte conversion for those still on 2019 ([`d576b8e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d576b8e76a180b7b3e9c58b9e2ba8643ecca38d9), [`98368ce`](https://github.com/JanSharp/VRCJanSharpCommon/commit/98368ce725c1ad545ceaa87aaac568f4bc1325c2))
+- Add Base64 specifically for TryDecode, because we cannot catch and handle exceptions in Udon ([`c20d981`](https://github.com/JanSharp/VRCJanSharpCommon/commit/c20d98111e9c4fdbc6c22d2ad78270fb3333b4de))
+- Add CRC32 and third party license notices ([`aa08fd8`](https://github.com/JanSharp/VRCJanSharpCommon/commit/aa08fd8ecc1f7e2a4f20d2c78fc4b8caae515832), [`5c194aa`](https://github.com/JanSharp/VRCJanSharpCommon/commit/5c194aa065f73b2bd4af356f63aa364c44a51fff), [`fb71207`](https://github.com/JanSharp/VRCJanSharpCommon/commit/fb71207abe27814ff245c555cdfa70a1857a5f1b))
+
+### Fixed
+
+- **Breaking:** Make editor script for adding persistent calls actually persistent ([`9878b9e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/9878b9ee5219be74c233ef7e6c29e33e8509908d))
+
 ## [0.3.0] - 2024-03-16
 
 _If the 2 editor tools were used, simply install the [`com.jansharp.editor-tools`](https://github.com/JanSharp/VRCEditorTools) package to obtain them again._
@@ -81,6 +103,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[0.4.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.4.0
 [0.3.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.3.0
 [0.2.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.2.1
 [0.2.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.2.0
