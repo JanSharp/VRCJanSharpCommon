@@ -174,7 +174,7 @@ namespace JanSharp
                 groupSyncs => {
                     foreach (var g in groupSyncs)
                     {
-                        g.proxy.FindProperty("toggle").objectReferenceValue
+                        g.proxy.FindProperty("toggleGroup").objectReferenceValue
                             = g.groupSync.GetComponent<ToggleGroup>();
                         g.proxy.ApplyModifiedProperties();
                     }
