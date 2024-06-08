@@ -43,6 +43,7 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
 - UIToggleSendLocalEvent is very similar to UIToggleInteractProxy except that it sends a given custom event to the target udon behaviour instead of only supporting interacts
 - UIToggleSync to make synced toggles without writing scripts for them every time
 - UIToggleGroupSync to make synced toggle groups without writing scripts for them every time, as well as making it a little easier to setup toggle groups through the inspector
+- PickupSendLocalEvent to send events when a VRCPickup is picked up, dropped or used while held
 
 # Ideas
 
