@@ -19,22 +19,22 @@ namespace JanSharp
         [Tooltip("Can be null.")]
         /// <summary>Can be null.</summary>
         [PublicAPI] public UdonBehaviour onTurnOnTarget;
-        [Tooltip("Can be null.")]
-        /// <summary>If On Turn On Target is not null, this should not be empty.</summary>
+        [Tooltip("If On Turn On Target is not null, this should not be empty.")]
+        /// <summary>If onTurnOnTarget is not null, this should not be empty.</summary>
         [PublicAPI] public string onTurnOnEventName;
         [Space]
         [Tooltip("Can be null.")]
         /// <summary>Can be null.</summary>
         [PublicAPI] public UdonBehaviour onTurnOffTarget;
-        [Tooltip("Can be null.")]
-        /// <summary>If On Turn Off Target is not null, this should not be empty.</summary>
+        [Tooltip("If On Turn Off Target is not null, this should not be empty.")]
+        /// <summary>If onTurnOffTarget is not null, this should not be empty.</summary>
         [PublicAPI] public string onTurnOffEventName;
         [Space]
         [Tooltip("Can be null.")]
         /// <summary>Can be null.</summary>
         [PublicAPI] public UdonBehaviour onValueChangedTarget;
-        [Tooltip("Can be null.")]
-        /// <summary>If On Value Changed Target is not null, this should not be empty.</summary>
+        [Tooltip("If On Value Changed Target is not null, this should not be empty.")]
+        /// <summary>If onValueChangedTarget is not null, this should not be empty.</summary>
         [PublicAPI] public string onValueChangedEventName;
 
         /// <summary>

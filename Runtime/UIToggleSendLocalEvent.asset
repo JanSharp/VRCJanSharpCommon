@@ -305,7 +305,7 @@ MonoBehaviour:
       Data: 21|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: Can be null.
+      Data: If On Turn On Target is not null, this should not be empty.
     - Name: 
       Entry: 8
       Data: 
@@ -440,7 +440,7 @@ MonoBehaviour:
       Data: 30|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: Can be null.
+      Data: If On Turn Off Target is not null, this should not be empty.
     - Name: 
       Entry: 8
       Data: 
@@ -575,7 +575,7 @@ MonoBehaviour:
       Data: 39|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: Can be null.
+      Data: If On Value Changed Target is not null, this should not be empty.
     - Name: 
       Entry: 8
       Data: 
