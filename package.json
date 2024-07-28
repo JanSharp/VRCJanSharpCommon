@@ -1,6 +1,6 @@
 {
   "name": "com.jansharp.common",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Utilities used and shared between several of my packages.",
   "displayName": "JanSharp Common",
   "unity": "2019.4",
@@ -13,6 +13,6 @@
   "vpmDependencies": {
     "com.vrchat.worlds": "^3.4.x"
   },
-  "url": "https://github.com/JanSharp/VRCJanSharpCommon/releases/download/v0.4.3/com.jansharp.common.zip",
-  "changelogUrl": "https://github.com/JanSharp/VRCJanSharpCommon/blob/v0.4.3/CHANGELOG.md"
+  "url": "https://github.com/JanSharp/VRCJanSharpCommon/releases/download/v0.4.4/com.jansharp.common.zip",
+  "changelogUrl": "https://github.com/JanSharp/VRCJanSharpCommon/blob/v0.4.4/CHANGELOG.md"
 }
