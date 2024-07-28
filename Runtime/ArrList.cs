@@ -98,9 +98,9 @@ namespace JanSharp
             if (count == list.Length)
                 Grow(ref list, count * 2);
 
-            ++count;
             for (int i = count; i > index; i--)
                 list[i] = list[i - 1];
+            count++;
             list[index] = value;
         }
 
@@ -120,7 +120,7 @@ namespace JanSharp
         public static T RemoveAt<T>(ref T[] list, ref int count, int index)
         {
             T result = list[index];
-            --count;
+            count--;
             for (int i = index; i < count; i++)
                 list[i] = list[i + 1];
             return result;
