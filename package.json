@@ -3,7 +3,7 @@
   "version": "0.4.4",
   "description": "Utilities used and shared between several of my packages.",
   "displayName": "JanSharp Common",
-  "unity": "2019.4",
+  "unity": "2022.3",
   "author": {
     "name": "JanSharp",
     "email": "steinmeister36@gmail.com",
@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "vpmDependencies": {
-    "com.vrchat.worlds": "^3.4.x"
+    "com.vrchat.worlds": "^3.6.x"
   },
   "url": "https://github.com/JanSharp/VRCJanSharpCommon/releases/download/v0.4.4/com.jansharp.common.zip",
   "changelogUrl": "https://github.com/JanSharp/VRCJanSharpCommon/blob/v0.4.4/CHANGELOG.md"
