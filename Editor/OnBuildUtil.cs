@@ -18,13 +18,18 @@ namespace JanSharp
     [DefaultExecutionOrder(-1000)]
     public static class OnBuildUtil
     {
-        private static Dictionary<Type, OnBuildCallbackData> typesToLookFor;
+        private static Dictionary<Type, OnBuildCallbackData> registeredTypes;
         private static List<OrderedOnBuildCallbackData> typesToLookForList;
+        private static HashSet<Type> typesToSearchForCache;
+        private static Dictionary<Type, List<OnBuildCallbackData>> matchingDataInBaseTypesCache;
 
         static OnBuildUtil()
         {
-            typesToLookFor = new Dictionary<Type, OnBuildCallbackData>();
+            registeredTypes = new Dictionary<Type, OnBuildCallbackData>();
             typesToLookForList = new List<OrderedOnBuildCallbackData>();
+            typesToSearchForCache = null;
+            matchingDataInBaseTypesCache = new Dictionary<Type, List<OnBuildCallbackData>>();
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged; // Ikd if this is needed. Probably not?
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
 
@@ -34,15 +39,14 @@ namespace JanSharp
                 RunOnBuild();
         }
 
-        public static void RegisterType<T>(Func<T, bool> callback, int order = 0) where T : UdonSharpBehaviour
+        public static void RegisterType<T>(Func<T, bool> callback, int order = 0) where T : Component
         {
             Type type = typeof(T);
-            OnBuildCallbackData data;
-            if (typesToLookFor.TryGetValue(type, out data))
+            if (registeredTypes.TryGetValue(type, out OnBuildCallbackData data))
             {
                 if (data.allOrders.Contains(order))
                 {
-                    UnityEngine.Debug.LogError($"Attempt to register the same UdonSharpBehaviour type with the same order twice (type: {type.Name}, order: {order}).");
+                    UnityEngine.Debug.LogError($"Attempt to register the same Component type with the same order twice (type: {type.Name}, order: {order}).");
                     return;
                 }
                 else
@@ -51,9 +55,70 @@ namespace JanSharp
             else
             {
                 data = new OnBuildCallbackData(type, new HashSet<int>() { order });
-                typesToLookFor.Add(type, data);
+                registeredTypes.Add(type, data);
             }
             typesToLookForList.Add(new OrderedOnBuildCallbackData(data, order, callback.Method, callback.Target));
+        }
+
+        private static void FigureOutWhatTypesToReallySearchFor()
+        {
+            if (typesToSearchForCache != null)
+                return;
+            typesToSearchForCache = new HashSet<Type>();
+
+            Dictionary<Type, List<Type>> inheriting = new Dictionary<Type, List<Type>>();
+
+            // All this really does is take registeredTypes.Keys and copy it to typesToSearchForCache while
+            // removing any type where one of its base types is another registered type. Effectively
+            // deduplicating search results preemptively.
+            foreach (OrderedOnBuildCallbackData data in typesToLookForList)
+            {
+                Type registeredType = data.data.type;
+                if (inheriting.Remove(registeredType, out List<Type> typesToRemove))
+                    foreach (Type toRemove in typesToRemove)
+                        typesToSearchForCache.Remove(toRemove);
+                Type currentType = registeredType;
+                while (currentType != typeof(Component))
+                {
+                    currentType = currentType.BaseType;
+                    if (typesToSearchForCache.Contains(currentType))
+                        goto doubleContinue;
+                    if (!inheriting.TryGetValue(currentType, out typesToRemove))
+                    {
+                        typesToRemove = new List<Type>();
+                        inheriting.Add(currentType, typesToRemove);
+                    }
+                    typesToRemove.Add(registeredType);
+                }
+                typesToSearchForCache.Add(registeredType);
+            doubleContinue:
+                continue;
+            }
+        }
+
+        private static IEnumerable<OnBuildCallbackData> GetMatchingDataForAllBaseTypes(Type mainType)
+        {
+            if (matchingDataInBaseTypesCache.TryGetValue(mainType, out List<OnBuildCallbackData> cached))
+                return cached;
+            List<OnBuildCallbackData> listOfData = new List<OnBuildCallbackData>();
+            Type currentType = mainType;
+            do
+            {
+                if (registeredTypes.TryGetValue(currentType, out OnBuildCallbackData data))
+                    listOfData.Add(data);
+                currentType = currentType.BaseType;
+            }
+            while (currentType != typeof(Component));
+            // Yes do add empty lists to the cache, though with the current implementation for
+            // FigureOutWhatTypesToReallySearchFor it actually should never be empty.
+            matchingDataInBaseTypesCache.Add(mainType, listOfData);
+            return listOfData;
+        }
+
+        private static void TryAddFoundComponentToOnBuildCallbackData(Component component)
+        {
+            foreach (OnBuildCallbackData data in GetMatchingDataForAllBaseTypes(component.GetType()))
+                data.components.Add(component);
         }
 
         [MenuItem("Tools/JanSharp/Run All OnBuild handlers", priority = 10005)]
@@ -62,28 +127,26 @@ namespace JanSharp
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            foreach (OnBuildCallbackData data in typesToLookFor.Values)
-                data.behaviours.Clear();
+            foreach (OnBuildCallbackData data in registeredTypes.Values)
+                data.components.Clear();
 
-            foreach (GameObject obj in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
-                foreach (UdonSharpBehaviour behaviour in obj.GetComponentsInChildren<UdonSharpBehaviour>(true))
-                {
-                    Type behaviourType = behaviour.GetType();
-                    while (true)
-                    {
-                        if (typesToLookFor.TryGetValue(behaviourType, out OnBuildCallbackData data))
-                            data.behaviours.Add(behaviour);
-                        if (behaviourType == typeof(UdonSharpBehaviour))
-                            break;
-                        behaviourType = behaviourType.BaseType;
-                    }
-                }
+            FigureOutWhatTypesToReallySearchFor();
+
+            foreach (Type type in typesToSearchForCache)
+            {
+                UnityEngine.Object[] objects = UnityEngine.Object.FindObjectsByType(
+                    type,
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.InstanceID);
+                foreach (UnityEngine.Object obj in objects)
+                    TryAddFoundComponentToOnBuildCallbackData((Component)obj);
+            }
 
             foreach (OrderedOnBuildCallbackData orderedData in typesToLookForList.OrderBy(d => d.order))
-                foreach (UdonSharpBehaviour behaviour in orderedData.data.behaviours)
-                    if (!(bool)orderedData.callbackInfo.Invoke(orderedData.callbackInstance, new[] { behaviour }))
+                foreach (Component component in orderedData.data.components)
+                    if (!(bool)orderedData.callbackInfo.Invoke(orderedData.callbackInstance, new[] { component }))
                     {
-                        UnityEngine.Debug.LogError($"OnBuild handlers aborted when running the handler for '{behaviour.GetType().Name}' on '{behaviour.name}'.", behaviour);
+                        UnityEngine.Debug.LogError($"OnBuild handlers aborted when running the handler for '{component.GetType().Name}' on '{component.name}'.", component);
                         return false;
                     }
 
@@ -111,13 +174,13 @@ namespace JanSharp
         private class OnBuildCallbackData
         {
             public Type type;
-            public List<UdonSharpBehaviour> behaviours;
+            public List<Component> components;
             public HashSet<int> allOrders;
 
             public OnBuildCallbackData(Type type, HashSet<int> allOrders)
             {
                 this.type = type;
-                this.behaviours = new List<UdonSharpBehaviour>();
+                this.components = new List<Component>();
                 this.allOrders = allOrders;
             }
         }
