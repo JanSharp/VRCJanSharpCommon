@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
@@ -41,6 +42,16 @@ namespace JanSharp
 
         public static void RegisterType<T>(Func<T, bool> callback, int order = 0) where T : Component
         {
+            RegisterTypeInternal<T>(callback, order, takesReadonlyCollection: false);
+        }
+
+        public static void RegisterType<T>(Func<ReadOnlyCollection<T>, bool> callback, int order = 0) where T : Component
+        {
+            RegisterTypeInternal<T>(callback, order, takesReadonlyCollection: true);
+        }
+
+        public static void RegisterTypeInternal<T>(Delegate callback, int order, bool takesReadonlyCollection) where T : Component
+        {
             Type type = typeof(T);
             if (registeredTypes.TryGetValue(type, out OnBuildCallbackData data))
             {
@@ -57,7 +68,7 @@ namespace JanSharp
                 data = new OnBuildCallbackData(type, new HashSet<int>() { order });
                 registeredTypes.Add(type, data);
             }
-            typesToLookForList.Add(new OrderedOnBuildCallbackData(data, order, callback.Method, callback.Target));
+            typesToLookForList.Add(new OrderedOnBuildCallbackData(data, order, callback.Method, callback.Target, takesReadonlyCollection));
         }
 
         private static void FigureOutWhatTypesToReallySearchFor()
@@ -143,12 +154,7 @@ namespace JanSharp
             }
 
             foreach (OrderedOnBuildCallbackData orderedData in typesToLookForList.OrderBy(d => d.order))
-                foreach (Component component in orderedData.data.components)
-                    if (!(bool)orderedData.callbackInfo.Invoke(orderedData.callbackInstance, new[] { component }))
-                    {
-                        UnityEngine.Debug.LogError($"OnBuild handlers aborted when running the handler for '{component.GetType().Name}' on '{component.name}'.", component);
-                        return false;
-                    }
+                orderedData.InvokeCallback();
 
             sw.Stop();
             UnityEngine.Debug.Log($"OnBuild handlers: {sw.Elapsed}.");
@@ -161,13 +167,43 @@ namespace JanSharp
             public int order;
             public MethodInfo callbackInfo;
             public object callbackInstance;
+            public bool takesReadonlyCollection;
 
-            public OrderedOnBuildCallbackData(OnBuildCallbackData data, int order, MethodInfo callbackInfo, object callbackInstance)
+            public OrderedOnBuildCallbackData(OnBuildCallbackData data, int order, MethodInfo callbackInfo, object callbackInstance, bool takesReadonlyCollection)
             {
                 this.data = data;
                 this.order = order;
                 this.callbackInfo = callbackInfo;
                 this.callbackInstance = callbackInstance;
+                this.takesReadonlyCollection = takesReadonlyCollection;
+            }
+
+            public bool InvokeCallback()
+            {
+                return takesReadonlyCollection
+                    ? InvokeCallbackWithCollection()
+                    : InvokeCallbackForeach();
+            }
+
+            private bool InvokeCallbackForeach()
+            {
+                foreach (Component component in data.components)
+                    if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { component }))
+                    {
+                        UnityEngine.Debug.LogError($"OnBuild handlers aborted when running the handler for '{component.GetType().Name}' on '{component.name}'.", component);
+                        return false;
+                    }
+                return true;
+            }
+
+            private bool InvokeCallbackWithCollection()
+            {
+                if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { data.components.AsReadOnly() }))
+                {
+                    UnityEngine.Debug.LogError($"OnBuild handlers aborted when running the handler for '{data.components.GetType().Name}'.");
+                    return false;
+                }
+                return true;
             }
         }
 
