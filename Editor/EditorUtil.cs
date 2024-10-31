@@ -286,5 +286,29 @@ namespace JanSharp
             // Do note that order of operations matters, since with Quaternions foo * bar != bar * foo.
             // Similarly, foo * Inverse(foo) * bar == bar, however foo * bar * Inverse(foo) != bar.
         }
+
+        public static bool DerivesFrom(System.Type typeToCheck, System.Type baseTypeToSearchFor)
+        {
+            while (typeToCheck != null)
+            {
+                if (typeToCheck == baseTypeToSearchFor)
+                    return true;
+                typeToCheck = typeToCheck.BaseType;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// <para>https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html</para>
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static bool IsSerializedField(System.Reflection.FieldInfo field)
+        {
+            return !field.IsStatic
+                && !field.IsInitOnly
+                && !field.IsDefined(typeof(System.NonSerializedAttribute), false)
+                && (field.IsPublic || field.IsDefined(typeof(SerializeField), false));
+        }
     }
 }

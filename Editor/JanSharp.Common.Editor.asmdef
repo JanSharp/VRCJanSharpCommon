@@ -1,5 +1,6 @@
 {
     "name": "JanSharp.Common.Editor",
+    "rootNamespace": "",
     "references": [
         "JanSharp.Common",
         "UdonSharp.Runtime",
