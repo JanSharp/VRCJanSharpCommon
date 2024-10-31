@@ -42,22 +42,45 @@ namespace JanSharp
 
         public static void RegisterType<T>(Func<T, bool> callback, int order = 0) where T : Component
         {
-            RegisterTypeInternal<T>(callback, order, takesReadonlyCollection: false);
+            RegisterTypeInternal(typeof(T), callback, order, usesCustomCallbackParamType: false, null);
         }
 
-        public static void RegisterType<T>(Func<ReadOnlyCollection<T>, bool> callback, int order = 0) where T : Component
+        public static void RegisterType<T>(Func<IEnumerable<T>, bool> callback, int order = 0) where T : Component
         {
-            RegisterTypeInternal<T>(callback, order, takesReadonlyCollection: true);
+            RegisterTypeInternal(typeof(T), callback, order, usesCustomCallbackParamType: true, c => c.Cast<T>());
         }
 
-        public static void RegisterTypeInternal<T>(Delegate callback, int order, bool takesReadonlyCollection) where T : Component
+        public static void RegisterType(Type type, Func<Component, bool> callback, int order = 0)
         {
-            Type type = typeof(T);
+            if (!EditorUtil.DerivesFrom(type, typeof(Component)))
+                throw new ArgumentException($"The given type to register must derive from the Component class.");
+            RegisterTypeInternal(type, callback, order, usesCustomCallbackParamType: false, null);
+        }
+
+        public static void RegisterType(Type type, Func<ReadOnlyCollection<Component>, bool> callback, int order = 0)
+        {
+            if (!EditorUtil.DerivesFrom(type, typeof(Component)))
+                throw new ArgumentException($"The given type to register must derive from the Component class.");
+            RegisterTypeInternal(type, callback, order, usesCustomCallbackParamType: true, c => c.AsReadOnly());
+        }
+
+        public static void RegisterAction(Func<bool> callback, int order = 0)
+        {
+            typesToLookForList.Add(new OrderedOnBuildCallbackData(null, order, callback.Method, callback.Target, false, null));
+        }
+
+        private static void RegisterTypeInternal(
+            Type type,
+            Delegate callback,
+            int order,
+            bool usesCustomCallbackParamType,
+            Func<List<Component>, object> toCorrectlyTypedCallbackParamType)
+        {
             if (registeredTypes.TryGetValue(type, out OnBuildCallbackData data))
             {
                 if (data.allOrders.Contains(order))
                 {
-                    UnityEngine.Debug.LogError($"Attempt to register the same Component type with the same order twice (type: {type.Name}, order: {order}).");
+                    UnityEngine.Debug.LogError($"[JanSharpCommon] Attempt to register the same Component type with the same order twice (type: {type.Name}, order: {order}).");
                     return;
                 }
                 else
@@ -68,7 +91,13 @@ namespace JanSharp
                 data = new OnBuildCallbackData(type, new HashSet<int>() { order });
                 registeredTypes.Add(type, data);
             }
-            typesToLookForList.Add(new OrderedOnBuildCallbackData(data, order, callback.Method, callback.Target, takesReadonlyCollection));
+            typesToLookForList.Add(new OrderedOnBuildCallbackData(
+                data,
+                order,
+                callback.Method,
+                callback.Target,
+                usesCustomCallbackParamType,
+                toCorrectlyTypedCallbackParamType));
         }
 
         private static void FigureOutWhatTypesToReallySearchFor()
@@ -82,9 +111,11 @@ namespace JanSharp
             // All this really does is take registeredTypes.Keys and copy it to typesToSearchForCache while
             // removing any type where one of its base types is another registered type. Effectively
             // deduplicating search results preemptively.
-            foreach (OrderedOnBuildCallbackData data in typesToLookForList)
+            foreach (OrderedOnBuildCallbackData orderedData in typesToLookForList)
             {
-                Type registeredType = data.data.type;
+                if (orderedData.data == null)
+                    continue;
+                Type registeredType = orderedData.data.type;
                 if (inheriting.Remove(registeredType, out List<Type> typesToRemove))
                     foreach (Type toRemove in typesToRemove)
                         typesToSearchForCache.Remove(toRemove);
@@ -157,7 +188,7 @@ namespace JanSharp
                 orderedData.InvokeCallback();
 
             sw.Stop();
-            UnityEngine.Debug.Log($"OnBuild handlers: {sw.Elapsed}.");
+            UnityEngine.Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}.");
             return true;
         }
 
@@ -167,22 +198,34 @@ namespace JanSharp
             public int order;
             public MethodInfo callbackInfo;
             public object callbackInstance;
-            public bool takesReadonlyCollection;
+            public bool usesCustomCallbackParamType;
+            public Func<List<Component>, object> toCorrectlyTypedCallbackParamType;
 
-            public OrderedOnBuildCallbackData(OnBuildCallbackData data, int order, MethodInfo callbackInfo, object callbackInstance, bool takesReadonlyCollection)
+            public bool IsAction => data == null;
+
+            public OrderedOnBuildCallbackData(
+                OnBuildCallbackData data,
+                int order,
+                MethodInfo callbackInfo,
+                object callbackInstance,
+                bool usesCustomCallbackParamType,
+                Func<List<Component>, object> toCorrectlyTypedCallbackParamType)
             {
                 this.data = data;
                 this.order = order;
                 this.callbackInfo = callbackInfo;
                 this.callbackInstance = callbackInstance;
-                this.takesReadonlyCollection = takesReadonlyCollection;
+                this.usesCustomCallbackParamType = usesCustomCallbackParamType;
+                this.toCorrectlyTypedCallbackParamType = toCorrectlyTypedCallbackParamType;
             }
 
             public bool InvokeCallback()
             {
-                return takesReadonlyCollection
-                    ? InvokeCallbackWithCollection()
-                    : InvokeCallbackForeach();
+                return IsAction
+                    ? InvokeActionCallback()
+                    : usesCustomCallbackParamType
+                        ? InvokeCallbackWithCustomParamType()
+                        : InvokeCallbackForeach();
             }
 
             private bool InvokeCallbackForeach()
@@ -190,17 +233,27 @@ namespace JanSharp
                 foreach (Component component in data.components)
                     if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { component }))
                     {
-                        UnityEngine.Debug.LogError($"OnBuild handlers aborted when running the handler for '{component.GetType().Name}' on '{component.name}'.", component);
+                        UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}' on '{component.name}'.", component);
                         return false;
                     }
                 return true;
             }
 
-            private bool InvokeCallbackWithCollection()
+            private bool InvokeCallbackWithCustomParamType()
             {
-                if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { data.components.AsReadOnly() }))
+                if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { toCorrectlyTypedCallbackParamType(data.components) }))
                 {
-                    UnityEngine.Debug.LogError($"OnBuild handlers aborted when running the handler for '{data.components.GetType().Name}'.");
+                    UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}'.");
+                    return false;
+                }
+                return true;
+            }
+
+            private bool InvokeActionCallback()
+            {
+                if (!(bool)callbackInfo.Invoke(callbackInstance, new object[0]))
+                {
+                    UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the action {callbackInfo.Name}.");
                     return false;
                 }
                 return true;
