@@ -2829,9 +2829,10 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1824521015}
-  onFooListeners: []
-  onBarListeners:
+  onFooListeners:
   - {fileID: 1824521016}
+  onBarListeners: []
+  singletonRef: {fileID: 1824521016}
 --- !u!4 &1824521017
 Transform:
   m_ObjectHideFlags: 0

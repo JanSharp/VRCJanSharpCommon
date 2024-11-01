@@ -21,10 +21,12 @@ namespace JanSharp
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [CustomRaisedEventsDispatcher(typeof(MyCustomEvent), typeof(MyCustomEventType))]
+    [SingletonScript]
     public class CustomRaisedEventsTest : UdonSharpBehaviour
     {
         [HideInInspector] [SerializeField] private UdonSharpBehaviour[] onFooListeners;
         [HideInInspector] [SerializeField] private UdonSharpBehaviour[] onBarListeners;
+        [SingletonReference] public CustomRaisedEventsTest singletonRef;
 
         private void Start()
         {

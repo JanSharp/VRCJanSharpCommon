@@ -5,7 +5,9 @@
         "JanSharp.Common",
         "UdonSharp.Runtime",
         "UdonSharp.Editor",
-        "VRC.Udon"
+        "VRC.Udon",
+        "VRC.SDK3",
+        "VRC.SDKBase"
     ],
     "includePlatforms": [
         "Editor"

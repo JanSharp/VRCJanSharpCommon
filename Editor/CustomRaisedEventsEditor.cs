@@ -6,7 +6,7 @@ using UnityEditor;
 using UdonSharp;
 using System.Reflection;
 
-namespace JanSharp
+namespace JanSharp.Internal
 {
     [InitializeOnLoad]
     [DefaultExecutionOrder(-1000)]
@@ -49,13 +49,13 @@ namespace JanSharp
         {
             if (attr.CustomRaisedEventAttributeType == null)
             {
-                Debug.LogError($"The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
+                Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is missing the attribute type argument.");
                 return false;
             }
             if (!EditorUtil.DerivesFrom(attr.CustomRaisedEventAttributeType, typeof(CustomRaisedEventBaseAttribute)))
             {
-                Debug.LogError($"The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
+                Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is referencing {attr.CustomRaisedEventAttributeType.Name} as its attribute type argument "
                     + $"which is not deriving from {nameof(CustomRaisedEventBaseAttribute)}.");
                 return false;
@@ -63,14 +63,14 @@ namespace JanSharp
             var attributeUsageAttr = attr.CustomRaisedEventAttributeType.GetCustomAttribute<System.AttributeUsageAttribute>();
             if (attributeUsageAttr == null)
             {
-                Debug.LogError($"The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
+                Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is referencing {attr.CustomRaisedEventAttributeType.Name} as its attribute type argument "
                     + $"is missing the {nameof(System.AttributeUsageAttribute)}.");
                 return false;
             }
             if (attributeUsageAttr.ValidOn != System.AttributeTargets.Method)
             {
-                Debug.LogError($"The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
+                Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is referencing {attr.CustomRaisedEventAttributeType.Name} as its attribute type argument "
                     + $"where the {nameof(System.AttributeUsageAttribute)}'s ValidOn AttributeTargets is not equal to AttributeTargets.Method.");
                 return false;
@@ -83,20 +83,20 @@ namespace JanSharp
             eventTypeValues = null;
             if (attr.CustomEventEnumType == null)
             {
-                Debug.LogError($"The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
+                Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is missing the enum type argument.");
                 return false;
             }
             if (!EditorUtil.DerivesFrom(attr.CustomEventEnumType, typeof(System.Enum)))
             {
-                Debug.LogError($"The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
+                Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is referencing the type {attr.CustomEventEnumType.Name} as its enum type argument "
                     + $"which is not an enum.");
                 return false;
             }
             if (System.Enum.GetUnderlyingType(attr.CustomEventEnumType) != typeof(int))
             {
-                Debug.LogError($"The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
+                Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is referencing the type {attr.CustomEventEnumType.Name} as its enum type argument "
                     + $"which is using a non int (System.Int32) as its underlying type.");
                 return false;
@@ -104,7 +104,7 @@ namespace JanSharp
             eventTypeValues = System.Enum.GetValues(attr.CustomEventEnumType).Cast<int>().ToList();
             if (eventTypeValues.Count != eventTypeValues.Distinct().Count())
             {
-                Debug.LogError($"The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
+                Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is referencing the type {attr.CustomEventEnumType.Name} as its enum type argument "
                     + $"which does not have unique values for each of its enum fields.");
                 return false;
@@ -120,21 +120,21 @@ namespace JanSharp
                 FieldInfo fieldInfo = ubType.GetField(GetListenersFieldName(name), PrivateAndPublicFlags);
                 if (fieldInfo == null)
                 {
-                    Debug.LogError($"Missing {GetListenersFieldName(name)} field for the class {ubType.Name}, "
+                    Debug.LogError($"[JanSharpCommon] Missing {GetListenersFieldName(name)} field for the class {ubType.Name}, "
                         + $"this is required for the {nameof(CustomRaisedEventsDispatcherAttribute)} to work.");
                     result = false;
                     continue;
                 }
                 if (fieldInfo.FieldType != typeof(UdonSharpBehaviour[]))
                 {
-                    Debug.LogError($"The field {GetListenersFieldName(name)} for the class {ubType.Name} "
+                    Debug.LogError($"[JanSharpCommon] The field {GetListenersFieldName(name)} for the class {ubType.Name} "
                         + $"must have the type UdonSharpBehaviour[],"
                         + $"this is required for the {nameof(CustomRaisedEventsDispatcherAttribute)} to work.");
                     result = false;
                 }
                 if (!EditorUtil.IsSerializedField(fieldInfo))
                 {
-                    Debug.LogError($"The field {GetListenersFieldName(name)} for the class {ubType.Name} "
+                    Debug.LogError($"[JanSharpCommon] The field {GetListenersFieldName(name)} for the class {ubType.Name} "
                         + $"must be serialized by Unity (either be public or have the {nameof(SerializeField)} attribute),"
                         + $"this is required for the {nameof(CustomRaisedEventsDispatcherAttribute)} to work.");
                     result = false;
