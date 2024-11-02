@@ -13,7 +13,7 @@ namespace JanSharp.Internal
     public static class SingletonScriptEditor
     {
         private static Dictionary<System.Type, UdonSharpBehaviour> singletons = new();
-        private static Dictionary<System.Type, List<(string fieldName, UdonSharpBehaviour singleton)>> typeCache = new();
+        private static Dictionary<System.Type, List<(string fieldName, System.Type singletonType)>> typeCache = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
         static SingletonScriptEditor()
@@ -42,7 +42,7 @@ namespace JanSharp.Internal
             return true;
         }
 
-        private static bool TryGetTypeCache(System.Type ubType, out List<(string fieldName, UdonSharpBehaviour singleton)> cached)
+        private static bool TryGetTypeCache(System.Type ubType, out List<(string fieldName, System.Type singletonType)> cached)
         {
             if (typeCache.TryGetValue(ubType, out cached))
                 return true;
@@ -63,7 +63,7 @@ namespace JanSharp.Internal
                         + $"However it is not a serialized field. It must either be public or have the {nameof(SerializeField)} attribute.");
                     return false;
                 }
-                cached.Add((field.Name, singleton));
+                cached.Add((field.Name, field.FieldType));
             }
 
             typeCache.Add(ubType, cached);
@@ -78,7 +78,7 @@ namespace JanSharp.Internal
             foreach (var field in cached)
             {
                 SerializedObject so = new SerializedObject(ub);
-                so.FindProperty(field.fieldName).objectReferenceValue = field.singleton;
+                so.FindProperty(field.fieldName).objectReferenceValue = singletons[field.singletonType];
                 so.ApplyModifiedProperties();
             }
 
