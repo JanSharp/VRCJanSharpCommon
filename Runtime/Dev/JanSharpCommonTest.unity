@@ -2684,6 +2684,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1651964548}
   m_CullTransparentMesh: 0
+--- !u!114 &1758971594 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3654343572429177055, guid: 00766e043c297fab8ab20626ec22ab6a,
+    type: 3}
+  m_PrefabInstance: {fileID: 4558173297202877454}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 725ce625324164345bc24404b12dc623, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1789307350
 GameObject:
   m_ObjectHideFlags: 0
@@ -3574,6 +3586,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2243702313685430555, guid: 6f92a81d0ddb82621bd46248c4144027,
         type: 3}
+    - target: {fileID: 2243702313685430555, guid: 6f92a81d0ddb82621bd46248c4144027,
+        type: 3}
+      propertyPath: onTrulyPostLateUpdateListeners.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2243702313685430555, guid: 6f92a81d0ddb82621bd46248c4144027,
+        type: 3}
+      propertyPath: onTrulyPostLateUpdateListeners.Array.data[0]
+      value: 
+      objectReference: {fileID: 1758971594}
     - target: {fileID: 8082892268658169307, guid: 6f92a81d0ddb82621bd46248c4144027,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4228,6 +4250,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1355492994495615262, guid: 00766e043c297fab8ab20626ec22ab6a,
+        type: 3}
+      propertyPath: _syncMethod
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1673429289353199388, guid: 00766e043c297fab8ab20626ec22ab6a,
+        type: 3}
+      propertyPath: _syncMethod
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2188598823850424186, guid: 00766e043c297fab8ab20626ec22ab6a,
         type: 3}
       propertyPath: _syncMethod
       value: 1

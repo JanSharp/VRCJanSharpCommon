@@ -10,6 +10,7 @@ namespace JanSharp
     public class BoneAttachmentManager : UdonSharpBehaviour
     {
         [SerializeField] private GameObject attachmentPrefab;
+        [SerializeField] private Transform proximityHelper;
         private Transform[] unusedPrefabInstances = new Transform[ArrList.MinCapacity];
         private int unusedPrefabInstancesCount = 0;
 
@@ -65,24 +66,37 @@ namespace JanSharp
             UpdateFarIncremental();
         }
 
+        private void FixedUpdate()
+        {
+            proximityHelper.position = localPlayer.GetPosition();
+        }
+
+        public void OnPlayerGettingClose(VRCPlayerApi player)
+        {
+            int playerId = player.playerId;
+            if (playerId == localPlayerId)
+                return;
+            for (int i = farAttachedCount - 1; i >= 0 ; i--)
+            {
+                if (farAttachedPlayerIds[i] != playerId)
+                    continue;
+                if (UpdateFarObject(i) && i < farIncrementalIndex)
+                    farIncrementalIndex--;
+            }
+        }
+
         private void DistanceCheckNearIncremental()
         {
             if (nearAttachedCount == 0)
                 return;
+            nearIncrementalIndex %= nearAttachedCount;
             VRCPlayerApi player = nearAttachedPlayers[nearIncrementalIndex];
             HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[nearIncrementalIndex];
             Vector3 bonePosition = player.GetBonePosition(bone);
             // TODO: what should happen when bonePosition == Vector3.zero - aka the bone does not exist.
             if (!IsNear(bonePosition))
-            {
                 MoveFromNearToFar(nearIncrementalIndex);
-                if (nearAttachedCount == 0)
-                {
-                    nearIncrementalIndex = 0;
-                    return;
-                }
-            }
-            nearIncrementalIndex = (nearIncrementalIndex + 1) % nearAttachedCount;
+            nearIncrementalIndex++;
         }
 
         private void UpdateNear()
@@ -95,24 +109,25 @@ namespace JanSharp
             }
         }
 
+        private bool UpdateFarObject(int index)
+        {
+            VRCPlayerApi player = farAttachedPlayers[index];
+            HumanBodyBones bone = (HumanBodyBones)farAttachedBones[index];
+            Vector3 bonePosition = player.GetBonePosition(bone);
+            farAttachedTransforms[index].SetPositionAndRotation(bonePosition, player.GetBoneRotation(bone));
+            bool isNear = IsNear(bonePosition);
+            if (isNear)
+                MoveFromFarToNear(index);
+            return isNear;
+        }
+
         private void UpdateFarIncremental()
         {
             if (farAttachedCount == 0)
                 return;
-            VRCPlayerApi player = farAttachedPlayers[farIncrementalIndex];
-            HumanBodyBones bone = (HumanBodyBones)farAttachedBones[farIncrementalIndex];
-            Vector3 bonePosition = player.GetBonePosition(bone);
-            farAttachedTransforms[farIncrementalIndex].SetPositionAndRotation(bonePosition, player.GetBoneRotation(bone));
-            if (IsNear(bonePosition))
-            {
-                MoveFromFarToNear(farIncrementalIndex);
-                if (farAttachedCount == 0)
-                {
-                    farIncrementalIndex = 0;
-                    return;
-                }
-            }
-            farIncrementalIndex = (farIncrementalIndex + 1) % farAttachedCount;
+            farIncrementalIndex %= farAttachedCount;
+            UpdateFarObject(farIncrementalIndex);
+            farIncrementalIndex++;
         }
 
         [OnTrulyPostLateUpdate]
@@ -442,6 +457,5 @@ namespace JanSharp
         }
 
         // TODO: tell the user that this depends on the truly post late update prefab, and enforce that using editor scripting
-        // TODO: use sphere trigger colliders to be informed about players getting close to the local player - especially when they get teleported close by - to then instantly update their attachment
     }
 }
