@@ -6,6 +6,7 @@ using VRC.Udon;
 
 namespace JanSharp
 {
+    [DefaultExecutionOrder(-100000)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [SingletonScript]
     public class WannaBeClassesManager : UdonSharpBehaviour
@@ -69,6 +70,7 @@ namespace JanSharp
         public static T New<T>(this WannaBeClassesManager manager, string wannaBeClassName)
             where T : WannaBeClass
         {
+            // Can't use typeof(T).Name, unfortunately.
             return (T)manager.NewInternal(wannaBeClassName);
         }
     }

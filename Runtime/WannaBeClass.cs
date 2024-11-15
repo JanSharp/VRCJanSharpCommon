@@ -10,9 +10,17 @@ namespace JanSharp
     {
         [HideInInspector] [SerializeField] [SingletonReference] private WannaBeClassesManager wannaBeClasses;
         public WannaBeClassesManager WannaBeClasses => wannaBeClasses;
+        private int referencesCount = 1;
 
         public virtual void WannaBeConstructor() { }
         public virtual void WannaBeDestructor() { }
         public void Delete() => WannaBeClasses.Delete(this);
+
+        public void IncrementRefsCount() => referencesCount++;
+        public void DecrementRefsCount()
+        {
+            if ((--referencesCount) == 0)
+                WannaBeClasses.Delete(this);
+        }
     }
 }

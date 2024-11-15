@@ -20,7 +20,7 @@ namespace JanSharp
             testInstOne.Print();
             testInstTwo.Print();
             testInstOne.Delete();
-            testInstTwo.Delete();
+            testInstTwo.DecrementRefsCount();
         }
     }
 }
