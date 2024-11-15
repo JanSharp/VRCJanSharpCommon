@@ -11,6 +11,8 @@ namespace JanSharp
         [HideInInspector] [SerializeField] [SingletonReference] private WannaBeClassesManager wannaBeClasses;
         public WannaBeClassesManager WannaBeClasses => wannaBeClasses;
 
-        public abstract void WannaBeConstructor();
+        public virtual void WannaBeConstructor() { }
+        public virtual void WannaBeDestructor() { }
+        public void Delete() => WannaBeClasses.Delete(this);
     }
 }

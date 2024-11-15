@@ -59,6 +59,7 @@ namespace JanSharp
 
         public void Delete(WannaBeClass wannaBeClassInstance)
         {
+            wannaBeClassInstance.WannaBeDestructor();
             Destroy(wannaBeClassInstance.gameObject);
         }
     }

@@ -18,6 +18,11 @@ namespace JanSharp
             Debug.Log("Constructor called.");
         }
 
+        public override void WannaBeDestructor()
+        {
+            Debug.Log($"Destructor for player {playerName} called.");
+        }
+
         public void Print()
         {
             Debug.Log($"Player Name: {playerName}, Health: {health}");

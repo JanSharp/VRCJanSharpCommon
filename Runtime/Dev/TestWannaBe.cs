@@ -15,10 +15,12 @@ namespace JanSharp
             TestWannaBeClass testInstOne = wannaBeClasses.New<TestWannaBeClass>(nameof(TestWannaBeClass));
             testInstOne.playerName = "Foo";
             TestWannaBeClass testInstTwo = wannaBeClasses.New<TestWannaBeClass>(nameof(TestWannaBeClass));
-            testInstTwo.playerName = "bar";
+            testInstTwo.playerName = "Bar";
             testInstTwo.health = 50;
             testInstOne.Print();
             testInstTwo.Print();
+            testInstOne.Delete();
+            testInstTwo.Delete();
         }
     }
 }
