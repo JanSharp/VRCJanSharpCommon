@@ -44,24 +44,16 @@ namespace JanSharp
             instancesExistingAtBuildTime = null;
         }
 
-        public WannaBeClass NewInternal(string wannaBeClassName)
+        public bool TryGetPrefabInternal(string wannaBeClassName, out GameObject prefab)
         {
+            prefab = null;
             if (!PrefabsLut.TryGetValue(wannaBeClassName, out DataToken prefabToken))
             {
                 Debug.LogError($"[JanSharpCommon] Attempt to construct an instance of the WannaBeClass {wannaBeClassName}, however no such class exists.");
-                return null;
+                return false;
             }
-            GameObject go = Instantiate((GameObject)prefabToken.Reference, this.transform);
-            WannaBeClass inst = (WannaBeClass)go.GetComponent<UdonSharpBehaviour>();
-            inst.SetProgramVariable("wannaBeClasses", this);
-            inst.WannaBeConstructor();
-            return inst;
-        }
-
-        public void Delete(WannaBeClass wannaBeClassInstance)
-        {
-            wannaBeClassInstance.WannaBeDestructor();
-            Destroy(wannaBeClassInstance.gameObject);
+            prefab = (GameObject)prefabToken.Reference;
+            return true;
         }
     }
 
@@ -71,7 +63,25 @@ namespace JanSharp
             where T : WannaBeClass
         {
             // Can't use typeof(T).Name, unfortunately.
-            return (T)manager.NewInternal(wannaBeClassName);
+            return (T)NewInternal(manager, wannaBeClassName);
+            // Having NewInternal be a separate function without a generic type parameter enables UdonSharp to
+            // only generate 1 instance of the NewInternal function for each script that needs it, rather than
+            // generating one for each unique generic type parameter. So it's just deduplication resulting in
+            // ever so slightly smaller generated scripts.
+        }
+
+        private static WannaBeClass NewInternal(WannaBeClassesManager manager, string wannaBeClassName)
+        {
+            if (!manager.TryGetPrefabInternal(wannaBeClassName, out GameObject prefab))
+                return null;
+            // By having this logic in a static function it gets put into each script which calls the New,
+            // function, which then means that multiple scripts can call New inside of their
+            // WannaBeConstructor without running into recursion issues.
+            GameObject go = Object.Instantiate(prefab, manager.transform);
+            WannaBeClass inst = (WannaBeClass)go.GetComponent<UdonSharpBehaviour>();
+            // inst.SetProgramVariable("wannaBeClasses", manager); // Not needed because the "prefab" already has it set.
+            inst.WannaBeConstructor();
+            return inst;
         }
     }
 }

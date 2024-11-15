@@ -14,13 +14,17 @@ namespace JanSharp
 
         public virtual void WannaBeConstructor() { }
         public virtual void WannaBeDestructor() { }
-        public void Delete() => WannaBeClasses.Delete(this);
+        public void Delete()
+        {
+            WannaBeDestructor();
+            Destroy(this.gameObject);
+        }
 
         public void IncrementRefsCount() => referencesCount++;
         public void DecrementRefsCount()
         {
             if ((--referencesCount) == 0)
-                WannaBeClasses.Delete(this);
+                Delete();
         }
     }
 }
