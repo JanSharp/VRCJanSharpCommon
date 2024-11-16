@@ -11,9 +11,14 @@ namespace JanSharp
     [SingletonScript]
     public class WannaBeClassesManager : UdonSharpBehaviour
     {
-        [SerializeField] private string[] wannaBeClassNames;
-        [SerializeField] private GameObject[] wannaBeClassPrefabs;
-        [SerializeField] private Transform[] instancesExistingAtBuildTime;
+        /// <summary>
+        /// <para>Used for editor scripting.</para>
+        /// </summary>
+        public Transform prefabsParent;
+        public Transform instancesParent;
+        [SerializeField] [HideInInspector] private string[] wannaBeClassNames;
+        [SerializeField] [HideInInspector] private GameObject[] wannaBeClassPrefabs;
+        [SerializeField] [HideInInspector] private Transform[] instancesExistingAtBuildTime;
 
         private DataDictionary prefabsLut;
         private DataDictionary PrefabsLut
@@ -77,7 +82,7 @@ namespace JanSharp
             // By having this logic in a static function it gets put into each script which calls the New,
             // function, which then means that multiple scripts can call New inside of their
             // WannaBeConstructor without running into recursion issues.
-            GameObject go = Object.Instantiate(prefab, manager.transform);
+            GameObject go = Object.Instantiate(prefab, manager.instancesParent);
             WannaBeClass inst = (WannaBeClass)go.GetComponent<UdonSharpBehaviour>();
             // inst.SetProgramVariable("wannaBeClasses", manager); // Not needed because the "prefab" already has it set.
             inst.WannaBeConstructor();
