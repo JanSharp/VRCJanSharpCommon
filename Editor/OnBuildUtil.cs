@@ -45,7 +45,7 @@ namespace JanSharp
             RegisterTypeInternal(typeof(T), callback, order, usesCustomCallbackParamType: false, null);
         }
 
-        public static void RegisterType<T>(Func<IEnumerable<T>, bool> callback, int order = 0) where T : Component
+        public static void RegisterTypeCumulative<T>(Func<IEnumerable<T>, bool> callback, int order = 0) where T : Component
         {
             RegisterTypeInternal(typeof(T), callback, order, usesCustomCallbackParamType: true, c => c.Cast<T>());
         }
@@ -57,7 +57,7 @@ namespace JanSharp
             RegisterTypeInternal(type, callback, order, usesCustomCallbackParamType: false, null);
         }
 
-        public static void RegisterType(Type type, Func<ReadOnlyCollection<Component>, bool> callback, int order = 0)
+        public static void RegisterTypeCumulative(Type type, Func<ReadOnlyCollection<Component>, bool> callback, int order = 0)
         {
             if (!EditorUtil.DerivesFrom(type, typeof(Component)))
                 throw new ArgumentException($"The given type to register must derive from the Component class.");

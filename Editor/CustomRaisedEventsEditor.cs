@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
@@ -165,7 +164,7 @@ namespace JanSharp.Internal
             };
             allRegisteredData.Add(registeredData);
             registeredDataByCustomRaisedEventAttributeType.Add(dispatcherAttr.CustomRaisedEventAttributeType, registeredData);
-            OnBuildUtil.RegisterType(ubType, (ReadOnlyCollection<Component> dispatchers) => {
+            OnBuildUtil.RegisterTypeCumulative(ubType, dispatchers => {
                 registeredData.dispatchers = dispatchers.Cast<UdonSharpBehaviour>().ToArray();
                 return true;
             }, order: -101);

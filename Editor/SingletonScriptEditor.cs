@@ -26,7 +26,7 @@ namespace JanSharp.Internal
             if (!ubTypes.Any())
                 return;
             foreach (System.Type ubType in ubTypes)
-                OnBuildUtil.RegisterType(ubType, (ReadOnlyCollection<Component> c) => OnSingletonBuild(ubType, c), order: -151);
+                OnBuildUtil.RegisterTypeCumulative(ubType, c => OnSingletonBuild(ubType, c), order: -151);
             OnBuildUtil.RegisterType<UdonSharpBehaviour>(OnBuild, order: -150);
         }
 
