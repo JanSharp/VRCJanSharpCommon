@@ -1,10 +1,11 @@
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
 namespace JanSharp
 {
+    [DefaultExecutionOrder(-1000000)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [SingletonScript]
     public class BoneAttachmentManager : UdonSharpBehaviour
