@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -91,6 +91,8 @@ namespace JanSharp
                 return;
             nearIncrementalIndex %= nearAttachedCount;
             VRCPlayerApi player = nearAttachedPlayers[nearIncrementalIndex];
+            if (player == null || !player.IsValid())
+                return;
             HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[nearIncrementalIndex];
             Vector3 bonePosition = player.GetBonePosition(bone);
             // TODO: what should happen when bonePosition == Vector3.zero - aka the bone does not exist.
@@ -104,6 +106,8 @@ namespace JanSharp
             for (int i = 0; i < nearAttachedCount; i++)
             {
                 VRCPlayerApi player = nearAttachedPlayers[i];
+                if (player == null || !player.IsValid())
+                    continue;
                 HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[i];
                 nearAttachedTransforms[i].SetPositionAndRotation(player.GetBonePosition(bone), player.GetBoneRotation(bone));
             }
@@ -112,6 +116,8 @@ namespace JanSharp
         private bool UpdateFarObject(int index)
         {
             VRCPlayerApi player = farAttachedPlayers[index];
+            if (player == null || !player.IsValid())
+                return false;
             HumanBodyBones bone = (HumanBodyBones)farAttachedBones[index];
             Vector3 bonePosition = player.GetBonePosition(bone);
             farAttachedTransforms[index].SetPositionAndRotation(bonePosition, player.GetBoneRotation(bone));
@@ -416,9 +422,8 @@ namespace JanSharp
             RemoveFromLocalTrackingArrays(index);
         }
 
-        public void DetachFromBone(VRCPlayerApi player, HumanBodyBones bone, Transform toDetach)
+        public void DetachFromBone(int playerId, HumanBodyBones bone, Transform toDetach)
         {
-            int playerId = player.playerId;
             int boneValue = (int)bone;
 
             toDetach.SetParent(null); // Before the bone transform gets reset.
