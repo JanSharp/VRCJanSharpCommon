@@ -68,14 +68,17 @@ namespace JanSharp
             where T : WannaBeClass
         {
             // Can't use typeof(T).Name, unfortunately.
-            return (T)NewInternal(manager, wannaBeClassName);
-            // Having NewInternal be a separate function without a generic type parameter enables UdonSharp to
+            return (T)manager.NewDynamic(wannaBeClassName);
+            // Having NewDynamic be a separate function without a generic type parameter enables UdonSharp to
             // only generate 1 instance of the NewInternal function for each script that needs it, rather than
             // generating one for each unique generic type parameter. So it's just deduplication resulting in
             // ever so slightly smaller generated scripts.
+            // Additionally having it be a static extension function enables multiple script instances to call
+            // NewDynamic "recursively". It won't actually be recursive since it is separate instances of the
+            // same function.
         }
 
-        private static WannaBeClass NewInternal(WannaBeClassesManager manager, string wannaBeClassName)
+        public static WannaBeClass NewDynamic(this WannaBeClassesManager manager, string wannaBeClassName)
         {
             if (!manager.TryGetPrefabInternal(wannaBeClassName, out GameObject prefab))
                 return null;
