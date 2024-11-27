@@ -435,8 +435,8 @@ namespace JanSharp
         public static byte[] ReadBytes(ref byte[] stream, ref int position, int byteCount)
         {
             byte[] value = new byte[byteCount];
-            for (int i = 0; i < byteCount; i++)
-                value[i] = stream[position++];
+            System.Array.Copy(stream, position, value, 0, byteCount);
+            position += byteCount;
             return value;
         }
 
