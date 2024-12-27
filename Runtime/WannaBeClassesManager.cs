@@ -40,7 +40,7 @@ namespace JanSharp
             foreach (Transform instance in instancesExistingAtBuildTime)
                 if (instance != null)
                 {
-                    instance.SetParent(this.transform);
+                    instance.SetParent(instancesParent);
                     instance.localPosition = Vector3.zero;
                     instance.localRotation = Quaternion.identity;
                     instance.localScale = Vector3.one;
