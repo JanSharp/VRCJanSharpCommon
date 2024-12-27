@@ -237,6 +237,13 @@ namespace JanSharp
             streamSize += length;
         }
 
+        public static void Write(ref byte[] stream, ref int streamSize, byte[] bytes, int startIndex, int length)
+        {
+            ArrList.EnsureCapacity(ref stream, streamSize + length);
+            System.Array.Copy(bytes, startIndex, stream, streamSize, length);
+            streamSize += length;
+        }
+
         public static sbyte ReadSByte(ref byte[] stream, ref int position)
         {
             // byte value = stream[position++];
