@@ -42,13 +42,29 @@ namespace JanSharp.Internal
             return true;
         }
 
+        private static IEnumerable<FieldInfo> GetFieldsIncludingBase(System.Type ubType)
+        {
+            HashSet<string> visitedNames = new HashSet<string>();
+            while (ubType != typeof(UdonSharpBehaviour))
+            {
+                foreach (FieldInfo field in ubType.GetFields(PrivateAndPublicFlags))
+                {
+                    if (visitedNames.Contains(field.Name))
+                        continue;
+                    visitedNames.Add(field.Name);
+                    yield return field;
+                }
+                ubType = ubType.BaseType;
+            }
+        }
+
         private static bool TryGetTypeCache(System.Type ubType, out List<(string fieldName, System.Type singletonType)> cached)
         {
             if (typeCache.TryGetValue(ubType, out cached))
                 return true;
             cached = new();
 
-            foreach (FieldInfo field in ubType.GetFields(PrivateAndPublicFlags)
+            foreach (FieldInfo field in GetFieldsIncludingBase(ubType)
                 .Where(f => f.IsDefined(typeof(SingletonReferenceAttribute), inherit: true)))
             {
                 if (!singletons.TryGetValue(field.FieldType, out UdonSharpBehaviour singleton))
