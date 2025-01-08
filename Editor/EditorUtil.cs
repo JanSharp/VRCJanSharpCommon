@@ -1,12 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEditor;
-using UnityEditor.Events;
 using System.Linq;
+using System.Reflection;
 using UdonSharp;
 using UdonSharpEditor;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Events;
 using VRC.Udon;
 
 namespace JanSharp
@@ -303,12 +302,64 @@ namespace JanSharp
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
-        public static bool IsSerializedField(System.Reflection.FieldInfo field)
+        public static bool IsSerializedField(FieldInfo field)
         {
             return !field.IsStatic
                 && !field.IsInitOnly
                 && !field.IsDefined(typeof(System.NonSerializedAttribute), false)
                 && (field.IsPublic || field.IsDefined(typeof(SerializeField), false));
+        }
+
+        /// <summary>
+        /// <para>Use this specifically to also get private and protected fields from base types. If just
+        /// public members are desired, use <see cref="BindingFlags.FlattenHierarchy"/>.</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="bindingAttr"></param>
+        /// <returns></returns>
+        public static IEnumerable<FieldInfo> GetFieldsIncludingBase(
+            System.Type type,
+            BindingFlags bindingAttr,
+            System.Type stopAtType = null)
+        {
+            HashSet<string> visitedNames = new HashSet<string>();
+            while (type != stopAtType)
+            {
+                foreach (FieldInfo field in type.GetFields(bindingAttr))
+                {
+                    if (visitedNames.Contains(field.Name))
+                        continue;
+                    visitedNames.Add(field.Name);
+                    yield return field;
+                }
+                type = type.BaseType;
+            }
+        }
+
+        /// <summary>
+        /// <para>Use this specifically to also get private and protected methods from base types. If just
+        /// public members are desired, use <see cref="BindingFlags.FlattenHierarchy"/>.</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="bindingAttr"></param>
+        /// <returns></returns>
+        public static IEnumerable<MethodInfo> GetMethodsIncludingBase(
+            System.Type type,
+            BindingFlags bindingAttr,
+            System.Type stopAtType = null)
+        {
+            HashSet<string> visitedNames = new HashSet<string>();
+            while (type != stopAtType)
+            {
+                foreach (MethodInfo method in type.GetMethods(bindingAttr))
+                {
+                    if (visitedNames.Contains(method.Name))
+                        continue;
+                    visitedNames.Add(method.Name);
+                    yield return method;
+                }
+                type = type.BaseType;
+            }
         }
     }
 }
