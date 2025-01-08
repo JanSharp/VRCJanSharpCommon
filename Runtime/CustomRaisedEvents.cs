@@ -17,7 +17,10 @@ namespace JanSharp
         /// <summary>
         /// <para>The lower the order the sooner this event handler shall be called when the event gets
         /// raised.</para>
-        /// <para>If registrations share the same order then their order of execution is undefined.</para>
+        /// <para>If registrations share the same order then they will be sorted by the
+        /// <see cref="UnityEngine.DefaultExecutionOrder"/> of the <see cref="UdonSharpBehaviour"/> the
+        /// listener is defined in (defaults to 0 if the attribute is not explicitly set), and if those are
+        /// the same then their order of execution is undefined.</para>
         /// </summary>
         public int Order = 0; // Named parameter. Again, not a property even though it should be, but I can't.
 

@@ -12,9 +12,9 @@ namespace JanSharp.Internal
     public static class CustomRaisedEvents
     {
         private static bool didRegisterCoreHandlers = false;
-        private static List<RegisteredData> allRegisteredData = new List<RegisteredData>();
-        private static Dictionary<System.Type, RegisteredData> registeredDataByCustomRaisedEventAttributeType = new Dictionary<System.Type, RegisteredData>();
-        private static Dictionary<System.Type, List<(RegisteredData data, int eventTypeValue, int order)>> ubTypeCache = new Dictionary<System.Type, List<(RegisteredData data, int eventTypeValue, int order)>>();
+        private static List<RegisteredData> allRegisteredData = new();
+        private static Dictionary<System.Type, RegisteredData> registeredDataByCustomRaisedEventAttributeType = new();
+        private static Dictionary<System.Type, List<(RegisteredData data, int eventTypeValue, int order, int defaultExecutionOrder)>> ubTypeCache = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
         static CustomRaisedEvents()
@@ -177,7 +177,7 @@ namespace JanSharp.Internal
             public List<(string name, int value)> eventTypes;
             public Dictionary<int, string> eventTypeToNameLut;
             public UdonSharpBehaviour[] dispatchers;
-            public Dictionary<int, List<(UdonSharpBehaviour ub, int order)>> allListeners = new Dictionary<int, List<(UdonSharpBehaviour ub, int order)>>();
+            public Dictionary<int, List<(UdonSharpBehaviour ub, int order, int defaultExecutionOrder)>> allListeners = new();
         }
 
         private static bool PreOnBuild()
@@ -187,11 +187,12 @@ namespace JanSharp.Internal
             return true;
         }
 
-        private static List<(RegisteredData data, int eventTypeValue, int order)> GetTypeCache(UdonSharpBehaviour ub, System.Type ubType)
+        private static List<(RegisteredData data, int eventTypeValue, int order, int defaultExecutionOrder)> GetTypeCache(UdonSharpBehaviour ub, System.Type ubType)
         {
             if (ubTypeCache.TryGetValue(ubType, out var cached))
                 return cached;
             cached = new();
+            int defaultExecutionOrder = ubType.GetCustomAttribute<DefaultExecutionOrder>()?.order ?? 0;
 
             foreach (MethodInfo method in ubType.GetMethods(PrivateAndPublicFlags))
             {
@@ -218,7 +219,7 @@ namespace JanSharp.Internal
                             + $"as a custom raised event, however event methods must be public.", ub);
                         return null;
                     }
-                    cached.Add((data, attr.CustomEventTypeEnumValue, attr.Order));
+                    cached.Add((data, attr.CustomEventTypeEnumValue, attr.Order, defaultExecutionOrder));
                 }
             }
 
@@ -240,7 +241,7 @@ namespace JanSharp.Internal
                     listeners = new();
                     listener.data.allListeners.Add(listener.eventTypeValue, listeners);
                 }
-                listeners.Add((ub, listener.order));
+                listeners.Add((ub, listener.order, listener.defaultExecutionOrder));
             }
 
             return true;
@@ -262,7 +263,7 @@ namespace JanSharp.Internal
                         continue;
                     }
                     EditorUtil.SetArrayProperty(listenersProperty,
-                        listeners.OrderBy(v => v.order).ToList(),
+                        listeners.OrderBy(v => v.order).ThenBy(v => v.defaultExecutionOrder).ToList(),
                         (p, v) => p.objectReferenceValue = v.ub);
                 }
                 dispatchersSo.ApplyModifiedProperties();
