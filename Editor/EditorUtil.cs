@@ -40,11 +40,12 @@ namespace JanSharp
                 m_PersistentCalls:
                   m_Calls:
                   - m_Target: {fileID: 2039029658}
+                    m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
                     m_MethodName: SendCustomEvent
                     m_Mode: 5
                     m_Arguments:
                       m_ObjectArgument: {fileID: 0}
-                      m_ObjectArgumentAssemblyTypeName:
+                      m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
                       m_IntArgument: 0
                       m_FloatArgument: 0
                       m_StringArgument: OnValueChanged
@@ -80,6 +81,12 @@ namespace JanSharp
             }
             private int index;
 
+            /// <summary>
+            /// This may not be a sufficient or correct implementation to get/set the object reference
+            /// argument, since alongside the m_Target property - which is accessed by this getter and
+            /// setter - there is also the m_TargetAssemblyTypeName property, which may or may not be
+            /// handled automatically. I do not know.
+            /// </summary>
             public Object Target
             {
                 get => CallProp.FindPropertyRelative("m_Target").objectReferenceValue;
@@ -96,9 +103,9 @@ namespace JanSharp
                 set => CallProp.FindPropertyRelative("m_Mode").intValue = (int)value;
             }
             /// <summary>
-            /// This likely is not a sufficient or correct implementation to get/set the object reference
-            /// argument, since alongside the m_ObjectArgument property - which is accessed by this getter and
-            /// setter - there is also the m_ObjectArgumentAssemblyTypeName property, which may or may not be
+            /// This may not be a sufficient or correct implementation to get/set the object reference
+            /// argument, since alongside the ObjectArgument property - which is accessed by this getter and
+            /// setter - there is also the ObjectArgumentAssemblyTypeName property, which may or may not be
             /// handled automatically. I do not know.
             /// </summary>
             public Object ObjectArgument
