@@ -34,7 +34,11 @@ namespace JanSharp
         /// <para>If it wasn't already easy to create memory leaks using <see cref="WannaBeClass"/>es then it
         /// certainly is when using this function.</para>
         /// </summary>
-        public void StdMove() => referencesCount--;
+        public WannaBeClass StdMove()
+        {
+            referencesCount--;
+            return this;
+        }
         public void CheckLiveliness()
         {
             if (referencesCount <= 0)
