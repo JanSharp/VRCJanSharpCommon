@@ -75,8 +75,7 @@ namespace JanSharp
                 otherCount = otherArray.Length;
             int newCount = count + otherCount;
             EnsureCapacity(ref list, newCount);
-            for (int i = 0; i < otherCount; i++)
-                list[count + i] = otherArray[i];
+            Array.Copy(otherArray, 0, list, count, otherCount);
             count = newCount;
         }
 
@@ -98,10 +97,9 @@ namespace JanSharp
             if (count == list.Length)
                 Grow(ref list, count * 2);
 
-            for (int i = count; i > index; i--)
-                list[i] = list[i - 1];
-            count++;
+            Array.Copy(list, index, list, index + 1, count - index);
             list[index] = value;
+            count++;
         }
 
         public static void InsertRange<T>(ref T[] list, ref int count, int index, T[] otherArray, int otherCount = -1)
@@ -110,10 +108,8 @@ namespace JanSharp
                 otherCount = otherArray.Length;
             int newCount = count + otherCount;
             EnsureCapacity(ref list, newCount);
-            for (int i = count - 1; i >= index; i--)
-                list[i + otherCount] = list[i];
-            for (int i = 0; i < otherCount; i++)
-                list[index + i] = otherArray[i];
+            Array.Copy(list, index, list, index + otherCount, count - index);
+            Array.Copy(otherArray, 0, list, index, otherCount);
             count = newCount;
         }
 
@@ -121,8 +117,7 @@ namespace JanSharp
         {
             T result = list[index];
             count--;
-            for (int i = index; i < count; i++)
-                list[i] = list[i + 1];
+            Array.Copy(list, index + 1, list, index, count - index);
             return result;
         }
 
@@ -151,9 +146,8 @@ namespace JanSharp
         public static void RemoveRange<T>(ref T[] list, ref int count, int startIndex, int countFromStartIndex)
         {
             countFromStartIndex = Math.Min(count - startIndex, countFromStartIndex);
-            for (int i = startIndex + countFromStartIndex; i < count; i++)
-                list[i - countFromStartIndex] = list[i];
             count -= countFromStartIndex;
+            Array.Copy(list, startIndex + countFromStartIndex, list, startIndex, count - startIndex);
         }
 
         public static void Clear<T>(ref T[] list, ref int count)
