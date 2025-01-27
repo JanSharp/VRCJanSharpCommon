@@ -155,86 +155,22 @@ namespace JanSharp
             count = 0;
         }
 
-        public static int IndexOf<T>(ref T[] list, ref int count, T value)
-        {
-            return Array.IndexOf(list, value, 0, count);
-        }
-
-        public static int IndexOf<T>(ref T[] list, ref int count, T value, int startIndex)
-        {
-            return Array.IndexOf(list, value, startIndex, count - startIndex);
-        }
-
-        public static int IndexOf<T>(ref T[] list, ref int count, T value, int startIndex, int countFromStartIndex)
-        {
-            return Array.IndexOf(list, value, startIndex, Math.Min(count - startIndex, countFromStartIndex));
-        }
-
-        public static int LastIndexOf<T>(ref T[] list, ref int count, T value)
-        {
-            return Array.LastIndexOf(list, value, count - 1);
-        }
-
-        public static int LastIndexOf<T>(ref T[] list, ref int count, T value, int startIndex)
-        {
-            return Array.LastIndexOf(list, value, startIndex);
-        }
-
-        public static int LastIndexOf<T>(ref T[] list, ref int count, T value, int startIndex, int countFromStartIndex)
-        {
-            return Array.LastIndexOf(list, value, startIndex, countFromStartIndex);
-        }
-
-        public static int BinarySearch<T>(ref T[] list, ref int count, T value)
-        {
-            return Array.BinarySearch(list, 0, count, value);
-        }
-
-        public static int BinarySearch<T>(ref T[] list, ref int count, T value, int startIndex)
-        {
-            return Array.BinarySearch(list, startIndex, count - startIndex, value);
-        }
-
-        public static int BinarySearch<T>(ref T[] list, ref int count, T value, int startIndex, int countFromStartIndex)
-        {
-            return Array.BinarySearch(list, startIndex, Math.Min(count - startIndex, countFromStartIndex), value);
-        }
-
-        public static bool Contains<T>(ref T[] list, ref int count, T value)
-        {
-            return IndexOf(ref list, ref count, value) != -1;
-        }
-
+        public static int IndexOf<T>(ref T[] list, ref int count, T value) => Array.IndexOf(list, value, 0, count);
+        public static int IndexOf<T>(ref T[] list, ref int count, T value, int startIndex) => Array.IndexOf(list, value, startIndex, count - startIndex);
+        public static int IndexOf<T>(ref T[] list, ref int count, T value, int startIndex, int countFromStartIndex) => Array.IndexOf(list, value, startIndex, Math.Min(count - startIndex, countFromStartIndex));
+        public static int LastIndexOf<T>(ref T[] list, ref int count, T value) => Array.LastIndexOf(list, value, count - 1);
+        public static int LastIndexOf<T>(ref T[] list, ref int count, T value, int startIndex) => Array.LastIndexOf(list, value, startIndex);
+        public static int LastIndexOf<T>(ref T[] list, ref int count, T value, int startIndex, int countFromStartIndex) => Array.LastIndexOf(list, value, startIndex, countFromStartIndex);
+        public static int BinarySearch<T>(ref T[] list, ref int count, T value) => Array.BinarySearch(list, 0, count, value);
+        public static int BinarySearch<T>(ref T[] list, ref int count, T value, int startIndex) => Array.BinarySearch(list, startIndex, count - startIndex, value);
+        public static int BinarySearch<T>(ref T[] list, ref int count, T value, int startIndex, int countFromStartIndex) => Array.BinarySearch(list, startIndex, Math.Min(count - startIndex, countFromStartIndex), value);
+        public static bool Contains<T>(ref T[] list, ref int count, T value) => IndexOf(ref list, ref count, value) != -1;
         // Sort is not exposed. Yay.
-
-        // public static void Sort<T>(ref T[] list, ref int count)
-        // {
-        //     Array.Sort(list, 0, count);
-        // }
-
-        // public static void Sort<T>(ref T[] list, ref int count, int startIndex)
-        // {
-        //     Array.Sort(list, startIndex, count - startIndex);
-        // }
-
-        // public static void Sort<T>(ref T[] list, ref int count, int startIndex, int countFromStartIndex)
-        // {
-        //     Array.Sort(list, startIndex, Math.Min(count - startIndex, countFromStartIndex));
-        // }
-
-        // public static void Sort<T, K>(ref T[] list, ref int count, K[] keys)
-        // {
-        //     Array.Sort(keys, list, 0, count);
-        // }
-
-        // public static void Sort<T, K>(ref T[] list, ref int count, int startIndex, K[] keys)
-        // {
-        //     Array.Sort(keys, list, startIndex, count - startIndex);
-        // }
-
-        // public static void Sort<T, K>(ref T[] list, ref int count, int startIndex, int countFromStartIndex, K[] keys)
-        // {
-        //     Array.Sort(keys, list, startIndex, Math.Min(count - startIndex, countFromStartIndex));
-        // }
+        // public static void Sort<T>(ref T[] list, ref int count) => Array.Sort(list, 0, count);
+        // public static void Sort<T>(ref T[] list, ref int count, int startIndex) => Array.Sort(list, startIndex, count - startIndex);
+        // public static void Sort<T>(ref T[] list, ref int count, int startIndex, int countFromStartIndex) => Array.Sort(list, startIndex, Math.Min(count - startIndex, countFromStartIndex));
+        // public static void Sort<T, K>(ref T[] list, ref int count, K[] keys) => Array.Sort(keys, list, 0, count);
+        // public static void Sort<T, K>(ref T[] list, ref int count, int startIndex, K[] keys) => Array.Sort(keys, list, startIndex, count - startIndex);
+        // public static void Sort<T, K>(ref T[] list, ref int count, int startIndex, int countFromStartIndex, K[] keys) => Array.Sort(keys, list, startIndex, Math.Min(count - startIndex, countFromStartIndex));
     }
 }
