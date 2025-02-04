@@ -13,7 +13,7 @@ namespace JanSharp.Internal
     public static class SingletonScriptEditor
     {
         private static Dictionary<System.Type, UdonSharpBehaviour> singletons = new();
-        private static Dictionary<System.Type, List<(string fieldName, System.Type singletonType)>> typeCache = new();
+        private static Dictionary<System.Type, List<(string fieldName, System.Type singletonType, bool optional)>> typeCache = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
         static SingletonScriptEditor()
@@ -42,28 +42,30 @@ namespace JanSharp.Internal
             return true;
         }
 
-        private static bool TryGetTypeCache(System.Type ubType, out List<(string fieldName, System.Type singletonType)> cached)
+        private static bool TryGetTypeCache(System.Type ubType, out List<(string fieldName, System.Type singletonType, bool optional)> cached)
         {
             if (typeCache.TryGetValue(ubType, out cached))
                 return true;
             cached = new();
 
-            foreach (FieldInfo field in EditorUtil.GetFieldsIncludingBase(ubType, PrivateAndPublicFlags, stopAtType: typeof(UdonSharpBehaviour))
-                .Where(f => f.IsDefined(typeof(SingletonReferenceAttribute), inherit: true)))
+            foreach (FieldInfo field in EditorUtil.GetFieldsIncludingBase(ubType, PrivateAndPublicFlags, stopAtType: typeof(UdonSharpBehaviour)))
             {
+                SingletonReferenceAttribute attr = field.GetCustomAttribute<SingletonReferenceAttribute>(inherit: true);
+                if (attr == null)
+                    continue;
                 if (!singletons.TryGetValue(field.FieldType, out UdonSharpBehaviour singleton))
                 {
                     Debug.LogError($"[JanSharpCommon] The {ubType.Name}.{field.Name} field has the {nameof(SingletonReferenceAttribute)} "
-                        + $"However there is no {field.FieldType.Name} class which has the {nameof(SingletonScriptAttribute)}.");
+                        + $"however there is no {field.FieldType.Name} class which has the {nameof(SingletonScriptAttribute)}.");
                     return false;
                 }
                 if (!EditorUtil.IsSerializedField(field))
                 {
                     Debug.LogError($"[JanSharpCommon] The {ubType.Name}.{field.Name} field has the {nameof(SingletonReferenceAttribute)} "
-                        + $"However it is not a serialized field. It must either be public or have the {nameof(SerializeField)} attribute.");
+                        + $"however it is not a serialized field. It must either be public or have the {nameof(SerializeField)} attribute.");
                     return false;
                 }
-                cached.Add((field.Name, field.FieldType));
+                cached.Add((field.Name, field.FieldType, attr.Optional));
             }
 
             typeCache.Add(ubType, cached);
@@ -75,14 +77,23 @@ namespace JanSharp.Internal
             if (!TryGetTypeCache(ub.GetType(), out var cached))
                 return false;
 
+            SerializedObject so = new SerializedObject(ub);
+            bool isMissingSingletons = false;
             foreach (var field in cached)
             {
-                SerializedObject so = new SerializedObject(ub);
-                so.FindProperty(field.fieldName).objectReferenceValue = singletons[field.singletonType];
-                so.ApplyModifiedProperties();
+                UdonSharpBehaviour singletonInst = singletons[field.singletonType];
+                so.FindProperty(field.fieldName).objectReferenceValue = singletonInst;
+                if (!field.optional && singletonInst == null && ub.GetComponentInParent<BypassSingletonRequirementValidation>() == null)
+                {
+                    Debug.LogError($"[JanSharpCommon] The {ub.GetType().Name}.{field.fieldName} is marked as "
+                        + $"non optional however there is no {field.singletonType.Name} singleton instance "
+                        + $"in the scene.");
+                    isMissingSingletons = true;
+                }
             }
+            so.ApplyModifiedProperties();
 
-            return true;
+            return !isMissingSingletons;
         }
     }
 }

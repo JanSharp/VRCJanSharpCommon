@@ -25,6 +25,8 @@ namespace JanSharp
         // See the attribute guidelines at
         //  http://go.microsoft.com/fwlink/?LinkId=85236
 
+        public bool Optional { get; set; }
+
         /// <summary>
         /// <para>Fields marked with this attribute will get as a reference to the singleton instance of the
         /// script marked with <see cref="SingletonScriptAttribute"/> corresponding to this field's type upon
