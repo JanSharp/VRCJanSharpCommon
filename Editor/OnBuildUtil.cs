@@ -184,12 +184,18 @@ namespace JanSharp
                     TryAddFoundComponentToOnBuildCallbackData((Component)obj);
             }
 
+            bool success = true;
             foreach (OrderedOnBuildCallbackData orderedData in typesToLookForList.OrderBy(d => d.order))
-                orderedData.InvokeCallback();
+                if (!orderedData.InvokeCallback())
+                {
+                    success = false;
+                    break;
+                }
 
             sw.Stop();
-            UnityEngine.Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}.");
-            return true;
+            if (success)
+                UnityEngine.Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}.");
+            return success;
         }
 
         private struct OrderedOnBuildCallbackData

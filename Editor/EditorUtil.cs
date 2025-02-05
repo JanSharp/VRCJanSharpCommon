@@ -344,6 +344,31 @@ namespace JanSharp
         }
 
         /// <summary>
+        /// <para>Use this specifically to also get a private or protected field from base types. If just
+        /// public members are desired, use <see cref="BindingFlags.FlattenHierarchy"/>.</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="bindingAttr"></param>
+        /// <param name="stopAtType"></param>
+        /// <returns></returns>
+        public static FieldInfo GetFieldIncludingBase(
+            System.Type type,
+            string fieldName,
+            BindingFlags bindingAttr,
+            System.Type stopAtType = null)
+        {
+            while (type != stopAtType)
+            {
+                FieldInfo fieldInfo = type.GetField(fieldName, bindingAttr);
+                if (fieldInfo != null)
+                    return fieldInfo;
+                type = type.BaseType;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// <para>Use this specifically to also get private and protected methods from base types. If just
         /// public members are desired, use <see cref="BindingFlags.FlattenHierarchy"/>.</para>
         /// </summary>
@@ -367,6 +392,31 @@ namespace JanSharp
                 }
                 type = type.BaseType;
             }
+        }
+
+        /// <summary>
+        /// <para>Use this specifically to also get a private or protected method from base types. If just
+        /// public members are desired, use <see cref="BindingFlags.FlattenHierarchy"/>.</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="methodName"></param>
+        /// <param name="bindingAttr"></param>
+        /// <param name="stopAtType"></param>
+        /// <returns></returns>
+        public static MethodInfo GetMethodIncludingBase(
+            System.Type type,
+            string methodName,
+            BindingFlags bindingAttr,
+            System.Type stopAtType = null)
+        {
+            while (type != stopAtType)
+            {
+                MethodInfo methodInfo = type.GetMethod(methodName, bindingAttr);
+                if (methodInfo != null)
+                    return methodInfo;
+                type = type.BaseType;
+            }
+            return null;
         }
     }
 }

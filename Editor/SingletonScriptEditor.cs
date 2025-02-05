@@ -9,7 +9,7 @@ using System.Reflection;
 namespace JanSharp.Internal
 {
     [InitializeOnLoad]
-    [DefaultExecutionOrder(-999)]
+    [DefaultExecutionOrder(-990)]
     public static class SingletonScriptEditor
     {
         private static Dictionary<System.Type, UdonSharpBehaviour> singletons = new();
