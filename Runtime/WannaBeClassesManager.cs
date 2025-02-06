@@ -8,7 +8,7 @@ namespace JanSharp
 {
     [DefaultExecutionOrder(-100000)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    [SingletonScript]
+    [SingletonScript("4fde516c38225afdf98eec7b044ed853")] // Runtime/Prefabs/WannaBeClassesManager.prefab
     public class WannaBeClassesManager : UdonSharpBehaviour
     {
         /// <summary>

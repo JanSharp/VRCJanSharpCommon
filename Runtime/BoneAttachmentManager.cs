@@ -7,7 +7,7 @@ namespace JanSharp
 {
     [DefaultExecutionOrder(-1000000)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    [SingletonScript]
+    [SingletonScript("00766e043c297fab8ab20626ec22ab6a")] // Runtime/Prefabs/BoneAttachmentManager.prefab
     public class BoneAttachmentManager : UdonSharpBehaviour
     {
         [SerializeField] private GameObject attachmentPrefab;

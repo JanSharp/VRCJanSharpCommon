@@ -5,7 +5,8 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 
 - [ ] look at newly exposed BitConverter
 - [ ] look at newly exposed StringBuilder
-- [ ] editor utility which automatically instantiates prefab instances for system dependencies, recursively
-  - [ ] support this in the singleton editor utility
+- [x] editor utility which automatically instantiates prefab instances for system dependencies, recursively
+  - [x] support this in the singleton editor utility
 - [x] add optional vs required setting to singleton, required being the default
 - [x] editor script which assigns build time IDs to objects as well as keeping track of the highest id inside of a given manager script
+- [ ] add a flag on build handlers can set which indicates that objects have been instantiated during the on build process, which should cancel the current build and show a popup requesting the build to be restarted at the end

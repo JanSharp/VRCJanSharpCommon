@@ -12,7 +12,19 @@ namespace JanSharp.Internal
     [DefaultExecutionOrder(-990)]
     public static class SingletonScriptEditor
     {
-        private static Dictionary<System.Type, UdonSharpBehaviour> singletons = new();
+        private class SingletonData
+        {
+            public UdonSharpBehaviour inst;
+            public string prefabGuid;
+
+            public SingletonData(UdonSharpBehaviour inst, string prefabGuid)
+            {
+                this.inst = inst;
+                this.prefabGuid = prefabGuid;
+            }
+        }
+
+        private static Dictionary<System.Type, SingletonData> singletons = new();
         private static Dictionary<System.Type, List<(string fieldName, System.Type singletonType, bool optional)>> typeCache = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
@@ -25,9 +37,27 @@ namespace JanSharp.Internal
                 .Where(t => t.IsDefined(typeof(SingletonScriptAttribute), inherit: false));
             if (!ubTypes.Any())
                 return;
+            singletons = ubTypes.ToDictionary(
+                t => t,
+                t => new SingletonData(null, t.GetCustomAttribute<SingletonScriptAttribute>().PrefabGuid));
+            OnBuildUtil.RegisterAction(OnPreSingletonBuild, order: -152);
             foreach (System.Type ubType in ubTypes)
                 OnBuildUtil.RegisterTypeCumulative(ubType, c => OnSingletonBuild(ubType, c), order: -151);
             OnBuildUtil.RegisterType<UdonSharpBehaviour>(OnBuild, order: -150);
+        }
+
+        private static bool OnPreSingletonBuild()
+        {
+            bool success = true;
+            foreach (var singletonKvp in singletons)
+            {
+                if (AssetDatabase.GUIDToAssetPath(singletonKvp.Value.prefabGuid) != "")
+                    continue;
+                success = false;
+                Debug.LogError($"[JanSharpCommon] The singleton script {singletonKvp.Key.Name} is referencing "
+                    + $"a non existent prefab (No asset found with the guid {singletonKvp.Value.prefabGuid}).");
+            }
+            return success;
         }
 
         private static bool OnSingletonBuild(System.Type singletonType, ReadOnlyCollection<Component> singletonInstances)
@@ -38,7 +68,7 @@ namespace JanSharp.Internal
                     + $"{singletonType.Name} script in the scene.", singletonInstances.First());
                 return false;
             }
-            singletons[singletonType] = (UdonSharpBehaviour)singletonInstances.FirstOrDefault();
+            singletons[singletonType].inst = (UdonSharpBehaviour)singletonInstances.FirstOrDefault();
             return true;
         }
 
@@ -53,7 +83,7 @@ namespace JanSharp.Internal
                 SingletonReferenceAttribute attr = field.GetCustomAttribute<SingletonReferenceAttribute>(inherit: true);
                 if (attr == null)
                     continue;
-                if (!singletons.TryGetValue(field.FieldType, out UdonSharpBehaviour singleton))
+                if (!singletons.ContainsKey(field.FieldType))
                 {
                     Debug.LogError($"[JanSharpCommon] The {ubType.Name}.{field.Name} field has the {nameof(SingletonReferenceAttribute)} "
                         + $"however there is no {field.FieldType.Name} class which has the {nameof(SingletonScriptAttribute)}.");
@@ -72,28 +102,35 @@ namespace JanSharp.Internal
             return true;
         }
 
+        private static bool InstantiatePrefab(System.Type singletonType, SingletonData singleton)
+        {
+            Object prefab = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(singleton.prefabGuid));
+            Object instObj = PrefabUtility.InstantiatePrefab(prefab);
+            Undo.RegisterCreatedObjectUndo(instObj, "Instantiate singleton prefab");
+            GameObject instGo = (GameObject)instObj;
+            singleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(singletonType);
+            foreach (UdonSharpBehaviour ub in instGo.GetComponentsInChildren<UdonSharpBehaviour>(includeInactive: true))
+                OnBuild(ub);
+            return true;
+        }
+
         private static bool OnBuild(UdonSharpBehaviour ub)
         {
             if (!TryGetTypeCache(ub.GetType(), out var cached))
                 return false;
 
             SerializedObject so = new SerializedObject(ub);
-            bool isMissingSingletons = false;
             foreach (var field in cached)
             {
-                UdonSharpBehaviour singletonInst = singletons[field.singletonType];
-                so.FindProperty(field.fieldName).objectReferenceValue = singletonInst;
-                if (!field.optional && singletonInst == null && ub.GetComponentInParent<BypassSingletonRequirementValidation>() == null)
-                {
-                    Debug.LogError($"[JanSharpCommon] The {ub.GetType().Name}.{field.fieldName} is marked as "
-                        + $"non optional however there is no {field.singletonType.Name} singleton instance "
-                        + $"in the scene.");
-                    isMissingSingletons = true;
-                }
+                SingletonData singleton = singletons[field.singletonType];
+                if (!field.optional && singleton.inst == null && ub.GetComponentInParent<BypassSingletonDependencyInstantiation>() == null)
+                    if (!InstantiatePrefab(field.singletonType, singleton))
+                        return false;
+                so.FindProperty(field.fieldName).objectReferenceValue = singleton.inst;
             }
             so.ApplyModifiedProperties();
 
-            return !isMissingSingletons;
+            return true;
         }
     }
 }

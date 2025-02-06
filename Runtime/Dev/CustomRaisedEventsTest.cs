@@ -21,7 +21,7 @@ namespace JanSharp
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [CustomRaisedEventsDispatcher(typeof(MyCustomEvent), typeof(MyCustomEventType))]
-    [SingletonScript]
+    [SingletonScript("3f80fe50ad90421aba05de2d4cc91b12")] // Runtime/Dev/CustomRaisedEventsTest.prefab
     public class CustomRaisedEventsTest : UdonSharpBehaviour
     {
         [HideInInspector] [SerializeField] private UdonSharpBehaviour[] onFooListeners;
