@@ -9,4 +9,4 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
   - [x] support this in the singleton editor utility
 - [x] add optional vs required setting to singleton, required being the default
 - [x] editor script which assigns build time IDs to objects as well as keeping track of the highest id inside of a given manager script
-- [ ] add a flag on build handlers can set which indicates that objects have been instantiated during the on build process, which should cancel the current build and show a popup requesting the build to be restarted at the end
+- [x] add a flag on build handlers can set which indicates that objects have been instantiated during the on build process, which should cancel the current build and show a popup requesting the build to be restarted at the end

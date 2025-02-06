@@ -23,6 +23,9 @@ namespace JanSharp
         private static List<OrderedOnBuildCallbackData> typesToLookForList;
         private static HashSet<Type> typesToSearchForCache;
         private static Dictionary<Type, List<OnBuildCallbackData>> matchingDataInBaseTypesCache;
+        private static bool rerunDueToScriptInstantiation = false;
+        private static int runCounter = 1;
+        private const int MaxRerunRecursion = 20;
 
         static OnBuildUtil()
         {
@@ -37,7 +40,7 @@ namespace JanSharp
         private static void OnPlayModeStateChanged(PlayModeStateChange data)
         {
             if (data == PlayModeStateChange.ExitingEditMode)
-                if (!RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: true))
+                if (!RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: true, abortIfRerunsHappened: true))
                     EditorApplication.isPlaying = false;
         }
 
@@ -99,6 +102,19 @@ namespace JanSharp
                 callback.Target,
                 usesCustomCallbackParamType,
                 toCorrectlyTypedCallbackParamType));
+        }
+
+        /// <summary>
+        /// <para>When instantiating UdonSharpBehaviours (and probably also UdonBehaviours) inside of an
+        /// OnBuild handler, call this in order for all OnBuild handlers to be restarted from the
+        /// beginning.</para>
+        /// <para>Additionally even when all OnBuild handlers succeed, if scripts were instantiated entering
+        /// play mode or uploading is going to get aborted because VRChat's sdk must do some processing on the
+        /// newly instantiated script instances.</para>
+        /// </summary>
+        public static void MarkForRerunDueToScriptInstantiation()
+        {
+            rerunDueToScriptInstantiation = true;
         }
 
         private static void FigureOutWhatTypesToReallySearchFor()
@@ -167,14 +183,11 @@ namespace JanSharp
         [MenuItem("Tools/JanSharp/Run All OnBuild handlers", priority = 10005)]
         public static void RunOnBuildMenuItem()
         {
-            RunOnBuild(showDialogOnFailure: true);
+            RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: false, abortIfRerunsHappened: false);
         }
 
-        public static bool RunOnBuild(bool showDialogOnFailure, bool useSceneViewNotification = false)
+        private static bool RunOnBuildIteration()
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-
             foreach (OnBuildCallbackData data in registeredTypes.Values)
                 data.components.Clear();
 
@@ -190,25 +203,69 @@ namespace JanSharp
                     TryAddFoundComponentToOnBuildCallbackData((Component)obj);
             }
 
-            bool success = true;
             foreach (OrderedOnBuildCallbackData orderedData in typesToLookForList.OrderBy(d => d.order))
-                if (!orderedData.InvokeCallback())
-                {
-                    success = false;
-                    break;
-                }
-
-            sw.Stop();
-            if (success)
-                UnityEngine.Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}.");
-            else if (showDialogOnFailure)
             {
-                string errorMsg = "OnBuild handlers failed, check the Console to review errors.";
-                if (!useSceneViewNotification || !ShowSceneViewNotification(errorMsg))
-                    EditorUtility.DisplayDialog("JanSharpCommon OnBuild", errorMsg, "Ok");
+                if (!orderedData.InvokeCallback())
+                    return false;
+                if (rerunDueToScriptInstantiation)
+                    return false; // Return value does not matter here.
+            }
+            return true;
+        }
+
+        public static bool RunOnBuild(bool showDialogOnFailure, bool useSceneViewNotification, bool abortIfRerunsHappened)
+        {
+            void ShowNotification(string msg)
+            {
+                if (!useSceneViewNotification || !ShowSceneViewNotification(msg))
+                    EditorUtility.DisplayDialog("JanSharpCommon OnBuild", msg, "Ok");
             }
 
-            return success;
+            rerunDueToScriptInstantiation = false;
+            runCounter = 1;
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            bool success;
+            bool reachedMaxRerunRecursion = false;
+            while (true)
+            {
+                success = RunOnBuildIteration();
+                if (!rerunDueToScriptInstantiation)
+                    break;
+                if (runCounter == MaxRerunRecursion)
+                {
+                    reachedMaxRerunRecursion = true;
+                    break;
+                }
+                rerunDueToScriptInstantiation = false;
+                runCounter++;
+            }
+            sw.Stop();
+
+            if (success && runCounter != 1 && abortIfRerunsHappened)
+            {
+                UnityEngine.Debug.LogError("Udon scripts were instantiated during the OnBuild process, VRChat "
+                    + "may need to do some setup for those, I don't know, either way please try again.");
+                ShowNotification("Scripts were instantiated during OnBuild, please go again.");
+                return false;
+            }
+
+            if (success)
+            {
+                UnityEngine.Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}."
+                    + (runCounter == 1 ? "" : $" (Had tu run {runCounter} times.)"));
+                return true;
+            }
+
+            if (!showDialogOnFailure)
+                return false;
+
+            ShowNotification(reachedMaxRerunRecursion
+                ? $"OnBuild handlers reran {MaxRerunRecursion} times due to scripts "
+                    + $"being instantiated mid run, could be recursive, aborting."
+                : $"OnBuild handlers failed, check the Console to review errors.");
+            return false;
         }
 
         private static bool ShowSceneViewNotification(string notification)
@@ -313,7 +370,7 @@ namespace JanSharp
         {
             if (requestedBuildType == VRCSDKRequestedBuildType.Avatar)
                 return true;
-            return OnBuildUtil.RunOnBuild(showDialogOnFailure: false);
+            return OnBuildUtil.RunOnBuild(showDialogOnFailure: false, useSceneViewNotification: false, abortIfRerunsHappened: true);
         }
     }
 }

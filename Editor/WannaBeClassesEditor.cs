@@ -73,6 +73,7 @@ namespace JanSharp
                 Undo.RegisterCreatedObjectUndo(newPrefab, "Generate WannaBeClass Prefabs");
                 newPrefab.transform.SetParent(manager.prefabsParent, worldPositionStays: false);
                 newPrefab.transform.SetSiblingIndex(i);
+                OnBuildUtil.MarkForRerunDueToScriptInstantiation();
             }
             EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassNames"), wannaBeClassTypes, (p, v) => p.stringValue = v.name);
             EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassPrefabs"), manager.prefabsParent.Cast<Transform>().ToList(), (p, v) => p.objectReferenceValue = v.gameObject);

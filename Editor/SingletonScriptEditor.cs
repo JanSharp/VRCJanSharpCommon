@@ -111,6 +111,7 @@ namespace JanSharp.Internal
             singleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(singletonType);
             foreach (UdonSharpBehaviour ub in instGo.GetComponentsInChildren<UdonSharpBehaviour>(includeInactive: true))
                 OnBuild(ub);
+            OnBuildUtil.MarkForRerunDueToScriptInstantiation();
             return true;
         }
 
