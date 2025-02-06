@@ -30,14 +30,15 @@ namespace JanSharp
             typesToLookForList = new List<OrderedOnBuildCallbackData>();
             typesToSearchForCache = null;
             matchingDataInBaseTypesCache = new Dictionary<Type, List<OnBuildCallbackData>>();
-            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged; // Ikd if this is needed. Probably not?
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged; // Idk if this is needed. Probably not?
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange data)
         {
             if (data == PlayModeStateChange.ExitingEditMode)
-                RunOnBuild();
+                if (!RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: true))
+                    EditorApplication.isPlaying = false;
         }
 
         public static void RegisterType<T>(Func<T, bool> callback, int order = 0) where T : Component
@@ -164,7 +165,12 @@ namespace JanSharp
         }
 
         [MenuItem("Tools/JanSharp/Run All OnBuild handlers", priority = 10005)]
-        public static bool RunOnBuild()
+        public static void RunOnBuildMenuItem()
+        {
+            RunOnBuild(showDialogOnFailure: true);
+        }
+
+        public static bool RunOnBuild(bool showDialogOnFailure, bool useSceneViewNotification = false)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -195,7 +201,23 @@ namespace JanSharp
             sw.Stop();
             if (success)
                 UnityEngine.Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}.");
+            else if (showDialogOnFailure)
+            {
+                string errorMsg = "OnBuild handlers failed, check the Console to review errors.";
+                if (!useSceneViewNotification || !ShowSceneViewNotification(errorMsg))
+                    EditorUtility.DisplayDialog("JanSharpCommon OnBuild", errorMsg, "Ok");
+            }
+
             return success;
+        }
+
+        private static bool ShowSceneViewNotification(string notification)
+        {
+            if (SceneView.lastActiveSceneView == null)
+                return false;
+            SceneView.lastActiveSceneView.Focus();
+            SceneView.lastActiveSceneView.ShowNotification(new GUIContent(notification));
+            return true;
         }
 
         private struct OrderedOnBuildCallbackData
@@ -291,7 +313,7 @@ namespace JanSharp
         {
             if (requestedBuildType == VRCSDKRequestedBuildType.Avatar)
                 return true;
-            return OnBuildUtil.RunOnBuild();
+            return OnBuildUtil.RunOnBuild(showDialogOnFailure: false);
         }
     }
 }
