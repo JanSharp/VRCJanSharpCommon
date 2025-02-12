@@ -96,8 +96,9 @@ namespace JanSharp
                 return;
             HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[nearIncrementalIndex];
             Vector3 bonePosition = player.GetBonePosition(bone);
-            // TODO: what should happen when bonePosition == Vector3.zero - aka the bone does not exist.
-            if (!IsNear(bonePosition))
+            // When zero, the bone does not exist and tracking it gets disabled. However it does not get
+            // unregistered, so just keep it in the incremental far update loop.
+            if (bonePosition == Vector3.zero || !IsNear(bonePosition))
                 MoveFromNearToFar(nearIncrementalIndex);
             nearIncrementalIndex++;
         }
@@ -110,7 +111,9 @@ namespace JanSharp
                 if (player == null || !player.IsValid())
                     continue;
                 HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[i];
-                nearAttachedTransforms[i].SetPositionAndRotation(player.GetBonePosition(bone), player.GetBoneRotation(bone));
+                Vector3 bonePosition = player.GetBonePosition(bone);
+                if (bonePosition != Vector3.zero)
+                    nearAttachedTransforms[i].SetPositionAndRotation(bonePosition, player.GetBoneRotation(bone));
             }
         }
 
@@ -121,6 +124,8 @@ namespace JanSharp
                 return false;
             HumanBodyBones bone = (HumanBodyBones)farAttachedBones[index];
             Vector3 bonePosition = player.GetBonePosition(bone);
+            if (bonePosition == Vector3.zero)
+                return false;
             farAttachedTransforms[index].SetPositionAndRotation(bonePosition, player.GetBoneRotation(bone));
             bool isNear = IsNear(bonePosition);
             if (isNear)
@@ -143,7 +148,9 @@ namespace JanSharp
             for (int i = 0; i < localBonesCount; i++)
             {
                 HumanBodyBones bone = (HumanBodyBones)localBones[i];
-                localBoneTransforms[i].SetPositionAndRotation(localPlayer.GetBonePosition(bone), localPlayer.GetBoneRotation(bone));
+                Vector3 bonePosition = localPlayer.GetBonePosition(bone);
+                if (bonePosition != Vector3.zero)
+                    localBoneTransforms[i].SetPositionAndRotation(bonePosition, localPlayer.GetBoneRotation(bone));
             }
 
             for (int i = 0; i < localTrackingCount; i++)
