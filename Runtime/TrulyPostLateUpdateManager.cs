@@ -5,6 +5,8 @@ using VRC.Udon;
 
 namespace JanSharp
 {
+    // TODO: automatically treat any scripts using the OnTrulyPostLateUpdateAttribute as having a singleton dependency on this manager here
+
     [System.AttributeUsage(System.AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
     public sealed class OnTrulyPostLateUpdateAttribute : CustomRaisedEventBaseAttribute
     {
@@ -26,6 +28,7 @@ namespace JanSharp.Internal
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [CustomRaisedEventsDispatcher(typeof(OnTrulyPostLateUpdateAttribute), typeof(OnTrulyPostLateUpdateDummy))]
+    [SingletonScript("6f92a81d0ddb82621bd46248c4144027")] // Runtime/Prefabs/TrulyPostLateUpdate.prefab
     public class TrulyPostLateUpdateManager : UdonSharpBehaviour
     {
         [HideInInspector] [SerializeField] private UdonSharpBehaviour[] onTrulyPostLateUpdateListeners;

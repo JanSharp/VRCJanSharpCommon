@@ -7,6 +7,7 @@ namespace JanSharp
 {
     [DefaultExecutionOrder(-1000000)]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [SingletonDependency(typeof(Internal.TrulyPostLateUpdateManager))]
     [SingletonScript("00766e043c297fab8ab20626ec22ab6a")] // Runtime/Prefabs/BoneAttachmentManager.prefab
     public class BoneAttachmentManager : UdonSharpBehaviour
     {
@@ -468,7 +469,5 @@ namespace JanSharp
             toDetach.SetParent(null); // Before the tracking transform gets reset.
             DetachFromLocalTracking((int)trackingType);
         }
-
-        // TODO: tell the user that this depends on the truly post late update prefab, and enforce that using editor scripting
     }
 }
