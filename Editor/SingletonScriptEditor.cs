@@ -14,17 +14,20 @@ namespace JanSharp.Internal
     {
         private class SingletonData
         {
+            public System.Type singletonType;
             public UdonSharpBehaviour inst;
             public string prefabGuid;
 
-            public SingletonData(UdonSharpBehaviour inst, string prefabGuid)
+            public SingletonData(System.Type singletonType, UdonSharpBehaviour inst, string prefabGuid)
             {
+                this.singletonType = singletonType;
                 this.inst = inst;
                 this.prefabGuid = prefabGuid;
             }
         }
 
         private static Dictionary<System.Type, SingletonData> singletons = new();
+        private static List<SingletonData> singletonsList = new();
         /// <summary>
         /// <para>Not just fields, also includes dependencies, which simply have null field names.</para>
         /// </summary>
@@ -34,19 +37,22 @@ namespace JanSharp.Internal
         static SingletonScriptEditor()
         {
             singletons.Clear();
+            singletonsList.Clear();
             typeCache.Clear();
 
             IEnumerable<System.Type> ubTypes = OnAssemblyLoadUtil.AllUdonSharpBehaviourTypes
                 .Where(t => t.IsDefined(typeof(SingletonScriptAttribute), inherit: false));
             if (!ubTypes.Any())
                 return;
-            singletons = ubTypes.ToDictionary(
-                t => t,
-                t => new SingletonData(null, t.GetCustomAttribute<SingletonScriptAttribute>().PrefabGuid));
+            singletonsList = ubTypes
+                .Select(t => new SingletonData(t, null, t.GetCustomAttribute<SingletonScriptAttribute>().PrefabGuid))
+                .ToList();
+            singletons = singletonsList.ToDictionary(s => s.singletonType, s => s);
             OnBuildUtil.RegisterAction(OnPreSingletonBuild, order: -152);
             foreach (System.Type ubType in ubTypes)
                 OnBuildUtil.RegisterTypeCumulative(ubType, c => OnSingletonBuild(ubType, c), order: -151);
             OnBuildUtil.RegisterType<UdonSharpBehaviour>(OnBuild, order: -150);
+            OnBuildUtil.RegisterType<SingletonManager>(OnSingletonManagerBuild, order: -149);
         }
 
         private static bool OnPreSingletonBuild()
@@ -116,13 +122,13 @@ namespace JanSharp.Internal
             return true;
         }
 
-        private static bool InstantiatePrefab(System.Type singletonType, SingletonData singleton)
+        private static bool InstantiatePrefab(SingletonData singleton)
         {
             Object prefab = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(singleton.prefabGuid));
             Object instObj = PrefabUtility.InstantiatePrefab(prefab);
             Undo.RegisterCreatedObjectUndo(instObj, "Instantiate singleton prefab");
             GameObject instGo = (GameObject)instObj;
-            singleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(singletonType);
+            singleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(singleton.singletonType);
             foreach (UdonSharpBehaviour ub in instGo.GetComponentsInChildren<UdonSharpBehaviour>(includeInactive: true))
                 OnBuild(ub);
             OnBuildUtil.MarkForRerunDueToScriptInstantiation();
@@ -141,13 +147,40 @@ namespace JanSharp.Internal
             {
                 SingletonData singleton = singletons[field.singletonType];
                 if (!field.optional && singleton.inst == null && ub.GetComponentInParent<BypassSingletonDependencyInstantiation>() == null)
-                    if (!InstantiatePrefab(field.singletonType, singleton))
+                    if (!InstantiatePrefab(singleton))
                         return false;
                 if (field.fieldName != null)
                     so.FindProperty(field.fieldName).objectReferenceValue = singleton.inst;
             }
             so.ApplyModifiedProperties();
 
+            return true;
+        }
+
+        private static bool OnSingletonManagerBuild(SingletonManager manager)
+        {
+            SerializedObject so = new SerializedObject(manager);
+            List<SingletonData> existentSingletons = singletonsList.Where(s => s.inst != null).ToList();
+            EditorUtil.SetArrayProperty(
+                so.FindProperty("singletonInsts"),
+                existentSingletons,
+                (p, v) => p.objectReferenceValue = v.inst);
+            EditorUtil.SetArrayProperty(
+                so.FindProperty("singletonClassNames"),
+                existentSingletons,
+                (p, v) => p.stringValue = v.singletonType.Name);
+            so.ApplyModifiedProperties();
+
+            if (manager.transform.parent != null)
+            {
+                Debug.LogError("[JanSharpCommon] The SingletonManager must be in the root of the scene hierarchy.", manager);
+                return false;
+            }
+            if (manager.name != "SingletonManager")
+            {
+                Debug.LogError("[JanSharpCommon] The SingletonManager's game object must have the exact name 'SingletonManager'.", manager);
+                return false;
+            }
             return true;
         }
     }
