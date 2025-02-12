@@ -25,6 +25,9 @@ namespace JanSharp.Internal
         }
 
         private static Dictionary<System.Type, SingletonData> singletons = new();
+        /// <summary>
+        /// <para>Not just fields, also includes dependencies, which simply have null field names.</para>
+        /// </summary>
         private static Dictionary<System.Type, List<(string fieldName, System.Type singletonType, bool optional)>> typeCache = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
@@ -78,6 +81,17 @@ namespace JanSharp.Internal
                 return true;
             cached = new();
 
+            foreach (var attr in ubType.GetCustomAttributes<SingletonDependencyAttribute>())
+            {
+                if (!singletons.ContainsKey(attr.SingletonType))
+                {
+                    Debug.LogError($"[JanSharpCommon] The {ubType.Name} has a {nameof(SingletonDependencyAttribute)} "
+                        + $"however there is no {attr.SingletonType.Name} class which has the {nameof(SingletonScriptAttribute)}.");
+                    return false;
+                }
+                cached.Add((null, attr.SingletonType, false));
+            }
+
             foreach (FieldInfo field in EditorUtil.GetFieldsIncludingBase(ubType, PrivateAndPublicFlags, stopAtType: typeof(UdonSharpBehaviour)))
             {
                 SingletonReferenceAttribute attr = field.GetCustomAttribute<SingletonReferenceAttribute>(inherit: true);
@@ -119,6 +133,8 @@ namespace JanSharp.Internal
         {
             if (!TryGetTypeCache(ub.GetType(), out var cached))
                 return false;
+            if (!cached.Any())
+                return true;
 
             SerializedObject so = new SerializedObject(ub);
             foreach (var field in cached)
@@ -127,7 +143,8 @@ namespace JanSharp.Internal
                 if (!field.optional && singleton.inst == null && ub.GetComponentInParent<BypassSingletonDependencyInstantiation>() == null)
                     if (!InstantiatePrefab(field.singletonType, singleton))
                         return false;
-                so.FindProperty(field.fieldName).objectReferenceValue = singleton.inst;
+                if (field.fieldName != null)
+                    so.FindProperty(field.fieldName).objectReferenceValue = singleton.inst;
             }
             so.ApplyModifiedProperties();
 
