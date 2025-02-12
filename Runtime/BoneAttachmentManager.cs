@@ -27,6 +27,7 @@ namespace JanSharp
 
         private int[] nearAttachedPlayerIds = new int[ArrList.MinCapacity];
         private VRCPlayerApi[] nearAttachedPlayers = new VRCPlayerApi[ArrList.MinCapacity];
+        private bool[] nearAttachedIsPlayerTracking = new bool[ArrList.MinCapacity];
         private int[] nearAttachedBones = new int[ArrList.MinCapacity];
         private Transform[] nearAttachedTransforms = new Transform[ArrList.MinCapacity];
         private int[] nearAttachedCounts = new int[ArrList.MinCapacity];
@@ -35,6 +36,7 @@ namespace JanSharp
 
         private int[] farAttachedPlayerIds = new int[ArrList.MinCapacity];
         private VRCPlayerApi[] farAttachedPlayers = new VRCPlayerApi[ArrList.MinCapacity];
+        private bool[] farAttachedIsPlayerTracking = new bool[ArrList.MinCapacity];
         private int[] farAttachedBones = new int[ArrList.MinCapacity];
         private Transform[] farAttachedTransforms = new Transform[ArrList.MinCapacity];
         private int[] farAttachedCounts = new int[ArrList.MinCapacity];
@@ -94,10 +96,12 @@ namespace JanSharp
             VRCPlayerApi player = nearAttachedPlayers[nearIncrementalIndex];
             if (player == null || !player.IsValid())
                 return;
-            HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[nearIncrementalIndex];
-            Vector3 bonePosition = player.GetBonePosition(bone);
-            // TODO: what should happen when bonePosition == Vector3.zero - aka the bone does not exist.
-            if (!IsNear(bonePosition))
+            Vector3 position = nearAttachedIsPlayerTracking[nearIncrementalIndex]
+                ? player.GetTrackingData((VRCPlayerApi.TrackingDataType)nearAttachedBones[nearIncrementalIndex]).position
+                : player.GetBonePosition((HumanBodyBones)nearAttachedBones[nearIncrementalIndex]);
+            // When zero, the bone does not exist and tracking it gets disabled. However it does not get
+            // unregistered, so just keep it in the incremental far update loop.
+            if (position == Vector3.zero || !IsNear(position))
                 MoveFromNearToFar(nearIncrementalIndex);
             nearIncrementalIndex++;
         }
@@ -109,8 +113,20 @@ namespace JanSharp
                 VRCPlayerApi player = nearAttachedPlayers[i];
                 if (player == null || !player.IsValid())
                     continue;
-                HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[i];
-                nearAttachedTransforms[i].SetPositionAndRotation(player.GetBonePosition(bone), player.GetBoneRotation(bone));
+                if (nearAttachedIsPlayerTracking[i])
+                {
+                    VRCPlayerApi.TrackingData data = player.GetTrackingData((VRCPlayerApi.TrackingDataType)nearAttachedBones[i]);
+                    Vector3 position = data.position;
+                    if (position != Vector3.zero)
+                        nearAttachedTransforms[i].SetPositionAndRotation(position, data.rotation);
+                }
+                else
+                {
+                    HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[i];
+                    Vector3 position = player.GetBonePosition(bone);
+                    if (position != Vector3.zero)
+                        nearAttachedTransforms[i].SetPositionAndRotation(position, player.GetBoneRotation(bone));
+                }
             }
         }
 
@@ -119,10 +135,24 @@ namespace JanSharp
             VRCPlayerApi player = farAttachedPlayers[index];
             if (player == null || !player.IsValid())
                 return false;
-            HumanBodyBones bone = (HumanBodyBones)farAttachedBones[index];
-            Vector3 bonePosition = player.GetBonePosition(bone);
-            farAttachedTransforms[index].SetPositionAndRotation(bonePosition, player.GetBoneRotation(bone));
-            bool isNear = IsNear(bonePosition);
+            Vector3 position;
+            Quaternion rotation;
+            if (farAttachedIsPlayerTracking[index])
+            {
+                VRCPlayerApi.TrackingData data = player.GetTrackingData((VRCPlayerApi.TrackingDataType)farAttachedBones[index]);
+                position = data.position;
+                rotation = data.rotation;
+            }
+            else
+            {
+                HumanBodyBones bone = (HumanBodyBones)farAttachedBones[index];
+                position = player.GetBonePosition(bone);
+                rotation = player.GetBoneRotation(bone);
+            }
+            if (position == Vector3.zero)
+                return false;
+            farAttachedTransforms[index].SetPositionAndRotation(position, rotation);
+            bool isNear = IsNear(position);
             if (isNear)
                 MoveFromFarToNear(index);
             return isNear;
@@ -161,6 +191,7 @@ namespace JanSharp
             IncrementFarAttachedCount();
             farAttachedPlayerIds[farIndex] = nearAttachedPlayerIds[nearIndex];
             farAttachedPlayers[farIndex] = nearAttachedPlayers[nearIndex];
+            farAttachedIsPlayerTracking[farIndex] = nearAttachedIsPlayerTracking[nearIndex];
             farAttachedBones[farIndex] = nearAttachedBones[nearIndex];
             farAttachedTransforms[farIndex] = nearAttachedTransforms[nearIndex];
             farAttachedCounts[farIndex] = nearAttachedCounts[nearIndex];
@@ -173,6 +204,7 @@ namespace JanSharp
             IncrementNearAttachedCount();
             nearAttachedPlayerIds[nearIndex] = farAttachedPlayerIds[farIndex];
             nearAttachedPlayers[nearIndex] = farAttachedPlayers[farIndex];
+            nearAttachedIsPlayerTracking[nearIndex] = farAttachedIsPlayerTracking[farIndex];
             nearAttachedBones[nearIndex] = farAttachedBones[farIndex];
             nearAttachedTransforms[nearIndex] = farAttachedTransforms[farIndex];
             nearAttachedCounts[nearIndex] = farAttachedCounts[farIndex];
@@ -187,6 +219,7 @@ namespace JanSharp
                 return;
             nearAttachedPlayerIds[nearIndex] = nearAttachedPlayerIds[nearAttachedCount];
             nearAttachedPlayers[nearIndex] = nearAttachedPlayers[nearAttachedCount];
+            nearAttachedIsPlayerTracking[nearIndex] = nearAttachedIsPlayerTracking[nearAttachedCount];
             nearAttachedBones[nearIndex] = nearAttachedBones[nearAttachedCount];
             nearAttachedTransforms[nearIndex] = nearAttachedTransforms[nearAttachedCount];
             nearAttachedCounts[nearIndex] = nearAttachedCounts[nearAttachedCount];
@@ -200,6 +233,7 @@ namespace JanSharp
                 return;
             farAttachedPlayerIds[farIndex] = farAttachedPlayerIds[farAttachedCount];
             farAttachedPlayers[farIndex] = farAttachedPlayers[farAttachedCount];
+            farAttachedIsPlayerTracking[farIndex] = farAttachedIsPlayerTracking[farAttachedCount];
             farAttachedBones[farIndex] = farAttachedBones[farAttachedCount];
             farAttachedTransforms[farIndex] = farAttachedTransforms[farAttachedCount];
             farAttachedCounts[farIndex] = farAttachedCounts[farAttachedCount];
@@ -232,6 +266,7 @@ namespace JanSharp
             nearAttachedCount++;
             ArrList.EnsureCapacity(ref nearAttachedPlayerIds, nearAttachedCount);
             ArrList.EnsureCapacity(ref nearAttachedPlayers, nearAttachedCount);
+            ArrList.EnsureCapacity(ref nearAttachedIsPlayerTracking, nearAttachedCount);
             ArrList.EnsureCapacity(ref nearAttachedBones, nearAttachedCount);
             ArrList.EnsureCapacity(ref nearAttachedTransforms, nearAttachedCount);
             ArrList.EnsureCapacity(ref nearAttachedCounts, nearAttachedCount);
@@ -242,6 +277,7 @@ namespace JanSharp
             farAttachedCount++;
             ArrList.EnsureCapacity(ref farAttachedPlayerIds, farAttachedCount);
             ArrList.EnsureCapacity(ref farAttachedPlayers, farAttachedCount);
+            ArrList.EnsureCapacity(ref farAttachedIsPlayerTracking, farAttachedCount);
             ArrList.EnsureCapacity(ref farAttachedBones, farAttachedCount);
             ArrList.EnsureCapacity(ref farAttachedTransforms, farAttachedCount);
             ArrList.EnsureCapacity(ref farAttachedCounts, farAttachedCount);
@@ -263,20 +299,20 @@ namespace JanSharp
             ArrList.EnsureCapacity(ref localTrackingCounts, localTrackingCount);
         }
 
-        private static int IndexOfInternal<T1, T2>(T1[] arrayOne, T2[] arrayTwo, int listCount, T1 valueOne, T2 valueTwo)
+        private static int IndexOfInternal<T1, T2, T3>(T1[] arrayOne, T2[] arrayTwo, T3[] arrayThree, int listCount, T1 valueOne, T2 valueTwo, T3 valueThree)
         {
             int index = -1;
             while (true)
             {
                 index = System.Array.IndexOf(arrayOne, valueOne, index + 1, listCount);
-                if (index == -1 || arrayTwo[index].Equals(valueTwo))
+                if (index == -1 || (arrayTwo[index].Equals(valueTwo) && arrayThree[index].Equals(valueThree)))
                     return index;
             }
         }
-        private int IndexOfInNear(int playerId, int bone)
-            => IndexOfInternal(nearAttachedPlayerIds, nearAttachedBones, nearAttachedCount, playerId, bone);
-        private int IndexOfInFar(int playerId, int bone)
-            => IndexOfInternal(farAttachedPlayerIds, farAttachedBones, farAttachedCount, playerId, bone);
+        private int IndexOfInNear(int playerId, bool playerTracking, int bone)
+            => IndexOfInternal(nearAttachedPlayerIds, nearAttachedIsPlayerTracking, nearAttachedBones, nearAttachedCount, playerId, playerTracking, bone);
+        private int IndexOfInFar(int playerId, bool playerTracking, int bone)
+            => IndexOfInternal(farAttachedPlayerIds, farAttachedIsPlayerTracking, farAttachedBones, farAttachedCount, playerId, playerTracking, bone);
 
         private int IndexOfInLocalBones(int bone) => System.Array.IndexOf(localBones, bone, 0, localBonesCount);
         private int IndexOfInLocalTracking(int trackingType) => System.Array.IndexOf(localTrackingTypes, trackingType, 0, localTrackingCount);
@@ -341,33 +377,54 @@ namespace JanSharp
 
         public void AttachToBone(VRCPlayerApi player, HumanBodyBones bone, Transform toAttach)
         {
+            AttachToRemotePlayer(player, false, (int)bone, toAttach);
+        }
+
+        public void AttachToTrackingData(VRCPlayerApi player, VRCPlayerApi.TrackingDataType trackingType, Transform toAttach)
+        {
+            AttachToRemotePlayer(player, true, (int)trackingType, toAttach);
+        }
+
+        private void AttachToRemotePlayer(VRCPlayerApi player, bool playerTracking, int boneValue, Transform toAttach)
+        {
             int playerId = player.playerId;
-            int boneValue = (int)bone;
 
             if (playerId == localPlayerId)
             {
-                AttachToLocalPlayerBone(bone, boneValue, toAttach);
+                if (playerTracking)
+                    AttachToLocalTrackingData((VRCPlayerApi.TrackingDataType)boneValue, toAttach);
+                else
+                    AttachToLocalPlayerBone((HumanBodyBones)boneValue, boneValue, toAttach);
                 return;
             }
 
-            int index = IndexOfInNear(playerId, boneValue);
+            int index = IndexOfInNear(playerId, true, boneValue);
             if (index != -1)
             {
                 nearAttachedCounts[index]++;
-                AttachToBoneTransform(farAttachedTransforms[index], player, bone, toAttach);
+                if (playerTracking)
+                    AttachToCurrentTrackingData(nearAttachedTransforms[index], player, (VRCPlayerApi.TrackingDataType)boneValue, toAttach);
+                else
+                    AttachToBoneTransform(nearAttachedTransforms[index], player, (HumanBodyBones)boneValue, toAttach);
                 return;
             }
 
-            index = IndexOfInFar(playerId, boneValue);
+            index = IndexOfInFar(playerId, true, boneValue);
             if (index != -1)
             {
                 farAttachedCounts[index]++;
-                AttachToBoneTransform(farAttachedTransforms[index], player, bone, toAttach);
+                if (playerTracking)
+                    AttachToCurrentTrackingData(farAttachedTransforms[index], player, (VRCPlayerApi.TrackingDataType)boneValue, toAttach);
+                else
+                    AttachToBoneTransform(farAttachedTransforms[index], player, (HumanBodyBones)boneValue, toAttach);
                 return;
             }
 
             Transform boneTransform = GetAttachmentTransform();
-            AttachToBoneTransform(boneTransform, player, bone, toAttach);
+            if (playerTracking)
+                AttachToCurrentTrackingData(boneTransform, player, (VRCPlayerApi.TrackingDataType)boneValue, toAttach);
+            else
+                AttachToBoneTransform(boneTransform, player, (HumanBodyBones)boneValue, toAttach);
 
             if (IsNear(boneTransform.position))
             {
@@ -375,6 +432,7 @@ namespace JanSharp
                 IncrementNearAttachedCount();
                 nearAttachedPlayerIds[index] = playerId;
                 nearAttachedPlayers[index] = player;
+                nearAttachedIsPlayerTracking[index] = playerTracking;
                 nearAttachedBones[index] = boneValue;
                 nearAttachedTransforms[index] = boneTransform;
                 nearAttachedCounts[index] = 1;
@@ -385,6 +443,7 @@ namespace JanSharp
                 IncrementFarAttachedCount();
                 farAttachedPlayerIds[index] = playerId;
                 farAttachedPlayers[index] = player;
+                farAttachedIsPlayerTracking[index] = playerTracking;
                 farAttachedBones[index] = boneValue;
                 farAttachedTransforms[index] = boneTransform;
                 farAttachedCounts[index] = 1;
@@ -425,8 +484,16 @@ namespace JanSharp
 
         public void DetachFromBone(int playerId, HumanBodyBones bone, Transform toDetach)
         {
-            int boneValue = (int)bone;
+            DetachFromRemotePlayer(playerId, false, (int)bone, toDetach);
+        }
 
+        public void DetachFromTrackingData(int playerId, VRCPlayerApi.TrackingDataType trackingType, Transform toDetach)
+        {
+            DetachFromRemotePlayer(playerId, true, (int)trackingType, toDetach);
+        }
+
+        private void DetachFromRemotePlayer(int playerId, bool playerTracking, int boneValue, Transform toDetach)
+        {
             toDetach.SetParent(null); // Before the bone transform gets reset.
 
             if (playerId == localPlayerId)
@@ -435,7 +502,7 @@ namespace JanSharp
                 return;
             }
 
-            int index = IndexOfInNear(playerId, boneValue);
+            int index = IndexOfInNear(playerId, playerTracking, boneValue);
             if (index != -1)
             {
                 if ((--nearAttachedCounts[index]) != 0)
@@ -445,7 +512,7 @@ namespace JanSharp
                 return;
             }
 
-            index = IndexOfInFar(playerId, boneValue);
+            index = IndexOfInFar(playerId, playerTracking, boneValue);
             if (index == -1)
             {
                 if ((--farAttachedCounts[index]) != 0)
