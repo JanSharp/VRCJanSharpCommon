@@ -413,7 +413,8 @@ namespace JanSharp
         {
             int boneValue = (int)bone;
 
-            toDetach.SetParent(null); // Before the bone transform gets reset.
+            if (toDetach != null)
+                toDetach.SetParent(null); // Before the bone transform gets reset.
 
             if (playerId == localPlayerId)
             {
@@ -446,7 +447,8 @@ namespace JanSharp
 
         public void DetachFromLocalTrackingData(VRCPlayerApi.TrackingDataType trackingType, Transform toDetach)
         {
-            toDetach.SetParent(null); // Before the tracking transform gets reset.
+            if (toDetach != null)
+                toDetach.SetParent(null); // Before the tracking transform gets reset.
             DetachFromLocalTracking((int)trackingType);
         }
     }
