@@ -82,13 +82,24 @@ namespace JanSharp
         {
             if (!manager.TryGetPrefabInternal(wannaBeClassName, out GameObject prefab))
                 return null;
+            #if JanSharpCommonDebug
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+            #endif
             // By having this logic in a static function it gets put into each script which calls the New,
             // function, which then means that multiple scripts can call New inside of their
             // WannaBeConstructor without running into recursion issues.
             GameObject go = Object.Instantiate(prefab, manager.instancesParent);
+            #if JanSharpCommonDebug
+            double instantiateMs = sw.Elapsed.TotalMilliseconds;
+            #endif
             WannaBeClass inst = (WannaBeClass)go.GetComponent<UdonSharpBehaviour>();
             // inst.SetProgramVariable("wannaBeClasses", manager); // Not needed because the "prefab" already has it set.
             inst.WannaBeConstructor();
+            #if JanSharpCommonDebug
+            double constructorMs = sw.Elapsed.TotalMilliseconds - instantiateMs;
+            Debug.Log($"[JanSharpCommonDebug] [sw] WannaBeClassesManager  NewDynamic (inner) - instantiateMs: {instantiateMs}, constructorMs: {constructorMs}, wannaBeClassName: {wannaBeClassName}");
+            #endif
             return inst;
         }
     }
