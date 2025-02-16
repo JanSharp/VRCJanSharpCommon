@@ -30,7 +30,6 @@ namespace JanSharp
         private VRCPlayerApi[] nearAttachedPlayers = new VRCPlayerApi[ArrList.MinCapacity];
         private int[] nearAttachedBones = new int[ArrList.MinCapacity];
         private Transform[] nearAttachedTransforms = new Transform[ArrList.MinCapacity];
-        private int[] nearAttachedCounts = new int[ArrList.MinCapacity];
         private int nearAttachedCount = 0;
         private int nearIncrementalIndex = 0;
 
@@ -38,18 +37,15 @@ namespace JanSharp
         private VRCPlayerApi[] farAttachedPlayers = new VRCPlayerApi[ArrList.MinCapacity];
         private int[] farAttachedBones = new int[ArrList.MinCapacity];
         private Transform[] farAttachedTransforms = new Transform[ArrList.MinCapacity];
-        private int[] farAttachedCounts = new int[ArrList.MinCapacity];
         private int farAttachedCount = 0;
         private int farIncrementalIndex = 0;
 
         private int[] localBones = new int[ArrList.MinCapacity];
         private Transform[] localBoneTransforms = new Transform[ArrList.MinCapacity];
-        private int[] localBoneCounts = new int[ArrList.MinCapacity];
         private int localBonesCount = 0;
 
         private int[] localTrackingTypes = new int[ArrList.MinCapacity];
         private Transform[] localTrackingTransforms = new Transform[ArrList.MinCapacity];
-        private int[] localTrackingCounts = new int[ArrList.MinCapacity];
         private int localTrackingCount = 0;
 
         private const float NearDistanceThreshold = 32f;
@@ -171,7 +167,6 @@ namespace JanSharp
             farAttachedPlayers[farIndex] = nearAttachedPlayers[nearIndex];
             farAttachedBones[farIndex] = nearAttachedBones[nearIndex];
             farAttachedTransforms[farIndex] = nearAttachedTransforms[nearIndex];
-            farAttachedCounts[farIndex] = nearAttachedCounts[nearIndex];
             RemoveFromNearArrays(nearIndex);
         }
 
@@ -183,7 +178,6 @@ namespace JanSharp
             nearAttachedPlayers[nearIndex] = farAttachedPlayers[farIndex];
             nearAttachedBones[nearIndex] = farAttachedBones[farIndex];
             nearAttachedTransforms[nearIndex] = farAttachedTransforms[farIndex];
-            nearAttachedCounts[nearIndex] = farAttachedCounts[farIndex];
             RemoveFromFarArrays(farIndex);
         }
 
@@ -197,7 +191,6 @@ namespace JanSharp
             nearAttachedPlayers[nearIndex] = nearAttachedPlayers[nearAttachedCount];
             nearAttachedBones[nearIndex] = nearAttachedBones[nearAttachedCount];
             nearAttachedTransforms[nearIndex] = nearAttachedTransforms[nearAttachedCount];
-            nearAttachedCounts[nearIndex] = nearAttachedCounts[nearAttachedCount];
         }
 
         private void RemoveFromFarArrays(int farIndex)
@@ -210,7 +203,6 @@ namespace JanSharp
             farAttachedPlayers[farIndex] = farAttachedPlayers[farAttachedCount];
             farAttachedBones[farIndex] = farAttachedBones[farAttachedCount];
             farAttachedTransforms[farIndex] = farAttachedTransforms[farAttachedCount];
-            farAttachedCounts[farIndex] = farAttachedCounts[farAttachedCount];
         }
 
         private void RemoveFromLocalBonesArrays(int index)
@@ -221,7 +213,6 @@ namespace JanSharp
                 return;
             localBones[index] = localBones[localBonesCount];
             localBoneTransforms[index] = localBoneTransforms[localBonesCount];
-            localBoneCounts[index] = localBoneCounts[localBonesCount];
         }
 
         private void RemoveFromLocalTrackingArrays(int index)
@@ -232,7 +223,6 @@ namespace JanSharp
                 return;
             localTrackingTypes[index] = localTrackingTypes[localTrackingCount];
             localTrackingTransforms[index] = localTrackingTransforms[localTrackingCount];
-            localTrackingCounts[index] = localTrackingCounts[localTrackingCount];
         }
 
         private void IncrementNearAttachedCount()
@@ -242,7 +232,6 @@ namespace JanSharp
             ArrList.EnsureCapacity(ref nearAttachedPlayers, nearAttachedCount);
             ArrList.EnsureCapacity(ref nearAttachedBones, nearAttachedCount);
             ArrList.EnsureCapacity(ref nearAttachedTransforms, nearAttachedCount);
-            ArrList.EnsureCapacity(ref nearAttachedCounts, nearAttachedCount);
         }
 
         private void IncrementFarAttachedCount()
@@ -252,7 +241,6 @@ namespace JanSharp
             ArrList.EnsureCapacity(ref farAttachedPlayers, farAttachedCount);
             ArrList.EnsureCapacity(ref farAttachedBones, farAttachedCount);
             ArrList.EnsureCapacity(ref farAttachedTransforms, farAttachedCount);
-            ArrList.EnsureCapacity(ref farAttachedCounts, farAttachedCount);
         }
 
         private void IncrementLocalBonesCount()
@@ -260,7 +248,6 @@ namespace JanSharp
             localBonesCount++;
             ArrList.EnsureCapacity(ref localBones, localBonesCount);
             ArrList.EnsureCapacity(ref localBoneTransforms, localBonesCount);
-            ArrList.EnsureCapacity(ref localBoneCounts, localBonesCount);
         }
 
         private void IncrementLocalTrackingCount()
@@ -268,7 +255,6 @@ namespace JanSharp
             localTrackingCount++;
             ArrList.EnsureCapacity(ref localTrackingTypes, localTrackingCount);
             ArrList.EnsureCapacity(ref localTrackingTransforms, localTrackingCount);
-            ArrList.EnsureCapacity(ref localTrackingCounts, localTrackingCount);
         }
 
         private static int IndexOfInternal<T1, T2>(T1[] arrayOne, T2[] arrayTwo, int listCount, T1 valueOne, T2 valueTwo)
@@ -311,7 +297,6 @@ namespace JanSharp
             int index = IndexOfInLocalBones(boneValue);
             if (index != -1)
             {
-                localBoneCounts[index]++;
                 AttachToBoneTransform(localBoneTransforms[index], localPlayer, bone, toAttach);
                 return;
             }
@@ -323,7 +308,6 @@ namespace JanSharp
             IncrementLocalBonesCount();
             localBones[index] = boneValue;
             localBoneTransforms[index] = boneTransform;
-            localBoneCounts[index] = 1;
         }
 
         public void AttachToLocalTrackingData(VRCPlayerApi.TrackingDataType trackingType, Transform toAttach)
@@ -332,7 +316,6 @@ namespace JanSharp
             int index = IndexOfInLocalTracking(trackingTypeValue);
             if (index != -1)
             {
-                localTrackingCounts[index]++;
                 AttachToCurrentTrackingData(localTrackingTransforms[index], localPlayer, trackingType, toAttach);
                 return;
             }
@@ -344,7 +327,6 @@ namespace JanSharp
             IncrementLocalTrackingCount();
             localTrackingTypes[index] = trackingTypeValue;
             localTrackingTransforms[index] = trackingTransform;
-            localTrackingCounts[index] = 1;
         }
 
         public void AttachToBone(VRCPlayerApi player, HumanBodyBones bone, Transform toAttach)
@@ -361,7 +343,6 @@ namespace JanSharp
             int index = IndexOfInNear(playerId, boneValue);
             if (index != -1)
             {
-                nearAttachedCounts[index]++;
                 AttachToBoneTransform(farAttachedTransforms[index], player, bone, toAttach);
                 return;
             }
@@ -369,7 +350,6 @@ namespace JanSharp
             index = IndexOfInFar(playerId, boneValue);
             if (index != -1)
             {
-                farAttachedCounts[index]++;
                 AttachToBoneTransform(farAttachedTransforms[index], player, bone, toAttach);
                 return;
             }
@@ -385,7 +365,6 @@ namespace JanSharp
                 nearAttachedPlayers[index] = player;
                 nearAttachedBones[index] = boneValue;
                 nearAttachedTransforms[index] = boneTransform;
-                nearAttachedCounts[index] = 1;
             }
             else
             {
@@ -395,7 +374,6 @@ namespace JanSharp
                 farAttachedPlayers[index] = player;
                 farAttachedBones[index] = boneValue;
                 farAttachedTransforms[index] = boneTransform;
-                farAttachedCounts[index] = 1;
             }
         }
 
@@ -412,10 +390,10 @@ namespace JanSharp
             int index = IndexOfInLocalBones(boneValue);
             if (index == -1)
                 return;
-            int count = --localBoneCounts[index];
-            if (count != 0)
+            Transform boneTransform = localBoneTransforms[index];
+            if (boneTransform.childCount != 0)
                 return;
-            AddToUnusedPrefabInstances(localBoneTransforms[index]);
+            AddToUnusedPrefabInstances(boneTransform);
             RemoveFromLocalBonesArrays(index);
         }
 
@@ -424,10 +402,10 @@ namespace JanSharp
             int index = IndexOfInLocalTracking(trackingTypeValue);
             if (index == -1)
                 return;
-            int count = --localTrackingCounts[index];
-            if (count != 0)
+            Transform trackingTransform = localTrackingTransforms[index];
+            if (trackingTransform.childCount != 0)
                 return;
-            AddToUnusedPrefabInstances(localTrackingTransforms[index]);
+            AddToUnusedPrefabInstances(trackingTransform);
             RemoveFromLocalTrackingArrays(index);
         }
 
@@ -446,9 +424,10 @@ namespace JanSharp
             int index = IndexOfInNear(playerId, boneValue);
             if (index != -1)
             {
-                if ((--nearAttachedCounts[index]) != 0)
+                Transform boneTransform = nearAttachedTransforms[index];
+                if (boneTransform.childCount != 0)
                     return;
-                AddToUnusedPrefabInstances(nearAttachedTransforms[index]);
+                AddToUnusedPrefabInstances(boneTransform);
                 RemoveFromNearArrays(index);
                 return;
             }
@@ -456,9 +435,10 @@ namespace JanSharp
             index = IndexOfInFar(playerId, boneValue);
             if (index == -1)
             {
-                if ((--farAttachedCounts[index]) != 0)
+                Transform boneTransform = farAttachedTransforms[index];
+                if (boneTransform.childCount != 0)
                     return;
-                AddToUnusedPrefabInstances(farAttachedTransforms[index]);
+                AddToUnusedPrefabInstances(boneTransform);
                 RemoveFromFarArrays(index);
                 return;
             }
