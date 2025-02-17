@@ -5,6 +5,7 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 
 - [ ] look at newly exposed BitConverter
 - [ ] look at newly exposed StringBuilder
+- [ ] look at Encoding.UTF8, pretty sure that's also newly exposed because otherwise I'd have used that to begin with
 - [x] editor utility which automatically instantiates prefab instances for system dependencies, recursively
   - [x] support this in the singleton editor utility
 - [x] add optional vs required setting to singleton, required being the default
