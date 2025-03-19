@@ -3,9 +3,10 @@ using System;
 
 namespace JanSharp
 {
-    ///<summary>Arithmetic BitConverter because we don't have BitConverter.</summary>
+    ///<summary>Arithmetic BitConverter because BitConverter wasn't exposed for a long time.</summary>
     public static class ArithBitConverter
     {
+        [Obsolete("BitConverter has been exposed, use it instead.")]
         public static uint SingleToUInt32Bits(float value)
         {
             if (value == 0f)
@@ -52,6 +53,7 @@ namespace JanSharp
             return sign | ((uint)(exponent + 127) << 23) | mantissa;
         }
 
+        [Obsolete("BitConverter has been exposed, use it instead.")]
         public static ulong DoubleToUInt64Bits(double value)
         {
             if (value == 0d)
@@ -98,6 +100,7 @@ namespace JanSharp
             return sign | ((ulong)(exponent + 1023) << 52) | mantissa;
         }
 
+        [Obsolete("BitConverter has been exposed, use it instead.")]
         public static float UInt32BitsToSingle(uint bytes)
         {
             float sign = (bytes & 0x80000000u) != 0u ? -1f : 1f;
@@ -115,6 +118,7 @@ namespace JanSharp
             return sign * (mantissa * Mathf.Pow(2f, exponent - 23f));
         }
 
+        [Obsolete("BitConverter has been exposed, use it instead.")]
         public static double UInt64BitsToDouble(ulong bytes)
         {
             double sign = (bytes & 0x8000000000000000uL) != 0uL ? -1d : 1d;

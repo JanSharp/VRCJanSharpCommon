@@ -1,8 +1,19 @@
+using System;
+using System.Text;
 using UnityEngine;
 
 namespace JanSharp
 {
-    ///<summary>All numbers are written and read in big endian due to networking conventions.</summary>
+    ///<summary>
+    /// <para>All numbers are written and read in little endian for performance reasons, even though
+    /// networking convention is to use big endian. Unfortunately Udon is so slow and the
+    /// <see cref="BitConverter"/> is so inconvenient for handling endian switching (using
+    /// <see cref="Array.Reverse(Array)"/> is the best option, and that's saying something) such that overall
+    /// it is worth more to ignore the convention and go for performance instead since basically every CPU is
+    /// little endian, especially those for PCs.</para>
+    /// <para>The write and read "small" functions are actually closer to big endian, but those don't fit any
+    /// conventions I'm aware of anyway, nor do they use <see cref="BitConverter"/>.</para>
+    /// </summary>
     public static class DataStream
     {
         // If you're reading through this code and you're putting your hand through your face, well you have
@@ -42,79 +53,81 @@ namespace JanSharp
         public static void Write(ref byte[] stream, ref int streamSize, short value)
         {
             ArrList.EnsureCapacity(ref stream, streamSize + 2);
-            // Logical AND away the top bits, including the int's sign bit, putting it in bounds of `byte`s.
-            int bytes = (int)value & 0xffff;
-            stream[streamSize++] = (byte)(bytes >> 8);
-            stream[streamSize++] = (byte)(bytes & 0xff);
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, 2);
+            streamSize += 2;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, ushort value)
         {
             ArrList.EnsureCapacity(ref stream, streamSize + 2);
-            // Bit shifts and logical ops only exist for 4 and 8 byte numbers.
-            // Which means this deduplicates the System.Convert.ToUInt32 calls.
-            uint bytes = (uint)value;
-            stream[streamSize++] = (byte)(bytes >> 8);
-            stream[streamSize++] = (byte)(bytes & 0xffu);
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, 2);
+            streamSize += 2;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, int value)
         {
             ArrList.EnsureCapacity(ref stream, streamSize + 4);
-            // Logical AND away the top bits, including the long's sign bit, putting it in bounds of `byte`s.
-            long bytes = (long)value & 0xffffffffL;
-            stream[streamSize++] = (byte)(bytes >> 24);
-            stream[streamSize++] = (byte)((bytes >> 16) & 0xffL);
-            stream[streamSize++] = (byte)((bytes >> 8) & 0xffL);
-            stream[streamSize++] = (byte)(bytes & 0xffL);
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, 4);
+            streamSize += 4;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, uint value)
         {
             ArrList.EnsureCapacity(ref stream, streamSize + 4);
-            stream[streamSize++] = (byte)(value >> 24);
-            stream[streamSize++] = (byte)((value >> 16) & 0xffu);
-            stream[streamSize++] = (byte)((value >> 8) & 0xffu);
-            stream[streamSize++] = (byte)(value & 0xffu);
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, 4);
+            streamSize += 4;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, long value)
         {
             ArrList.EnsureCapacity(ref stream, streamSize + 8);
-            // Convert negative values into positive ones without changing any of the bits.
-            // Do so by logical ANDing away the sign bit, converting to unsigned and re-adding the highest bit.
-            ulong bytes = value >= 0 ? (ulong)value : (0x8000000000000000uL | (ulong)(value & 0x7fffffffffffffffL));
-            stream[streamSize++] = (byte)(bytes >> 56);
-            stream[streamSize++] = (byte)((bytes >> 48) & 0xffuL);
-            stream[streamSize++] = (byte)((bytes >> 40) & 0xffuL);
-            stream[streamSize++] = (byte)((bytes >> 32) & 0xffuL);
-            stream[streamSize++] = (byte)((bytes >> 24) & 0xffuL);
-            stream[streamSize++] = (byte)((bytes >> 16) & 0xffuL);
-            stream[streamSize++] = (byte)((bytes >> 8) & 0xffuL);
-            stream[streamSize++] = (byte)(bytes & 0xffuL);
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, 8);
+            streamSize += 8;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, ulong value)
         {
             ArrList.EnsureCapacity(ref stream, streamSize + 8);
-            stream[streamSize++] = (byte)(value >> 56);
-            stream[streamSize++] = (byte)((value >> 48) & 0xffuL);
-            stream[streamSize++] = (byte)((value >> 40) & 0xffuL);
-            stream[streamSize++] = (byte)((value >> 32) & 0xffuL);
-            stream[streamSize++] = (byte)((value >> 24) & 0xffuL);
-            stream[streamSize++] = (byte)((value >> 16) & 0xffuL);
-            stream[streamSize++] = (byte)((value >> 8) & 0xffuL);
-            stream[streamSize++] = (byte)(value & 0xffuL);
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, 8);
+            streamSize += 8;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, float value)
         {
-            Write(ref stream, ref streamSize, ArithBitConverter.SingleToUInt32Bits(value));
+            ArrList.EnsureCapacity(ref stream, streamSize + 4);
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, 4);
+            streamSize += 4;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, double value)
         {
-            Write(ref stream, ref streamSize, ArithBitConverter.DoubleToUInt64Bits(value));
+            ArrList.EnsureCapacity(ref stream, streamSize + 8);
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, 8);
+            streamSize += 8;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, Vector2 value)
@@ -148,41 +161,12 @@ namespace JanSharp
 
         public static void Write(ref byte[] stream, ref int streamSize, char value)
         {
-            //  byte 1  |  byte 2  |  byte 3  |  byte 4
-            // 0xxxxxxx |          |          |
-            // 110xxxxx | 10xxxxxx |          |
-            // 1110xxxx | 10xxxxxx | 10xxxxxx |
-            // 11110xxx | 10xxxxxx | 10xxxxxx | 10xxxxxx
-            // For the 4 bytes there is an artificial limitation of 20 bits for the actual value for some
-            // specific reason in relation to utf-16. I don't know the details and it doesn't matter to me
-            // because I am not doing any validation.
-            uint codePoint = System.Convert.ToUInt32(value);
-            if (codePoint <= 0x007fu)
-            {
-                ArrList.EnsureCapacity(ref stream, streamSize + 1);
-                stream[streamSize++] = (byte)codePoint;
-                return;
-            }
-            if (codePoint <= 0x07ffu)
-            {
-                ArrList.EnsureCapacity(ref stream, streamSize + 2);
-                stream[streamSize++] = (byte)(0xc0u | (codePoint >> 6));
-                stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
-                return;
-            }
-            if (codePoint <= 0xffffu)
-            {
-                ArrList.EnsureCapacity(ref stream, streamSize + 3);
-                stream[streamSize++] = (byte)(0xe0u | (codePoint >> 12));
-                stream[streamSize++] = (byte)(0x80u | ((codePoint >> 6) & 0x3fu));
-                stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
-                return;
-            }
-            ArrList.EnsureCapacity(ref stream, streamSize + 4);
-            stream[streamSize++] = (byte)(0xf0u | (codePoint >> 18));
-            stream[streamSize++] = (byte)(0x80u | ((codePoint >> 12) & 0x3fu));
-            stream[streamSize++] = (byte)(0x80u | ((codePoint >> 6) & 0x3fu));
-            stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
+            // UTF8 has the same encoding on both little and big endian architectures.
+            byte[] bytes = Encoding.UTF8.GetBytes(value.ToString());
+            int length = bytes.Length;
+            ArrList.EnsureCapacity(ref stream, streamSize + length);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, length);
+            streamSize += length;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, string value)
@@ -192,39 +176,16 @@ namespace JanSharp
                 WriteSmall(ref stream, ref streamSize, 0u); // Small uint is faster to serialize.
                 return;
             }
-            int length = value.Length;
+            // UTF8 has the same encoding on both little and big endian architectures.
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            int length = bytes.Length;
             WriteSmall(ref stream, ref streamSize, (uint)(length + 1)); // Also use uint.
-            ArrList.EnsureCapacity(ref stream, streamSize + length * 4);
-            foreach (char c in value)
-            {
-                // Copy paste of Write(char), slightly modified. Basically properly inlined.
-                uint codePoint = (uint)c;
-                if (codePoint <= 0x007fu)
-                {
-                    stream[streamSize++] = (byte)codePoint;
-                    continue;
-                }
-                if (codePoint <= 0x07ffu)
-                {
-                    stream[streamSize++] = (byte)(0xc0u | (codePoint >> 6));
-                    stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
-                    continue;
-                }
-                if (codePoint <= 0xffffu)
-                {
-                    stream[streamSize++] = (byte)(0xe0u | (codePoint >> 12));
-                    stream[streamSize++] = (byte)(0x80u | ((codePoint >> 6) & 0x3fu));
-                    stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
-                    continue;
-                }
-                stream[streamSize++] = (byte)(0xf0u | (codePoint >> 18));
-                stream[streamSize++] = (byte)(0x80u | ((codePoint >> 12) & 0x3fu));
-                stream[streamSize++] = (byte)(0x80u | ((codePoint >> 6) & 0x3fu));
-                stream[streamSize++] = (byte)(0x80u | (codePoint & 0x3fu));
-            }
+            ArrList.EnsureCapacity(ref stream, streamSize + length);
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, length);
+            streamSize += length;
         }
 
-        public static void Write(ref byte[] stream, ref int streamSize, System.DateTime value)
+        public static void Write(ref byte[] stream, ref int streamSize, DateTime value)
         {
             Write(ref stream, ref streamSize, value.ToBinary());
         }
@@ -233,14 +194,14 @@ namespace JanSharp
         {
             int length = bytes.Length;
             ArrList.EnsureCapacity(ref stream, streamSize + length);
-            bytes.CopyTo(stream, streamSize); // streamSize is the start/target index.
+            Buffer.BlockCopy(bytes, 0, stream, streamSize, length);
             streamSize += length;
         }
 
         public static void Write(ref byte[] stream, ref int streamSize, byte[] bytes, int startIndex, int length)
         {
             ArrList.EnsureCapacity(ref stream, streamSize + length);
-            System.Array.Copy(bytes, startIndex, stream, streamSize, length);
+            Buffer.BlockCopy(bytes, startIndex, stream, streamSize, length);
             streamSize += length;
         }
 
@@ -266,73 +227,130 @@ namespace JanSharp
 
         public static short ReadShort(ref byte[] stream, ref int position)
         {
-            int bytes = ((int)stream[position++] << 8)
-                | (int)stream[position++];
-
-            // // See comments in ReadSByte.
-            // return bytes >= 0x8000 ? (short)bytes : (short)(-32768 | (bytes & 0x7fff));
-
-            // See comments in ReadSByte.
-            return (short)((bytes << 16) >> 16);
+            short result;
+            if (BitConverter.IsLittleEndian)
+                result = BitConverter.ToInt16(stream, position);
+            else
+            {
+                byte[] bytes = new byte[2];
+                Buffer.BlockCopy(stream, position, bytes, 0, 2);
+                Array.Reverse(bytes);
+                result = BitConverter.ToInt16(bytes, 0);
+            }
+            position += 2;
+            return result;
         }
 
         public static ushort ReadUShort(ref byte[] stream, ref int position)
         {
-            return (ushort)(
-                ((uint)stream[position++] << 8)
-                | (uint)stream[position++]);
+            ushort result;
+            if (BitConverter.IsLittleEndian)
+                result = BitConverter.ToUInt16(stream, position);
+            else
+            {
+                byte[] bytes = new byte[2];
+                Buffer.BlockCopy(stream, position, bytes, 0, 2);
+                Array.Reverse(bytes);
+                result = BitConverter.ToUInt16(bytes, 0);
+            }
+            position += 2;
+            return result;
         }
 
         public static int ReadInt(ref byte[] stream, ref int position)
         {
-            // All these operators are logical ops and the result is a 4 byte number, so nothing extra to do.
-            return ((int)stream[position++] << 24)
-                | ((int)stream[position++] << 16)
-                | ((int)stream[position++] << 8)
-                | (int)stream[position++];
+            int result;
+            if (BitConverter.IsLittleEndian)
+                result = BitConverter.ToInt32(stream, position);
+            else
+            {
+                byte[] bytes = new byte[4];
+                Buffer.BlockCopy(stream, position, bytes, 0, 4);
+                Array.Reverse(bytes);
+                result = BitConverter.ToInt32(bytes, 0);
+            }
+            position += 4;
+            return result;
         }
 
         public static uint ReadUInt(ref byte[] stream, ref int position)
         {
-            return ((uint)stream[position++] << 24)
-                | ((uint)stream[position++] << 16)
-                | ((uint)stream[position++] << 8)
-                | (uint)stream[position++];
+            uint result;
+            if (BitConverter.IsLittleEndian)
+                result = BitConverter.ToUInt32(stream, position);
+            else
+            {
+                byte[] bytes = new byte[4];
+                Buffer.BlockCopy(stream, position, bytes, 0, 4);
+                Array.Reverse(bytes);
+                result = BitConverter.ToUInt32(bytes, 0);
+            }
+            position += 4;
+            return result;
         }
 
         public static long ReadLong(ref byte[] stream, ref int position)
         {
-            // All these operators are logical ops and the result is an 8 byte number, so nothing extra to do.
-            return ((long)stream[position++] << 56)
-                | ((long)stream[position++] << 48)
-                | ((long)stream[position++] << 40)
-                | ((long)stream[position++] << 32)
-                | ((long)stream[position++] << 24)
-                | ((long)stream[position++] << 16)
-                | ((long)stream[position++] << 8)
-                | (long)stream[position++];
+            long result;
+            if (BitConverter.IsLittleEndian)
+                result = BitConverter.ToInt64(stream, position);
+            else
+            {
+                byte[] bytes = new byte[8];
+                Buffer.BlockCopy(stream, position, bytes, 0, 8);
+                Array.Reverse(bytes);
+                result = BitConverter.ToInt64(bytes, 0);
+            }
+            position += 8;
+            return result;
         }
 
         public static ulong ReadULong(ref byte[] stream, ref int position)
         {
-            return ((ulong)stream[position++] << 56)
-                | ((ulong)stream[position++] << 48)
-                | ((ulong)stream[position++] << 40)
-                | ((ulong)stream[position++] << 32)
-                | ((ulong)stream[position++] << 24)
-                | ((ulong)stream[position++] << 16)
-                | ((ulong)stream[position++] << 8)
-                | (ulong)stream[position++];
+            ulong result;
+            if (BitConverter.IsLittleEndian)
+                result = BitConverter.ToUInt64(stream, position);
+            else
+            {
+                byte[] bytes = new byte[8];
+                Buffer.BlockCopy(stream, position, bytes, 0, 8);
+                Array.Reverse(bytes);
+                result = BitConverter.ToUInt64(bytes, 0);
+            }
+            position += 8;
+            return result;
         }
 
         public static float ReadFloat(ref byte[] stream, ref int position)
         {
-            return ArithBitConverter.UInt32BitsToSingle(ReadUInt(ref stream, ref position));
+            float result;
+            if (BitConverter.IsLittleEndian)
+                result = BitConverter.ToSingle(stream, position);
+            else
+            {
+                byte[] bytes = new byte[4];
+                Buffer.BlockCopy(stream, position, bytes, 0, 4);
+                Array.Reverse(bytes);
+                result = BitConverter.ToSingle(bytes, 0);
+            }
+            position += 4;
+            return result;
         }
 
         public static double ReadDouble(ref byte[] stream, ref int position)
         {
-            return ArithBitConverter.UInt64BitsToDouble(ReadULong(ref stream, ref position));
+            double result;
+            if (BitConverter.IsLittleEndian)
+                result = BitConverter.ToDouble(stream, position);
+            else
+            {
+                byte[] bytes = new byte[8];
+                Buffer.BlockCopy(stream, position, bytes, 0, 8);
+                Array.Reverse(bytes);
+                result = BitConverter.ToDouble(bytes, 0);
+            }
+            position += 8;
+            return result;
         }
 
         public static Vector2 ReadVector2(ref byte[] stream, ref int position)
@@ -374,21 +392,24 @@ namespace JanSharp
 
         public static char ReadChar(ref byte[] stream, ref int position)
         {
-            uint firstByte = (uint)stream[position++];
-            if ((firstByte & 0x80u) == 0u)
-                return (char)firstByte;
-            if ((firstByte & 0x60u) == 0x40u)
-                return (char)(((firstByte & 0x1fu) << 6)
-                    | (stream[position++] & 0x3fu)); // Not validated, but we can't throw exceptions so whatever.
-            if ((firstByte & 0x30u) == 0x20u)
-                return (char)(((firstByte & 0x0fu) << 12)
-                    | ((stream[position++] & 0x3fu) << 6) // Same here, and so on...
-                    | (stream[position++] & 0x3fu));
-            if ((firstByte & 0x18u) == 0x10u)
-                return (char)(((firstByte & 0x07u) << 18)
-                    | ((stream[position++] & 0x3fu) << 12)
-                    | ((stream[position++] & 0x3fu) << 6)
-                    | (stream[position++] & 0x3fu));
+            //  byte 1  |  byte 2  |  byte 3  |  byte 4
+            // 0xxxxxxx |          |          |
+            // 110xxxxx | 10xxxxxx |          |
+            // 1110xxxx | 10xxxxxx | 10xxxxxx |
+            // 11110xxx | 10xxxxxx | 10xxxxxx | 10xxxxxx
+            // For the 4 bytes there is an artificial limitation of 20 bits for the actual value for some
+            // specific reason in relation to utf-16. I don't know the details and it doesn't matter to me
+            // because I am not doing any validation.
+            byte firstByte = stream[position++];
+            uint firstByteUInt = firstByte;
+            if ((firstByteUInt & 0x80u) == 0u)
+                return Encoding.UTF8.GetString(new byte[] { firstByte })[0];
+            if ((firstByteUInt & 0x60u) == 0x40u) // Checking 2 bits at the same time.
+                return Encoding.UTF8.GetString(new byte[] { firstByte, stream[position++] })[0];
+            if ((firstByteUInt & 0x30u) == 0x20u) // Checking 2 bits at the same time.
+                return Encoding.UTF8.GetString(new byte[] { firstByte, stream[position++], stream[position++] })[0];
+            if ((firstByteUInt & 0x18u) == 0x10u) // Checking 2 bits at the same time.
+                return Encoding.UTF8.GetString(new byte[] { firstByte, stream[position++], stream[position++], stream[position++] })[0];
             return (char)firstByte; // Invalid but we can't throw exceptions so just return this random value.
         }
 
@@ -398,51 +419,20 @@ namespace JanSharp
             if (length == 0)
                 return null;
             length--;
-            char[] chars = new char[length];
-            for (int i = 0; i < length; i++)
-            {
-                // Copy paste of ReadChar, slightly modified. Basically properly inlined.
-                uint firstByte = (uint)stream[position++];
-                if ((firstByte & 0x80u) == 0u)
-                {
-                    chars[i] = (char)firstByte;
-                    continue;
-                }
-                if ((firstByte & 0x60u) == 0x40u)
-                {
-                    chars[i] = (char)(((firstByte & 0x1fu) << 6)
-                        | (stream[position++] & 0x3fu)); // Not validated, but we can't throw exceptions so whatever.
-                    continue;
-                }
-                if ((firstByte & 0x30u) == 0x20u)
-                {
-                    chars[i] = (char)(((firstByte & 0x0fu) << 12)
-                        | ((stream[position++] & 0x3fu) << 6) // Same here, and so on...
-                        | (stream[position++] & 0x3fu));
-                    continue;
-                }
-                if ((firstByte & 0x18u) == 0x10u)
-                {
-                    chars[i] = (char)(((firstByte & 0x07u) << 18)
-                        | ((stream[position++] & 0x3fu) << 12)
-                        | ((stream[position++] & 0x3fu) << 6)
-                        | (stream[position++] & 0x3fu));
-                    continue;
-                }
-                chars[i] = (char)firstByte; // Invalid but we can't throw exceptions so just return this random value.
-            }
-            return new string(chars);
+            string result = Encoding.UTF8.GetString(stream, position, length);
+            position += length;
+            return result;
         }
 
-        public static System.DateTime ReadDateTime(ref byte[] stream, ref int position)
+        public static DateTime ReadDateTime(ref byte[] stream, ref int position)
         {
-            return System.DateTime.FromBinary(ReadLong(ref stream, ref position));
+            return DateTime.FromBinary(ReadLong(ref stream, ref position));
         }
 
         public static byte[] ReadBytes(ref byte[] stream, ref int position, int byteCount)
         {
             byte[] value = new byte[byteCount];
-            System.Array.Copy(stream, position, value, 0, byteCount);
+            Buffer.BlockCopy(stream, position, value, 0, byteCount);
             position += byteCount;
             return value;
         }

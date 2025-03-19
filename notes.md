@@ -3,9 +3,9 @@
 
 MoveToRoot script which moves a given object to the root of the scene on Start. Needs a manager to ensure even disabled objects with this component on them get moved. How different is this to a parent constraint?
 
-- [ ] look at newly exposed BitConverter
+- [x] look at newly exposed BitConverter
 - [ ] look at newly exposed StringBuilder
-- [ ] look at Encoding.UTF8, pretty sure that's also newly exposed because otherwise I'd have used that to begin with
+- [x] look at Encoding.UTF8, pretty sure that's also newly exposed because otherwise I'd have used that to begin with
 - [x] editor utility which automatically instantiates prefab instances for system dependencies, recursively
   - [x] support this in the singleton editor utility
 - [x] add optional vs required setting to singleton, required being the default
@@ -13,3 +13,5 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 - [x] add a flag on build handlers can set which indicates that objects have been instantiated during the on build process, which should cancel the current build and show a popup requesting the build to be restarted at the end
 - [ ] add new stuff to the docs, and while you're there make docs better
 - [ ] should bone attachment automatically detach when a player leaves as well as when an attached transform no longer has any children - nothing is attached to it anymore?
+- [x] use System.Buffer.BlockCopy rather than System.Array.Copy... I guess?
+- [ ] make stream param for read functions not `ref`, because whey the heck are they `ref`?
