@@ -205,7 +205,7 @@ namespace JanSharp
             streamSize += length;
         }
 
-        public static sbyte ReadSByte(ref byte[] stream, ref int position)
+        public static sbyte ReadSByte(byte[] stream, ref int position)
         {
             // byte value = stream[position++];
             // // All operators used below only exist for 4 or 8 byte numbers, so extra logic is required.
@@ -220,12 +220,12 @@ namespace JanSharp
             return (sbyte)(((int)stream[position++] << 24) >> 24);
         }
 
-        public static byte ReadByte(ref byte[] stream, ref int position)
+        public static byte ReadByte(byte[] stream, ref int position)
         {
             return stream[position++];
         }
 
-        public static short ReadShort(ref byte[] stream, ref int position)
+        public static short ReadShort(byte[] stream, ref int position)
         {
             short result;
             if (BitConverter.IsLittleEndian)
@@ -241,7 +241,7 @@ namespace JanSharp
             return result;
         }
 
-        public static ushort ReadUShort(ref byte[] stream, ref int position)
+        public static ushort ReadUShort(byte[] stream, ref int position)
         {
             ushort result;
             if (BitConverter.IsLittleEndian)
@@ -257,7 +257,7 @@ namespace JanSharp
             return result;
         }
 
-        public static int ReadInt(ref byte[] stream, ref int position)
+        public static int ReadInt(byte[] stream, ref int position)
         {
             int result;
             if (BitConverter.IsLittleEndian)
@@ -273,7 +273,7 @@ namespace JanSharp
             return result;
         }
 
-        public static uint ReadUInt(ref byte[] stream, ref int position)
+        public static uint ReadUInt(byte[] stream, ref int position)
         {
             uint result;
             if (BitConverter.IsLittleEndian)
@@ -289,7 +289,7 @@ namespace JanSharp
             return result;
         }
 
-        public static long ReadLong(ref byte[] stream, ref int position)
+        public static long ReadLong(byte[] stream, ref int position)
         {
             long result;
             if (BitConverter.IsLittleEndian)
@@ -305,7 +305,7 @@ namespace JanSharp
             return result;
         }
 
-        public static ulong ReadULong(ref byte[] stream, ref int position)
+        public static ulong ReadULong(byte[] stream, ref int position)
         {
             ulong result;
             if (BitConverter.IsLittleEndian)
@@ -321,7 +321,7 @@ namespace JanSharp
             return result;
         }
 
-        public static float ReadFloat(ref byte[] stream, ref int position)
+        public static float ReadFloat(byte[] stream, ref int position)
         {
             float result;
             if (BitConverter.IsLittleEndian)
@@ -337,7 +337,7 @@ namespace JanSharp
             return result;
         }
 
-        public static double ReadDouble(ref byte[] stream, ref int position)
+        public static double ReadDouble(byte[] stream, ref int position)
         {
             double result;
             if (BitConverter.IsLittleEndian)
@@ -353,44 +353,44 @@ namespace JanSharp
             return result;
         }
 
-        public static Vector2 ReadVector2(ref byte[] stream, ref int position)
+        public static Vector2 ReadVector2(byte[] stream, ref int position)
         {
             return new Vector2(
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position)
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position)
             );
         }
 
-        public static Vector3 ReadVector3(ref byte[] stream, ref int position)
+        public static Vector3 ReadVector3(byte[] stream, ref int position)
         {
             return new Vector3(
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position)
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position)
             );
         }
 
-        public static Vector4 ReadVector4(ref byte[] stream, ref int position)
+        public static Vector4 ReadVector4(byte[] stream, ref int position)
         {
             return new Vector4(
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position)
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position)
             );
         }
 
-        public static Quaternion ReadQuaternion(ref byte[] stream, ref int position)
+        public static Quaternion ReadQuaternion(byte[] stream, ref int position)
         {
             return new Quaternion(
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position),
-                ReadFloat(ref stream, ref position)
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position)
             );
         }
 
-        public static char ReadChar(ref byte[] stream, ref int position)
+        public static char ReadChar(byte[] stream, ref int position)
         {
             //  byte 1  |  byte 2  |  byte 3  |  byte 4
             // 0xxxxxxx |          |          |
@@ -413,9 +413,9 @@ namespace JanSharp
             return (char)firstByte; // Invalid but we can't throw exceptions so just return this random value.
         }
 
-        public static string ReadString(ref byte[] stream, ref int position)
+        public static string ReadString(byte[] stream, ref int position)
         {
-            int length = (int)ReadSmallUInt(ref stream, ref position); // Small uint is faster to deserialize.
+            int length = (int)ReadSmallUInt(stream, ref position); // Small uint is faster to deserialize.
             if (length == 0)
                 return null;
             length--;
@@ -424,12 +424,12 @@ namespace JanSharp
             return result;
         }
 
-        public static DateTime ReadDateTime(ref byte[] stream, ref int position)
+        public static DateTime ReadDateTime(byte[] stream, ref int position)
         {
-            return DateTime.FromBinary(ReadLong(ref stream, ref position));
+            return DateTime.FromBinary(ReadLong(stream, ref position));
         }
 
-        public static byte[] ReadBytes(ref byte[] stream, ref int position, int byteCount)
+        public static byte[] ReadBytes(byte[] stream, ref int position, int byteCount)
         {
             byte[] value = new byte[byteCount];
             Buffer.BlockCopy(stream, position, value, 0, byteCount);
@@ -468,7 +468,7 @@ namespace JanSharp
             stream[streamSize++] = (byte)(bytes & 0xff);
         }
 
-        public static short ReadSmallShort(ref byte[] stream, ref int position)
+        public static short ReadSmallShort(byte[] stream, ref int position)
         {
             int firstByte = (int)stream[position++];
             int bytes;
@@ -515,7 +515,7 @@ namespace JanSharp
             stream[streamSize++] = (byte)(value & 0xffu);
         }
 
-        public static ushort ReadSmallUShort(ref byte[] stream, ref int position)
+        public static ushort ReadSmallUShort(byte[] stream, ref int position)
         {
             uint firstByte = (uint)stream[position++];
 
@@ -585,7 +585,7 @@ namespace JanSharp
             stream[streamSize++] = (byte)(bytes & 0xffu);
         }
 
-        public static int ReadSmallInt(ref byte[] stream, ref int position)
+        public static int ReadSmallInt(byte[] stream, ref int position)
         {
             int firstByte = (int)stream[position++];
 
@@ -662,7 +662,7 @@ namespace JanSharp
             stream[streamSize++] = (byte)(value & 0xffu);
         }
 
-        public static uint ReadSmallUInt(ref byte[] stream, ref int position)
+        public static uint ReadSmallUInt(byte[] stream, ref int position)
         {
             uint firstByte = (uint)stream[position++];
 
@@ -803,7 +803,7 @@ namespace JanSharp
             stream[streamSize++] = (byte)(bytes & 0xffuL);
         }
 
-        public static long ReadSmallLong(ref byte[] stream, ref int position)
+        public static long ReadSmallLong(byte[] stream, ref int position)
         {
             long firstByte = (long)stream[position++];
 
@@ -973,7 +973,7 @@ namespace JanSharp
             stream[streamSize++] = (byte)(value & 0xffuL);
         }
 
-        public static ulong ReadSmallULong(ref byte[] stream, ref int position)
+        public static ulong ReadSmallULong(byte[] stream, ref int position)
         {
             ulong firstByte = (ulong)stream[position++];
 
