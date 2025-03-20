@@ -18,7 +18,7 @@ namespace JanSharp
 
         private void Update()
         {
-            for (int i = 0; i < listenerCount; i++)
+            for (int i = listenerCount - 1; i >= 0 ; i--)
                 listeners[i].SendCustomEvent(CustomUpdateMethodName);
         }
 
