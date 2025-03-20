@@ -6,22 +6,20 @@ using VRC.Udon;
 namespace JanSharp
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [SingletonScript("0d045dda757c0a5f7872bc541f866f61")] // Runtime/Prefabs/UpdateManager.prefab
     public class UpdateManager : UdonSharpBehaviour
     {
         private const string InternalIndexFieldName = "customUpdateInternalIndex";
         private const string CustomUpdateMethodName = "CustomUpdate";
-        private const int InitialListenersLength = 128;
+        private const int InitialListenersCapacity = 8;
 
-        // can't use UdonBehaviour nor UdonSharpBehaviour arrays because it's not supported
-        private Component[] listeners = new Component[InitialListenersLength];
+        private UdonSharpBehaviour[] listeners = new UdonSharpBehaviour[InitialListenersCapacity];
         private int listenerCount = 0;
 
         private void Update()
         {
             for (int i = 0; i < listenerCount; i++)
-            {
-                ((UdonSharpBehaviour)listeners[i]).SendCustomEvent(CustomUpdateMethodName);
-            }
+                listeners[i].SendCustomEvent(CustomUpdateMethodName);
         }
 
         public void Register(UdonSharpBehaviour listener)
@@ -46,14 +44,14 @@ namespace JanSharp
             if (index != listenerCount)
             {
                 listeners[index] = listeners[listenerCount];
-                ((UdonSharpBehaviour)listeners[index]).SetProgramVariable(InternalIndexFieldName, index + 1);
+                listeners[index].SetProgramVariable(InternalIndexFieldName, index + 1);
             }
             listeners[listenerCount] = null;
         }
 
         private void GrowListeners()
         {
-            Component[] grownListeners = new Component[listeners.Length * 2];
+            UdonSharpBehaviour[] grownListeners = new UdonSharpBehaviour[listeners.Length * 2];
             listeners.CopyTo(grownListeners, 0);
             listeners = grownListeners;
         }
