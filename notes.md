@@ -11,7 +11,7 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 - [x] add optional vs required setting to singleton, required being the default
 - [x] editor script which assigns build time IDs to objects as well as keeping track of the highest id inside of a given manager script
 - [x] add a flag on build handlers can set which indicates that objects have been instantiated during the on build process, which should cancel the current build and show a popup requesting the build to be restarted at the end
-- [ ] add new stuff to the docs, and while you're there make docs better
+- [x] add new stuff to the docs, and while you're there make docs better
 - [ ] should bone attachment automatically detach when a player leaves as well as when an attached transform no longer has any children - nothing is attached to it anymore?
 - [x] use System.Buffer.BlockCopy rather than System.Array.Copy... I guess?
 - [x] make stream param for read functions not `ref`, because whey the heck are they `ref`?
