@@ -55,7 +55,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
   - Udon behaviours used with this require a `CustomUpdate` event (public method) and an int variable `customUpdateInternalIndex`
   - Registering an already registered behaviour is supported, it does nothing, same goes for deregistering an already deregistered behaviour
   - Note that I'm unsure how performance compares to using `SendCustomEventDelayedFrames` to effectively create an update loop
-- WannaBeClassesManager: A manager to enable creating instances of UdonSharpBehaviours which are pretending to be custom data structures. See [Libraries](#libraries) for details about WannaBeClasses
+- WannaBeClassesManager: A manager to enable creating instances of UdonSharpBehaviours which are pretending to be custom data structures. See [WannaBeClasses](#wannabeclasses) for details
 
 ### Libraries
 
@@ -72,8 +72,20 @@ Managers are singleton scripts with associated prefabs. When there are any singl
   - Define a field as a reference to a singleton script which gets set by editor scripting automatically at build time
 - WannaBeArrList: An extension of ArrList, however holding strong references to WannaBeClass instances
 - WannaBeArrQueue: An extension of ArrQueue, however holding strong references to WannaBeClass instances
-- WannaBeClass: Udon is a great language and it doesn't have custom data structures. This is a utility to instantiate objects with an UdonSharpBehaviour and pretend like its an instance of a custom class. The downside is that instantiating UdonBehaviours is stupidly slow, even small scripts take over 1 millisecond, and deletion of these "custom class instances" doesn't happen automatically. Therefore these classes effectively require manual memory management to prevent memory leaks. There's support for these class instances to already exist in the scene and they'll get moved out of that location in the hierarchy at build time, making them managed by the WannaBeClassesManager
+- WannaBeClass: These are an unfortunately complex concept so they get [their own section](#wannabeclasses)
 - ArithBitConverter: Deprecated, was useful when BitConverter wasn't exposed yet. Uses arithmetics to convert floating point numbers to their binary representation and back
+
+### WannaBeClasses
+
+Udon doesn't have custom data structures. This is a major restriction and annoyance in many cases. The WannaBeClass concept attempts to work around this restriction by instantiating a GameObject with an UdonSharpBehaviour and pretending like its an instance of a custom class. The downside is that instantiating UdonBehaviours is stupidly slow, even small scripts take over 1 millisecond, and deletion of these "custom class instances" doesn't happen automatically when all references to them are lost, since they are actual objects in the scene. Therefore these classes effectively require manual memory management to prevent memory leaks.
+
+In order to make this manual memory management somewhat less annoying WannaBeClasses keep a reference counter. This counter starts at 1 when the instance gets created, it may be incremented and decremented, and when it hits 0 it is going to delete itself.
+
+There are 2 different kinds of references to WannaBeClasses: **strong** and **weak**. Anything that holds a **strong** reference also increments the reference counter of the WannaBeClass, and must decrement the reference counter when it loses the reference to the WannaBeClass. **Weak** references do not touch the reference counter at all, which also means that the referenced WannaBeClass may get deleted while a weak reference to it was still held. The reference turns null at that point.
+
+Sometimes something may hold a strong reference to a WannaBeClass and wish to pass this "ownership" to another function or script. For this there is a `StdMove` function on WannaBeClasses, the name is inspired by C++ move semantics. All it does is decrement the reference counter, however it does not immediately check if the counter reached 0. The receiving code shall then increment the reference counter, which is effectively it taking ownership of this WannaBeClass instance. If the reference counter does not get incremented, the instance gets deleted 1 frame later automatically, or until some code calls `CheckLiveliness`.
+
+There's support for WannaBeClass instances to already exist in the scene. They'll get moved out of their original location in the hierarchy at build time, making them managed by the WannaBeClassesManager. They also start at a reference counter of 1.
 
 ### Textures
 
