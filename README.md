@@ -81,6 +81,6 @@ Some UI sprites for UI without rounded corners which I use across other packages
 
 # Licensed Third Party Code
 
-A big thank you to all the open source contributors out there!
+A big thank you to all the open source contributors out there! This project uses code from:
 
 - [crc32](https://github.com/stbrumme/crc32), Copyright (c) 2011-2016 Stephan Brumme
