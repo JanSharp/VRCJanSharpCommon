@@ -79,10 +79,6 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 
 Some UI sprites for UI without rounded corners which I use across other packages. Effectively my UI style, so it doesn't look like plain default unity UI. These sprites have same anti aliasing issues, but I cannot figure out how to fix that and I don't deem it to be bad enough to worry about.
 
-# Ideas
-
-Honestly I'm not sure. It feels like this is missing a lot of stuff, but then I'm not sure what really belongs in here. But I suppose the editor scripting this provides is already decent. But still, I'm not marking it as `1.0.0` yet.
-
 # Licensed Third Party Code
 
 A big thank you to all the open source contributors out there!
