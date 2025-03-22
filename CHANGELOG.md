@@ -1,6 +1,49 @@
 
 # Changelog
 
+## [1.0.0] - 2025-03-22
+
+### Changed
+
+- **Breaking:** Remove `ref` for params which do not need it in DataStream ([`1abda11`](https://github.com/JanSharp/VRCJanSharpCommon/commit/1abda1182c9b6bdfb018ba0382166bc174b697b0))
+- **Breaking:** Update to Unity 2022 ([`ac36f8f`](https://github.com/JanSharp/VRCJanSharpCommon/commit/ac36f8fd201910bae5ddf385eeba14100d24cbab))
+- Rearrange docs in readme ([`9651db7`](https://github.com/JanSharp/VRCJanSharpCommon/commit/9651db7e937958662009c86f9251f76e6068aa1d), [`d2a693d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d2a693de9e5dfbd078d1f00fe5b4bfd0931f4c49), [`0823886`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08238862ff95e612a40bb45b977bd0cc7873cc3f), [`2915d47`](https://github.com/JanSharp/VRCJanSharpCommon/commit/2915d47e327dcd93db9b13177b46ee749709f811))
+- Arrange scripts into sensible categories ([`a929883`](https://github.com/JanSharp/VRCJanSharpCommon/commit/a92988305d6331d2f4a46453f98652d81cd8a0de))
+- Make UpdateManager support deregister inside of CustomUpdate handlers ([`db52b3f`](https://github.com/JanSharp/VRCJanSharpCommon/commit/db52b3fd2d40e065f15aeb15cad42b362dc4e11c))
+- Update UpdateManager and use SingletonScript attribute ([`613008e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/613008ec15d8969ed97603e689ac1d23ce8f9df3))
+- Handle newly instantiated objects during OnBuild by requiring another build attempt ([`f6892f4`](https://github.com/JanSharp/VRCJanSharpCommon/commit/f6892f40509a6e208b63a181829d910db1f27039))
+- Add dialogs and notifications to OnBuildUtil ([`f21b4ad`](https://github.com/JanSharp/VRCJanSharpCommon/commit/f21b4ad0f1560c80d4f95078ed64a0312782fc27))
+- Improve ArrList performance by using System.Array.Copy instead of loops ([`7c35aca`](https://github.com/JanSharp/VRCJanSharpCommon/commit/7c35aca16c09aa7f38e4b96a36e6453e8ff903c8))
+- Add note about m_Target for persistent listeners ([`e87405b`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e87405bf59a4a93333cf38db2c1aa4111472a7b7))
+- Use BitConverter for DataStream ([`d6b9053`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d6b9053fe26d99a60a439c8404d729117eadaa01))
+- Improve DataStream ReadBytes performance ([`64c7bc4`](https://github.com/JanSharp/VRCJanSharpCommon/commit/64c7bc475e1a517b68788327273df57dbc77b628))
+- Allow registering non U# behaviour components for OnBuildUtil ([`aa19aa1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/aa19aa14c6613b484d9c59779839dd13a7920191))
+- Add overloads to register OnBuild handlers using System.Type rather than a generic type parameter ([`4364ea4`](https://github.com/JanSharp/VRCJanSharpCommon/commit/4364ea4cc18a0a739addce42c3fab4a859ea5fa9))
+- Add ability to register actions to OnBuildUtil, without required associated components in the scene ([`4364ea4`](https://github.com/JanSharp/VRCJanSharpCommon/commit/4364ea4cc18a0a739addce42c3fab4a859ea5fa9))
+- Add RegisterTypeCumulative to OnBuildUtil to get the whole list of found objects ([`fd93510`](https://github.com/JanSharp/VRCJanSharpCommon/commit/fd93510ede5e6122bb29bfa99413ad611a0aebb7), [`4364ea4`](https://github.com/JanSharp/VRCJanSharpCommon/commit/4364ea4cc18a0a739addce42c3fab4a859ea5fa9), [`f5ef453`](https://github.com/JanSharp/VRCJanSharpCommon/commit/f5ef45348f070322cd733a7104da859330530037))
+
+### Added
+
+- Add BuildTimeIdAssignment attribute and editor scripting ([`f5a520d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/f5a520da6a5807a25b498385ca55a5e03926c965))
+- Add WannaBeArrQueue which manages refs to WannaBeClasses ([`699f7bd`](https://github.com/JanSharp/VRCJanSharpCommon/commit/699f7bd30b2f385f5b08a2263d6bd665bbbec7a5))
+- Add WannaBeArrList which manages refs to WannaBeClasses ([`8e54d21`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8e54d218ae01acb48c418901ea175304dde3839b))
+- Add getter for private base members (reflection) to EditorUtil ([`d4d1efd`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d4d1efd6718296312f3634f7327aa630dca4a496))
+- Add Write byte array overload with `startIndex` and `size` to DataStream ([`eed8d4a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/eed8d4a96d34b48e96bef48a618b494664cfd4f0))
+- Add WannaBeClasses and Manager ([`6711e1a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/6711e1aa0a0f2c4be5d716604c2fe142b67f7387), [`b9e6fe4`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b9e6fe45b3ae41fbffe745e5810a97b0a1c14dd8), [`0d7e086`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0d7e0860311feb13328f13988b6d928257385c87), [`d77e4e0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d77e4e0f792a1222c9943ae2627e5367ae6a62d7), [`070eb62`](https://github.com/JanSharp/VRCJanSharpCommon/commit/070eb62d920b33e3e76fe8b023b1dca2ef730655), [`95e3001`](https://github.com/JanSharp/VRCJanSharpCommon/commit/95e300194c061af2b766881e0e1f10af745eb9c6), [`ffd0625`](https://github.com/JanSharp/VRCJanSharpCommon/commit/ffd062574bf7471d93e98489655991ab1c4bb9ef), [`21466d6`](https://github.com/JanSharp/VRCJanSharpCommon/commit/21466d68d4c3c4459e95fb337db4718a9efd81e4), [`aa2faa5`](https://github.com/JanSharp/VRCJanSharpCommon/commit/aa2faa56aea431f90e1f7bd5196dd98d2fae1d7c), [`068497e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/068497ee7fb738bb4898272dbab45f019fe11b4b), [`c03694a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/c03694a3f39d7d797808578557ce8186a789754b), [`2915d47`](https://github.com/JanSharp/VRCJanSharpCommon/commit/2915d47e327dcd93db9b13177b46ee749709f811))
+- Allow detaching already destroyed transforms in BoneAttachmentManager ([`d073b3d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d073b3d663df72d440be5b582bff9c1c611048ad))
+- Pause attachment when bones do not exist ([`7665931`](https://github.com/JanSharp/VRCJanSharpCommon/commit/7665931cc20c3fdd429f365725e5f479abe7323f))
+- Add BoneAttachmentManager library ([`cbc23b0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/cbc23b09074d64ccf482f184bccd3613727385cd), [`32b9035`](https://github.com/JanSharp/VRCJanSharpCommon/commit/32b903514777442bf53871cbafe3510ce525589b), [`0beea7e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0beea7e31251932a7191df191685828e2b428346), [`d1882f7`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d1882f7dbab63ef2179007f4226c998d474b71d5), [`d5fec5c`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d5fec5c5bfa3711856938e128fc5cc135cff12fd), [`34bd6f3`](https://github.com/JanSharp/VRCJanSharpCommon/commit/34bd6f355154d86058ef93bb114136ba8aa5341d))
+- Add TrulyPostLateUpdate event scripts can listen for ([`00db213`](https://github.com/JanSharp/VRCJanSharpCommon/commit/00db213dd0cec2a0eaf71a37b1a3bb67b608bee2))
+- Add SingletonManager for scripts to resolve references to singletons at runtime ([`acb9ac0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/acb9ac03ec2d29773e274b1e1cfca1f4b74d49b6))
+- Add SingletonDependency attribute for use on class without requiring a field with the given type ([`577ac71`](https://github.com/JanSharp/VRCJanSharpCommon/commit/577ac715627ca2dc7ed81fc2a010615e4f93e364))
+- Add instantiation of singleton prefab dependencies ([`62b5e35`](https://github.com/JanSharp/VRCJanSharpCommon/commit/62b5e35f15b1d083e8b45c3930ae201025bc4255))
+- Add named parameter to an attribute for optional vs required singletons ([`a36db36`](https://github.com/JanSharp/VRCJanSharpCommon/commit/a36db36f6b9b6d2cf82552938e48f6c53135b0b4))
+- Add singleton script references through attributes ([`3443fd8`](https://github.com/JanSharp/VRCJanSharpCommon/commit/3443fd8fb9b2b7a8087fbcd8d90a2460c79212a3), [`d11c2d4`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d11c2d44a74d8e6c0a008b260e54e32e46821869), [`e5493a8`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e5493a8830cfba1de9abe9be26973e25fab60e02))
+- Sort custom raised events by DefaultExecutionOrder ([`85b6d41`](https://github.com/JanSharp/VRCJanSharpCommon/commit/85b6d411f414daa308f591d015ff0de60b755b95))
+- Add attribute based CustomRaisedEvents utility ([`8b399fe`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8b399fef81d8fd41ae0733bc97d2301bace43dc5), [`93a4331`](https://github.com/JanSharp/VRCJanSharpCommon/commit/93a433129f4b54605ed7babe376aaeae3a1a769e))
+- Add OnAssemblyLoadUtil which provides a list of all UdonSharpBehaviour types at assembly load time ([`8b399fe`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8b399fef81d8fd41ae0733bc97d2301bace43dc5))
+- Add sprites for UIs used by other JanSharp packages ([`e4304da`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e4304da765e18192d541ba6b0b5a5c0ace323fdf), [`43dc1da`](https://github.com/JanSharp/VRCJanSharpCommon/commit/43dc1dadc0d769f5d4d95bffeac6e1f8aab168f7))
+
 ## [0.4.3] - 2024-07-28
 
 ### Fixed
@@ -125,6 +168,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.0.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.0
 [0.4.3]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.4.3
 [0.4.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.4.2
 [0.4.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.4.1
