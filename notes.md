@@ -15,3 +15,4 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 - [ ] should bone attachment automatically detach when a player leaves as well as when an attached transform no longer has any children - nothing is attached to it anymore?
 - [x] use System.Buffer.BlockCopy rather than System.Array.Copy... I guess?
 - [x] make stream param for read functions not `ref`, because whey the heck are they `ref`?
+- [ ] add `decimal` read and write functions to `DataStream`
