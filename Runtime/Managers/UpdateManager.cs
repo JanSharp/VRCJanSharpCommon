@@ -19,7 +19,8 @@ namespace JanSharp
         private void Update()
         {
             for (int i = listenerCount - 1; i >= 0 ; i--)
-                listeners[i].SendCustomEvent(CustomUpdateMethodName);
+                if (i < listenerCount) // If 2 listeners get removed in one CustomUpdate call, i could be out of bounds.
+                    listeners[i].SendCustomEvent(CustomUpdateMethodName);
         }
 
         public void Register(UdonSharpBehaviour listener)
