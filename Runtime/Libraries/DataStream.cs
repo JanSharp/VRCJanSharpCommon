@@ -130,6 +130,28 @@ namespace JanSharp
             streamSize += 8;
         }
 
+        public static void Write(ref byte[] stream, ref int streamSize, decimal value)
+        {
+            ArrList.EnsureCapacity(ref stream, streamSize + 16);
+            int[] bits = decimal.GetBits(value);
+            byte[] bytes0 = BitConverter.GetBytes(bits[0]);
+            byte[] bytes1 = BitConverter.GetBytes(bits[1]);
+            byte[] bytes2 = BitConverter.GetBytes(bits[2]);
+            byte[] bytes3 = BitConverter.GetBytes(bits[3]);
+            if (!BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes0);
+                Array.Reverse(bytes1);
+                Array.Reverse(bytes2);
+                Array.Reverse(bytes3);
+            }
+            Buffer.BlockCopy(bytes0, 0, stream, streamSize, 4);
+            Buffer.BlockCopy(bytes1, 0, stream, streamSize + 4, 4);
+            Buffer.BlockCopy(bytes2, 0, stream, streamSize + 8, 4);
+            Buffer.BlockCopy(bytes3, 0, stream, streamSize + 12, 4);
+            streamSize += 16;
+        }
+
         public static void Write(ref byte[] stream, ref int streamSize, Vector2 value)
         {
             Write(ref stream, ref streamSize, value.x);
@@ -351,6 +373,30 @@ namespace JanSharp
             }
             position += 8;
             return result;
+        }
+
+        public static decimal ReadDecimal(byte[] stream, ref int position)
+        {
+            int[] bits = new int[4];
+            if (BitConverter.IsLittleEndian)
+            {
+                bits[0] = BitConverter.ToInt32(stream, position);
+                bits[1] = BitConverter.ToInt32(stream, position + 4);
+                bits[2] = BitConverter.ToInt32(stream, position + 8);
+                bits[3] = BitConverter.ToInt32(stream, position + 12);
+            }
+            else
+            {
+                byte[] bytes = new byte[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    Buffer.BlockCopy(stream, position + i * 4, bytes, 0, 4);
+                    Array.Reverse(bytes);
+                    bits[i] = BitConverter.ToInt32(bytes, 0);
+                }
+            }
+            position += 16;
+            return new decimal(bits);
         }
 
         public static Vector2 ReadVector2(byte[] stream, ref int position)
