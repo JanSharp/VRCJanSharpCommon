@@ -181,6 +181,24 @@ namespace JanSharp
             Write(ref stream, ref streamSize, value.w);
         }
 
+        public static void Write(ref byte[] stream, ref int streamSize, Color value)
+        {
+            Write(ref stream, ref streamSize, value.r);
+            Write(ref stream, ref streamSize, value.g);
+            Write(ref stream, ref streamSize, value.b);
+            Write(ref stream, ref streamSize, value.a);
+        }
+
+        public static void Write(ref byte[] stream, ref int streamSize, Color32 value)
+        {
+            ArrList.EnsureCapacity(ref stream, streamSize + 4);
+            stream[streamSize] = value.r;
+            stream[streamSize + 1] = value.g;
+            stream[streamSize + 2] = value.b;
+            stream[streamSize + 3] = value.a;
+            streamSize += 4;
+        }
+
         public static void Write(ref byte[] stream, ref int streamSize, char value)
         {
             // UTF8 has the same encoding on both little and big endian architectures.
@@ -433,6 +451,26 @@ namespace JanSharp
                 ReadFloat(stream, ref position),
                 ReadFloat(stream, ref position),
                 ReadFloat(stream, ref position)
+            );
+        }
+
+        public static Color ReadColor(byte[] stream, ref int position)
+        {
+            return new Color(
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position),
+                ReadFloat(stream, ref position)
+            );
+        }
+
+        public static Color32 ReadColor32(byte[] stream, ref int position)
+        {
+            return new Color32(
+                stream[position++],
+                stream[position++],
+                stream[position++],
+                stream[position++]
             );
         }
 
