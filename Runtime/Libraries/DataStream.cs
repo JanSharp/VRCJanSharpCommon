@@ -230,6 +230,11 @@ namespace JanSharp
             Write(ref stream, ref streamSize, value.ToBinary());
         }
 
+        public static void Write(ref byte[] stream, ref int streamSize, TimeSpan value)
+        {
+            Write(ref stream, ref streamSize, value.Ticks);
+        }
+
         public static void Write(ref byte[] stream, ref int streamSize, byte[] bytes)
         {
             int length = bytes.Length;
@@ -511,6 +516,11 @@ namespace JanSharp
         public static DateTime ReadDateTime(byte[] stream, ref int position)
         {
             return DateTime.FromBinary(ReadLong(stream, ref position));
+        }
+
+        public static TimeSpan ReadTimeSpan(byte[] stream, ref int position)
+        {
+            return new TimeSpan(ReadLong(stream, ref position));
         }
 
         public static byte[] ReadBytes(byte[] stream, ref int position, int byteCount)
