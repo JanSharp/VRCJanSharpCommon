@@ -18,3 +18,4 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 - [x] add `decimal` read and write functions to `DataStream`
 - [ ] better explain singletons in the readme
 - [ ] better explain build time id assignment in the readme
+- [ ] think about optional vpm dependencies
