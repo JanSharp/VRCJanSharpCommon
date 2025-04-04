@@ -16,3 +16,5 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 - [x] use System.Buffer.BlockCopy rather than System.Array.Copy... I guess?
 - [x] make stream param for read functions not `ref`, because whey the heck are they `ref`?
 - [x] add `decimal` read and write functions to `DataStream`
+- [ ] better explain singletons in the readme
+- [ ] better explain build time id assignment in the readme
