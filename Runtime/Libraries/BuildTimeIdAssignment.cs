@@ -27,6 +27,9 @@ namespace JanSharp
         /// This implies that the <paramref name="highestIdFieldName"/> is not actually the highest id inside
         /// of <paramref name="idsArrayFieldName"/>, however it is the highest id which has ever been assigned
         /// to a custom script.</para>
+        /// <para>Since the lowest value <paramref name="highestIdFieldName"/> could store is <c>0u</c> and
+        /// the highest id never gets reused, <c>0u</c> never gets assigned to any object. It can be used as
+        /// an invalid id.</para>
         /// <para>A potential use case for this attribute would be in combination with the lockstep networking
         /// package when a system wishes to support synced instances of object to exist in the scene at build
         /// time as well as be instantiated at runtime.</para>
