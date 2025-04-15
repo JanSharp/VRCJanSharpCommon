@@ -17,6 +17,7 @@ namespace JanSharp
 
         private void PopulateLut()
         {
+            singletonLut = new DataDictionary();
             int length = singletonInsts.Length;
             for (int i = 0; i < length; i++)
                 singletonLut.Add(singletonClassNames[i], singletonInsts[i]);
