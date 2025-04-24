@@ -1,6 +1,19 @@
 
 # Changelog
 
+## [1.0.2] - 2025-04-24
+
+### Added
+
+- Add note about 0u not being used by build time id assignment ([`bb1f41a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bb1f41a360ece31b8ac23eddc7a51d7b30673ab3))
+- Add TimeSpan to DataStream ([`a0d01b7`](https://github.com/JanSharp/VRCJanSharpCommon/commit/a0d01b7c39b77c89627972c7ccd8d0b4b5cd62ef))
+- Add Color and Color32 to DataStream ([`1345972`](https://github.com/JanSharp/VRCJanSharpCommon/commit/1345972edf717aa4507ce2b2167de54b7bca6a9e))
+- Add decimal read and write functions to DataStream ([`bbe1cae`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bbe1cae730922e243f0116816c48e88b5037c10d))
+
+### Fixed
+
+- Fix error when attempting to use SingletonManager ([`d9907a2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d9907a21bc0fb107dc44672cc8c8bb9aff0557ea))
+
 ## [1.0.1] - 2025-03-26
 
 ### Fixed
@@ -174,6 +187,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.0.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.2
 [1.0.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.1
 [1.0.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.0
 [0.4.3]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v0.4.3
