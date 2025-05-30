@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -7,9 +6,6 @@ using UnityEngine;
 using UnityEditor;
 using VRC.SDKBase.Editor.BuildPipeline;
 using UnityEditor.Build;
-using UdonSharp;
-using UdonSharpEditor;
-using VRC.Udon;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -44,39 +40,56 @@ namespace JanSharp
                     EditorApplication.isPlaying = false;
         }
 
-        public static void RegisterType<T>(Func<T, bool> callback, int order = 0) where T : Component
+        public static void RegisterType<T>(
+            Func<T, bool> callback,
+            int order = 0,
+            bool includeEditorOnly = false)
+            where T : Component
         {
-            RegisterTypeInternal(typeof(T), callback, order, usesCustomCallbackParamType: false, null);
+            RegisterTypeInternal(typeof(T), callback, order, includeEditorOnly, usesCustomCallbackParamType: false, null);
         }
 
-        public static void RegisterTypeCumulative<T>(Func<IEnumerable<T>, bool> callback, int order = 0) where T : Component
+        public static void RegisterTypeCumulative<T>(
+            Func<IEnumerable<T>, bool> callback,
+            int order = 0,
+            bool includeEditorOnly = false)
+            where T : Component
         {
-            RegisterTypeInternal(typeof(T), callback, order, usesCustomCallbackParamType: true, c => c.Cast<T>());
+            RegisterTypeInternal(typeof(T), callback, order, includeEditorOnly, usesCustomCallbackParamType: true, c => c.Cast<T>());
         }
 
-        public static void RegisterType(Type type, Func<Component, bool> callback, int order = 0)
+        public static void RegisterType(
+            Type type,
+            Func<Component, bool> callback,
+            int order = 0,
+            bool includeEditorOnly = false)
         {
             if (!EditorUtil.DerivesFrom(type, typeof(Component)))
                 throw new ArgumentException($"The given type to register must derive from the Component class.");
-            RegisterTypeInternal(type, callback, order, usesCustomCallbackParamType: false, null);
+            RegisterTypeInternal(type, callback, order, includeEditorOnly, usesCustomCallbackParamType: false, null);
         }
 
-        public static void RegisterTypeCumulative(Type type, Func<ReadOnlyCollection<Component>, bool> callback, int order = 0)
+        public static void RegisterTypeCumulative(
+            Type type,
+            Func<ReadOnlyCollection<Component>, bool> callback,
+            int order = 0,
+            bool includeEditorOnly = false)
         {
             if (!EditorUtil.DerivesFrom(type, typeof(Component)))
                 throw new ArgumentException($"The given type to register must derive from the Component class.");
-            RegisterTypeInternal(type, callback, order, usesCustomCallbackParamType: true, c => c.AsReadOnly());
+            RegisterTypeInternal(type, callback, order, includeEditorOnly, usesCustomCallbackParamType: true, c => c.AsReadOnly());
         }
 
         public static void RegisterAction(Func<bool> callback, int order = 0)
         {
-            typesToLookForList.Add(new OrderedOnBuildCallbackData(null, order, callback.Method, callback.Target, false, null));
+            typesToLookForList.Add(new OrderedOnBuildCallbackData(null, order, false, callback.Method, callback.Target, false, null));
         }
 
         private static void RegisterTypeInternal(
             Type type,
             Delegate callback,
             int order,
+            bool includeEditorOnly,
             bool usesCustomCallbackParamType,
             Func<List<Component>, object> toCorrectlyTypedCallbackParamType)
         {
@@ -98,6 +111,7 @@ namespace JanSharp
             typesToLookForList.Add(new OrderedOnBuildCallbackData(
                 data,
                 order,
+                includeEditorOnly,
                 callback.Method,
                 callback.Target,
                 usesCustomCallbackParamType,
@@ -176,8 +190,9 @@ namespace JanSharp
 
         private static void TryAddFoundComponentToOnBuildCallbackData(Component component)
         {
+            bool editorOnly = component.CompareTag("EditorOnly");
             foreach (OnBuildCallbackData data in GetMatchingDataForAllBaseTypes(component.GetType()))
-                data.components.Add(component);
+                data.components.Add((component, editorOnly));
         }
 
         [MenuItem("Tools/JanSharp/Run All OnBuild handlers", priority = 10005)]
@@ -281,16 +296,18 @@ namespace JanSharp
         {
             public OnBuildCallbackData data;
             public int order;
+            public bool includeEditorOnly;
             public MethodInfo callbackInfo;
             public object callbackInstance;
             public bool usesCustomCallbackParamType;
             public Func<List<Component>, object> toCorrectlyTypedCallbackParamType;
 
-            public bool IsAction => data == null;
+            public readonly bool IsAction => data == null;
 
             public OrderedOnBuildCallbackData(
                 OnBuildCallbackData data,
                 int order,
+                bool includeEditorOnly,
                 MethodInfo callbackInfo,
                 object callbackInstance,
                 bool usesCustomCallbackParamType,
@@ -298,13 +315,14 @@ namespace JanSharp
             {
                 this.data = data;
                 this.order = order;
+                this.includeEditorOnly = includeEditorOnly;
                 this.callbackInfo = callbackInfo;
                 this.callbackInstance = callbackInstance;
                 this.usesCustomCallbackParamType = usesCustomCallbackParamType;
                 this.toCorrectlyTypedCallbackParamType = toCorrectlyTypedCallbackParamType;
             }
 
-            public bool InvokeCallback()
+            public readonly bool InvokeCallback()
             {
                 return IsAction
                     ? InvokeActionCallback()
@@ -313,9 +331,9 @@ namespace JanSharp
                         : InvokeCallbackForeach();
             }
 
-            private bool InvokeCallbackForeach()
+            private readonly bool InvokeCallbackForeach()
             {
-                foreach (Component component in data.components)
+                foreach (Component component in data.GetComponents(includeEditorOnly))
                     if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { component }))
                     {
                         UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}' on '{component.name}'.", component);
@@ -324,9 +342,11 @@ namespace JanSharp
                 return true;
             }
 
-            private bool InvokeCallbackWithCustomParamType()
+            private readonly bool InvokeCallbackWithCustomParamType()
             {
-                if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { toCorrectlyTypedCallbackParamType(data.components) }))
+                if (!(bool)callbackInfo.Invoke(
+                    callbackInstance,
+                    new[] { toCorrectlyTypedCallbackParamType(data.GetComponents(includeEditorOnly).ToList()) }))
                 {
                     UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}'.");
                     return false;
@@ -334,7 +354,7 @@ namespace JanSharp
                 return true;
             }
 
-            private bool InvokeActionCallback()
+            private readonly bool InvokeActionCallback()
             {
                 if (!(bool)callbackInfo.Invoke(callbackInstance, new object[0]))
                 {
@@ -348,14 +368,22 @@ namespace JanSharp
         private class OnBuildCallbackData
         {
             public Type type;
-            public List<Component> components;
+            public List<(Component component, bool editorOnly)> components;
             public HashSet<int> allOrders;
 
             public OnBuildCallbackData(Type type, HashSet<int> allOrders)
             {
                 this.type = type;
-                this.components = new List<Component>();
+                this.components = new List<(Component component, bool editorOnly)>();
                 this.allOrders = allOrders;
+            }
+
+            public IEnumerable<Component> GetComponents(bool includeEditorOnly)
+            {
+                IEnumerable<(Component component, bool editorOnly)> result = components;
+                if (!includeEditorOnly)
+                    result = result.Where(c => !c.editorOnly);
+                return components.Select(c => c.component);
             }
         }
     }
