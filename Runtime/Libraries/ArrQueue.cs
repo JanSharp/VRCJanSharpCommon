@@ -12,6 +12,7 @@ namespace JanSharp
             else
             {
                 // If startIndex is not 0, can't use CopyTo, so do it the "hard"/slow way.
+                // TODO: optimize this by using 2 System.Array.Copy calls
                 int length = queue.Length;
                 for (int i = 0; i < length; i++)
                     newQueue[i] = queue[(i + startIndex) % length];
@@ -49,6 +50,9 @@ namespace JanSharp
             return new T[initialCapacity];
         }
 
+        /// <summary>
+        /// <para>Pushes onto the back.</para>
+        /// </summary>
         public static void Enqueue<T>(ref T[] queue, ref int startIndex, ref int count, T value)
         {
             int length = queue.Length;
@@ -60,12 +64,33 @@ namespace JanSharp
             queue[(startIndex + (count++)) % length] = value;
         }
 
+        public static void EnqueueAtFront<T>(ref T[] queue, ref int startIndex, ref int count, T value)
+        {
+            int length = queue.Length;
+            if (count == length)
+            {
+                length = count * 2;
+                Grow(ref queue, ref startIndex, length);
+            }
+            startIndex = startIndex == 0 ? length - 1 : startIndex - 1;
+            ++count;
+            queue[startIndex] = value;
+        }
+
+        /// <summary>
+        /// <para>Takes from the front.</para>
+        /// </summary>
         public static T Dequeue<T>(ref T[] queue, ref int startIndex, ref int count)
         {
             T result = queue[startIndex];
             startIndex = (startIndex + 1) % queue.Length;
             --count;
             return result;
+        }
+
+        public static T DequeueFromBack<T>(ref T[] queue, ref int startIndex, ref int count)
+        {
+            return queue[(startIndex + (--count)) % queue.Length];
         }
 
         public static T Peek<T>(ref T[] queue, ref int startIndex, ref int count)
