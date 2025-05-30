@@ -239,7 +239,8 @@ namespace JanSharp
                             d.udonBehaviour,
                             customEventName)
                     ),
-                d => {
+                d =>
+                {
                     foreach (var target in d)
                     {
                         SerializedObject proxy = new SerializedObject(target.source);
@@ -417,6 +418,71 @@ namespace JanSharp
                 type = type.BaseType;
             }
             return null;
+        }
+
+        private static HashSet<Transform> cachedEditorOnlyTransforms = new();
+        private static uint performingCachedEditorOnlyChecksCounter = 0u;
+        public static bool IsPerformingCachedEditorOnlyChecks = performingCachedEditorOnlyChecksCounter != 0u;
+
+        public static void BeginBatchedEditorOnlyChecks()
+        {
+            performingCachedEditorOnlyChecksCounter++;
+        }
+
+        public static void EndBatchedEditorOnlyChecks()
+        {
+            if (performingCachedEditorOnlyChecksCounter == 0u)
+                return;
+            if ((--performingCachedEditorOnlyChecksCounter) == 0u)
+                cachedEditorOnlyTransforms.Clear();
+        }
+
+        public static BatchedEditorOnlyChecksScope BatchedEditorOnlyChecks() => new();
+
+        public class BatchedEditorOnlyChecksScope : System.IDisposable
+        {
+            public BatchedEditorOnlyChecksScope() => BeginBatchedEditorOnlyChecks();
+            public void Dispose() => EndBatchedEditorOnlyChecks();
+        }
+
+        public static bool IsNullOrEditorOnly(GameObject go) => go == null || IsEditorOnly(go.transform);
+        public static bool IsNullOrEditorOnly(Component c) => c == null || IsEditorOnly(c.transform);
+        public static bool IsNullOrEditorOnly(Transform t) => t == null || IsEditorOnly(t);
+
+        public static bool IsEditorOnly(GameObject go) => IsEditorOnly(go.transform);
+        public static bool IsEditorOnly(Component c) => IsEditorOnly(c.transform);
+        public static bool IsEditorOnly(Transform t)
+        {
+            if (IsPerformingCachedEditorOnlyChecks)
+                return CachedIsEditorOnly(t);
+            do
+            {
+                if (t.CompareTag("EditorOnly"))
+                    return true;
+                t = t.parent;
+            }
+            while (t != null);
+            return false;
+        }
+
+        private static bool CachedIsEditorOnly(Transform t)
+        {
+            if (cachedEditorOnlyTransforms.Contains(t))
+                return true;
+            if (t.CompareTag("EditorOnly"))
+            {
+                cachedEditorOnlyTransforms.Add(t);
+                return true;
+            }
+            Transform parent = t.parent;
+            if (parent == null)
+                return false;
+            if (CachedIsEditorOnly(parent))
+            {
+                cachedEditorOnlyTransforms.Add(t);
+                return true;
+            }
+            return false;
         }
     }
 }

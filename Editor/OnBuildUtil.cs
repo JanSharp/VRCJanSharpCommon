@@ -190,7 +190,7 @@ namespace JanSharp
 
         private static void TryAddFoundComponentToOnBuildCallbackData(Component component)
         {
-            bool editorOnly = component.CompareTag("EditorOnly");
+            bool editorOnly = EditorUtil.IsEditorOnly(component);
             foreach (OnBuildCallbackData data in GetMatchingDataForAllBaseTypes(component.GetType()))
                 data.components.Add((component, editorOnly));
         }
@@ -208,15 +208,16 @@ namespace JanSharp
 
             FigureOutWhatTypesToReallySearchFor();
 
-            foreach (Type type in typesToSearchForCache)
-            {
-                UnityEngine.Object[] objects = UnityEngine.Object.FindObjectsByType(
-                    type,
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.InstanceID);
-                foreach (UnityEngine.Object obj in objects)
-                    TryAddFoundComponentToOnBuildCallbackData((Component)obj);
-            }
+            using (EditorUtil.BatchedEditorOnlyChecks())
+                foreach (Type type in typesToSearchForCache)
+                {
+                    UnityEngine.Object[] objects = UnityEngine.Object.FindObjectsByType(
+                        type,
+                        FindObjectsInactive.Include,
+                        FindObjectsSortMode.InstanceID);
+                    foreach (UnityEngine.Object obj in objects)
+                        TryAddFoundComponentToOnBuildCallbackData((Component)obj);
+                }
 
             foreach (OrderedOnBuildCallbackData orderedData in typesToLookForList.OrderBy(d => d.order))
             {
