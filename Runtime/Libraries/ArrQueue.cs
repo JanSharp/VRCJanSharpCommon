@@ -11,11 +11,9 @@ namespace JanSharp
                 queue.CopyTo(newQueue, 0);
             else
             {
-                // If startIndex is not 0, can't use CopyTo, so do it the "hard"/slow way.
-                // TODO: optimize this by using 2 System.Array.Copy calls
-                int length = queue.Length;
-                for (int i = 0; i < length; i++)
-                    newQueue[i] = queue[(i + startIndex) % length];
+                int secondBlockLength = queue.Length - startIndex;
+                System.Array.Copy(queue, startIndex, newQueue, 0, secondBlockLength);
+                System.Array.Copy(queue, 0, newQueue, secondBlockLength, startIndex);
                 startIndex = 0;
             }
             queue = newQueue;
