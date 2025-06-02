@@ -19,3 +19,4 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 - [ ] better explain singletons in the readme
 - [ ] better explain build time id assignment in the readme
 - [ ] think about optional vpm dependencies
+- [ ] remove the WannaBeConstructor, because unlike normal default constructors, this one would get "raised" even when a non default constructor gets used, which does not make sense and is annoying to think about and deal with
