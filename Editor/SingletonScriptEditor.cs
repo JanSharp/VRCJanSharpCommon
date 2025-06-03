@@ -129,8 +129,15 @@ namespace JanSharp.Internal
             Undo.RegisterCreatedObjectUndo(instObj, "Instantiate singleton prefab");
             GameObject instGo = (GameObject)instObj;
             singleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(singleton.singletonType);
+            if (singleton.inst == null)
+            {
+                Debug.LogError($"[JanSharpCommon] The singleton prefab {AssetDatabase.GUIDToAssetPath(singleton.prefabGuid)} "
+                    + $"does not contain an UdonSharpBehavior of the type {singleton.singletonType.Name}, "
+                    + $"even though the prefab is associated with this singleton script.");
+                return false;
+            }
             foreach (UdonSharpBehaviour ub in instGo.GetComponentsInChildren<UdonSharpBehaviour>(includeInactive: true))
-                OnBuild(ub);
+                    OnBuild(ub);
             OnBuildUtil.MarkForRerunDueToScriptInstantiation();
             return true;
         }
