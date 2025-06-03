@@ -19,6 +19,7 @@ Head to my [VCC Listing](https://jansharp.github.io/vrc/vcclisting.xhtml) and fo
     - You should always `Debug.LogError` the reason for the abort
   - Since the RegisterType method takes an optional order argument, it is supported to register the same type twice but with different order
     - The order means that all lowest order registrations for all types are handled first, then the next order and so on
+  - Enable the `JAN_SHARP_COMMON_ON_BUILD_TRACE` define to see which on build callbacks are being run. Can help for example when something is infinitely looping and therefore freezing the editor (Edit -> Project Settings... -> Player -> Scripting Define Symbols)
 - EditorUtil: Helps working with SerializedObjects and SerializedProperties and other editor only utils
 - OnAssemblyLoadUtil: A generic way for other editor scripts to obtain a list of all UdonSharpBehaviour classes in the entire project
 

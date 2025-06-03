@@ -325,6 +325,11 @@ namespace JanSharp
 
             public readonly bool InvokeCallback()
             {
+#if JAN_SHARP_COMMON_ON_BUILD_TRACE
+                // TODO: this is printing some useless lines. I thought it might be due to lambda expressions, but
+                // the only one using lambda expressions is UIToggleProxyOnBuild
+                UnityEngine.Debug.Log($"[JanSharpCommon] Invoking {callbackInfo.DeclaringType?.Name ?? "?"}.{callbackInfo.Name}");
+#endif
                 return IsAction
                     ? InvokeActionCallback()
                     : usesCustomCallbackParamType
