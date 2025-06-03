@@ -18,7 +18,7 @@ namespace JanSharp
         public Transform instancesParent;
         [SerializeField] [HideInInspector] private string[] wannaBeClassNames;
         [SerializeField] [HideInInspector] private GameObject[] wannaBeClassPrefabs;
-        [SerializeField] [HideInInspector] private Transform[] instancesExistingAtBuildTime;
+        [SerializeField] [HideInInspector] private WannaBeClass[] instancesExistingAtBuildTime;
 
         private DataDictionary prefabsLut;
         private DataDictionary PrefabsLut
@@ -37,13 +37,15 @@ namespace JanSharp
 
         private void Start()
         {
-            foreach (Transform instance in instancesExistingAtBuildTime)
+            foreach (WannaBeClass instance in instancesExistingAtBuildTime)
                 if (instance != null)
                 {
-                    instance.SetParent(instancesParent);
-                    instance.localPosition = Vector3.zero;
-                    instance.localRotation = Quaternion.identity;
-                    instance.localScale = Vector3.one;
+                    Transform t = instance.transform;
+                    t.SetParent(instancesParent);
+                    t.localPosition = Vector3.zero;
+                    t.localRotation = Quaternion.identity;
+                    t.localScale = Vector3.one;
+                    instance.WannaBeConstructor();
                 }
             // Don't hold on to those references so they can be garbage collected at some point.
             instancesExistingAtBuildTime = null;

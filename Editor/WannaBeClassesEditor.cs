@@ -89,7 +89,7 @@ namespace JanSharp
             EditorUtil.SetArrayProperty(
                 so.FindProperty("instancesExistingAtBuildTime"),
                 instances.Where(i => i.transform.parent != manager.prefabsParent).ToList(),
-                (p, v) => p.objectReferenceValue = v.transform);
+                (p, v) => p.objectReferenceValue = v);
             so.ApplyModifiedProperties();
             return true;
         }
