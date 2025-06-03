@@ -222,6 +222,8 @@ namespace JanSharp.Internal
                 manager.managerInst = ub;
                 return true;
             }
+            if (ub.GetComponentInParent<BypassBuildTimeIdAssignment>() != null)
+                return true;
             if (!TryGetTypeCache(ub.GetType(), out var associatedEntries))
                 return false;
             foreach (Entry entry in associatedEntries)

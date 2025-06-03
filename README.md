@@ -62,7 +62,8 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 - ArrList: Makes it easier to make list like arrays. They are statically typed, unlike DataLists
 - ArrQueue: Makes it easier to make queue like arrays. First in, first out
 - Base64: Validate base 64 encoded strings to prevent throwing exceptions on invalid input
-- BuildTimeIdAssignment: Associates ids with custom script instances in the scene at build time, while ensuring an id never gets reused, even after deletion of scripts with associated ids
+- BuildTimeIdAssignment: Associates ids with custom script instances in the scene at build time, while ensuring an id never gets reused, even ids for deleted script instances do not get reused
+  - The BypassBuildTimeIdAssignment component can be used to mark an object and its children to be ignored by this system, meaning they will not get ids assigned to them
 - CRC32: Calculate a crc 32 checksum of a byte array
 - CustomRaisedEvents: Helps creating scripts, likely singletons, which raise events other scripts may listen to. Uses attributes and enums
 - DataStream: For binary serialization and deserialization using byte arrays
