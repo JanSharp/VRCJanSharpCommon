@@ -270,7 +270,7 @@ namespace JanSharp
             if (success)
             {
                 UnityEngine.Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}."
-                    + (runCounter == 1 ? "" : $" (Had tu run {runCounter} times.)"));
+                    + (runCounter == 1 ? "" : $" (Had to run {runCounter} times.)"));
                 return true;
             }
 
