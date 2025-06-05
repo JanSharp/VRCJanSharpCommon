@@ -17,20 +17,32 @@ namespace JanSharp.Internal
         private static Dictionary<System.Type, List<(RegisteredData data, int eventTypeValue, int order, int defaultExecutionOrder)>> ubTypeCache = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
+        private static bool hasValidationErrors = false;
+
         static CustomRaisedEvents()
         {
+            hasValidationErrors = false;
             didRegisterCoreHandlers = false;
             ubTypeCache.Clear();
+            ProcessAllUBTypes();
+        }
 
+        private static void ProcessAllUBTypes(bool validateOnly = false)
+        {
             foreach (System.Type ubType in OnAssemblyLoadUtil.AllUdonSharpBehaviourTypes)
             {
                 CustomRaisedEventsDispatcherAttribute dispatcherAttr = ubType.GetCustomAttribute<CustomRaisedEventsDispatcherAttribute>();
-                if (dispatcherAttr == null
-                    || !ValidateCustomRaisedEventAttributeType(ubType, dispatcherAttr)
+                if (dispatcherAttr == null)
+                    continue;
+                if (!ValidateCustomRaisedEventAttributeType(ubType, dispatcherAttr)
                     || !ValidateCustomEventEnumType(ubType, dispatcherAttr, out List<int> eventTypeValues)
                     || !ValidateListenerFields(ubType, dispatcherAttr))
+                {
+                    hasValidationErrors = true;
                     continue;
-                RegisterDispatcher(ubType, dispatcherAttr, eventTypeValues);
+                }
+                if (!validateOnly)
+                    RegisterDispatcher(ubType, dispatcherAttr, eventTypeValues);
             }
         }
 
@@ -120,7 +132,9 @@ namespace JanSharp.Internal
                 if (fieldInfo == null)
                 {
                     Debug.LogError($"[JanSharpCommon] Missing {GetListenersFieldName(name)} field for the class {ubType.Name}, "
-                        + $"this is required for the {nameof(CustomRaisedEventsDispatcherAttribute)} to work.");
+                        + $"this is required for the {nameof(CustomRaisedEventsDispatcherAttribute)} to work. "
+                        + $"The filed must have the type UdonSharpBehaviour[] and be serialized by Unity "
+                        + $"(either be public or have the {nameof(SerializeField)} attribute).");
                     result = false;
                     continue;
                 }
@@ -164,7 +178,8 @@ namespace JanSharp.Internal
             };
             allRegisteredData.Add(registeredData);
             registeredDataByCustomRaisedEventAttributeType.Add(dispatcherAttr.CustomRaisedEventAttributeType, registeredData);
-            OnBuildUtil.RegisterTypeCumulative(ubType, dispatchers => {
+            OnBuildUtil.RegisterTypeCumulative(ubType, dispatchers =>
+            {
                 registeredData.dispatchers = dispatchers.Cast<UdonSharpBehaviour>().ToArray();
                 return true;
             }, order: -101);
@@ -182,8 +197,13 @@ namespace JanSharp.Internal
 
         private static bool PreOnBuild()
         {
+            if (hasValidationErrors)
+            {
+                ProcessAllUBTypes(validateOnly: true);
+                return false;
+            }
             foreach (RegisteredData data in allRegisteredData)
-                data.allListeners.Clear();
+                    data.allListeners.Clear();
             return true;
         }
 
