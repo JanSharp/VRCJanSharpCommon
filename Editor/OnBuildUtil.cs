@@ -364,7 +364,8 @@ namespace JanSharp
             {
                 if (!(bool)callbackInfo.Invoke(callbackInstance, new object[0]))
                 {
-                    UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the action {callbackInfo.Name}.");
+                    UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running "
+                        + $"the action {callbackInfo.DeclaringType?.Name ?? " ?"}.{callbackInfo.Name}.");
                     return false;
                 }
                 return true;
