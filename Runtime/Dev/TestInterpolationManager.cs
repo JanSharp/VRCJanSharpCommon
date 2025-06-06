@@ -1,5 +1,6 @@
 ﻿using UdonSharp;
 using UnityEngine;
+using VRC.SDK3.Data;
 using VRC.SDKBase;
 using VRC.Udon;
 
@@ -17,6 +18,21 @@ namespace JanSharp
             Position();
             Rotation();
             // Combo();
+
+            DataDictionary dict = new DataDictionary();
+            dict.Add(Instantiate(testPrefab).transform, new DataToken(new object[0]));
+            dict.Add(Instantiate(testPrefab).transform, new DataToken(new object[0]));
+            Transform third = Instantiate(testPrefab).transform;
+            dict.Add(third, new DataToken(new object[0]));
+            dict.Add(Instantiate(testPrefab).transform, new DataToken(new object[0]));
+            dict.Add(Instantiate(testPrefab).transform, new DataToken(new object[0]));
+            Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Start - dict.Count: {dict.Count}");
+            Transform t = null;
+            dict.Remove(t);
+            Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Start - dict.Count: {dict.Count}");
+            DestroyImmediate(third.gameObject);
+            dict.Remove(third);
+            Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Start - dict.Count: {dict.Count}, third == null: {third == null}");
         }
 
         private Transform positionInst;
@@ -29,11 +45,11 @@ namespace JanSharp
         }
         public void Function1()
         {
-            manager.LerpLocalPosition(positionInst, basePos + Vector3.forward * 5f, 1f, this, nameof(Function2), null);
+            manager.InterpolateLocalPosition(positionInst, basePos + Vector3.forward * 5f, 1f, this, nameof(Function2), null);
         }
         public void Function2()
         {
-            manager.LerpLocalPosition(positionInst, basePos, 0.2f, this, nameof(Function1), null);
+            manager.InterpolateLocalPosition(positionInst, basePos, 0.2f, this, nameof(Function1), null);
         }
 
         private Transform rotationInst;
@@ -45,11 +61,11 @@ namespace JanSharp
         }
         public void Function3()
         {
-            manager.LerpLocalRotation(rotationInst, Quaternion.AngleAxis(135f, Vector3.up), 1f, this, nameof(Function4), null);
+            manager.InterpolateLocalRotation(rotationInst, Quaternion.AngleAxis(135f, Vector3.up), 1f, this, nameof(Function4), null);
         }
         public void Function4()
         {
-            manager.LerpLocalRotation(rotationInst, Quaternion.identity, 0.2f, this, nameof(Function3), null);
+            manager.InterpolateLocalRotation(rotationInst, Quaternion.identity, 0.2f, this, nameof(Function3), null);
         }
 
         // private Transform comboInst;
