@@ -21,4 +21,4 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 - [ ] think about optional vpm dependencies
 - [ ] remove the WannaBeConstructor, because unlike normal default constructors, this one would get "raised" even when a non default constructor gets used, which does not make sense and is annoying to think about and deal with
 - [ ] look at the wanna be class prefab creation editor script to make sure it is using the correct api
-- [ ] api for interpolation manager to change or cancel ongoing interpolations
+- [x] api for interpolation manager to change or cancel ongoing interpolations

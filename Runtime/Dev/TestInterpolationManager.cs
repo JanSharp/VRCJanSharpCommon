@@ -16,7 +16,7 @@ namespace JanSharp
         {
             Position();
             Rotation();
-            Combo();
+            // Combo();
         }
 
         private Transform positionInst;
@@ -52,28 +52,28 @@ namespace JanSharp
             manager.LerpLocalRotation(rotationInst, Quaternion.identity, 0.2f, this, nameof(Function3), null);
         }
 
-        private Transform comboInst;
-        private void Combo()
-        {
-            comboInst = Instantiate(testPrefab).transform;
-            comboInst.localPosition = Vector3.right * 15f;
-            Function5();
-        }
-        public void Function5()
-        {
-            manager.LerpLocalScale(comboInst, Vector3.one * 2f, 0.5f, this, nameof(Function6), null);
-        }
-        public void Function6()
-        {
-            manager.LerpLocalRotation(comboInst, Quaternion.AngleAxis(90f, Vector3.right), 0.25f, this, nameof(Function7), null);
-        }
-        public void Function7()
-        {
-            manager.LerpLocalPositionAndRotation(comboInst, new Vector3(15f, 0f, 2f), Quaternion.AngleAxis(-90f, Vector3.right), 0.75f, this, nameof(Function8), null);
-        }
-        public void Function8()
-        {
-            manager.LerpLocalPositionAndRotationAndScale(comboInst, Vector3.right * 15f, Quaternion.identity, Vector3.one, 2f, this, nameof(Function5), null);
-        }
+        // private Transform comboInst;
+        // private void Combo()
+        // {
+        //     comboInst = Instantiate(testPrefab).transform;
+        //     comboInst.localPosition = Vector3.right * 15f;
+        //     Function5();
+        // }
+        // public void Function5()
+        // {
+        //     manager.LerpLocalScale(comboInst, Vector3.one * 2f, 0.5f, this, nameof(Function6), null);
+        // }
+        // public void Function6()
+        // {
+        //     manager.LerpLocalRotation(comboInst, Quaternion.AngleAxis(90f, Vector3.right), 0.25f, this, nameof(Function7), null);
+        // }
+        // public void Function7()
+        // {
+        //     manager.LerpLocalPositionAndRotation(comboInst, new Vector3(15f, 0f, 2f), Quaternion.AngleAxis(-90f, Vector3.right), 0.75f, this, nameof(Function8), null);
+        // }
+        // public void Function8()
+        // {
+        //     manager.LerpLocalPositionAndRotationAndScale(comboInst, Vector3.right * 15f, Quaternion.identity, Vector3.one, 2f, this, nameof(Function5), null);
+        // }
     }
 }
