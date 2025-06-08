@@ -74,7 +74,7 @@ namespace JanSharp
             int playerId = player.playerId;
             if (playerId == localPlayerId)
                 return;
-            for (int i = farAttachedCount - 1; i >= 0 ; i--)
+            for (int i = farAttachedCount - 1; i >= 0; i--)
             {
                 if (farAttachedPlayerIds[i] != playerId)
                     continue;
@@ -89,7 +89,7 @@ namespace JanSharp
                 return;
             nearIncrementalIndex %= nearAttachedCount;
             VRCPlayerApi player = nearAttachedPlayers[nearIncrementalIndex];
-            if (player == null || !player.IsValid())
+            if (!Utilities.IsValid(player)) // Ew, but this is faster than 'player == null || !player.IsValid()'.
                 return;
             HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[nearIncrementalIndex];
             Vector3 bonePosition = player.GetBonePosition(bone);
@@ -105,7 +105,7 @@ namespace JanSharp
             for (int i = 0; i < nearAttachedCount; i++)
             {
                 VRCPlayerApi player = nearAttachedPlayers[i];
-                if (player == null || !player.IsValid())
+                if (!Utilities.IsValid(player)) // Ew, but this is faster than 'player == null || !player.IsValid()'.
                     continue;
                 HumanBodyBones bone = (HumanBodyBones)nearAttachedBones[i];
                 Vector3 bonePosition = player.GetBonePosition(bone);
@@ -117,7 +117,7 @@ namespace JanSharp
         private bool UpdateFarObject(int index)
         {
             VRCPlayerApi player = farAttachedPlayers[index];
-            if (player == null || !player.IsValid())
+            if (!Utilities.IsValid(player)) // Ew, but this is faster than 'player == null || !player.IsValid()'.
                 return false;
             HumanBodyBones bone = (HumanBodyBones)farAttachedBones[index];
             Vector3 bonePosition = player.GetBonePosition(bone);
