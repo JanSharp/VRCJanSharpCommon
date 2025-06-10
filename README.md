@@ -36,6 +36,7 @@ Some [Library](#libraries)/[Manager](#managers) features are assisted by editor 
 
 - LocalEventOnInteract to send a custom event to any Udon behaviour locally
 - LocalToggleOnInteract to toggle a single GameObject locally
+- LocalToggleMultipleOnInteract to toggle multiple GameObjects locally
 - LocalToggleOnValueChanged to toggle multiple objects to match the state of a UI Toggle
 - InteractProxy to pass VRChat's interact event from one object to another. Useful when the interact is on an object that gets toggled, but the script should not get toggled
 - UIToggleInteractProxy to send an Interact event whenever a UI Toggle gets turned on, turned off or both. Allows for generic OnInteract scripts to be hooked up to toggles. For that to makes sense it usually requires a pair of OnInteract scripts, one for turning on one for turning off
