@@ -1,8 +1,6 @@
 
 # Ideas
 
-MoveToRoot script which moves a given object to the root of the scene on Start. Needs a manager to ensure even disabled objects with this component on them get moved. How different is this to a parent constraint?
-
 - [x] look at newly exposed BitConverter
 - [ ] look at newly exposed StringBuilder
 - [x] look at Encoding.UTF8, pretty sure that's also newly exposed because otherwise I'd have used that to begin with
@@ -22,6 +20,36 @@ MoveToRoot script which moves a given object to the root of the scene on Start. 
 - [ ] remove the WannaBeConstructor, because unlike normal default constructors, this one would get "raised" even when a non default constructor gets used, which does not make sense and is annoying to think about and deal with
 - [ ] look at the wanna be class prefab creation editor script to make sure it is using the correct api
 - [x] api for interpolation manager to change or cancel ongoing interpolations
+- [ ] either change or add an option for interpolation to be non linear. Use bezier or some other curves
 - [ ] add editor scripting for LocalToggleMultipleOnInteract
   - [ ] only show the 2 interaction fields when the checkbox is enabled
   - [ ] the activate text is actually grayed out and automatically matches the interaction text of the UB itself
+- [ ] AlwaysActive script with a manager which moves a given objects into the manager as a child on Start
+  - [ ] dropdown for "Retain World Transform" with options
+    - [ ] "Auto" - Choses "Yes" as soon as the object to move has any component on it that isn't a custom script. May also "whitelist" other components, like ToggleGroup for example.
+    - [ ] "Yes" - If this is the case then the editor script has to build a replica of the transform tree specifically to be able to maintain non uniform scaling. Uniformly scaled transforms can be collapsed into their parent
+    - [ ] "No" - The object gets moved into the manager as a child with "world position stays" set to false. The resulting transform does not matter
+- [ ] Zones and a ZoneManager
+  - [ ] keep track of which zones the local player is in - a list or lut in the manager
+  - [ ] optionally keep track of which zones remote players are in - a list or lut in the manager
+    - [ ] auto enable remote player tracking if `OnRemotePlayerZoneEnter` or `OnRemotePlayerZoneExit` events are listend to for a specific zone
+    - [ ] attribute on the class depending on the Zone component to tell it that it requires remote player tracking
+    - [ ] checkbox on each zone to force it to track remote players
+    - [ ] checkbox on the manager to force every zone to track remote players
+  - [ ] api to get the list of all zone listeners of a given type a given player is in currently
+    - [ ] support inheritance, so asking for a class that multiple zone listeners inherit from gets all those deriving class instances too
+  - [ ] automatically register listeners by having other scripst on the same object as the zone script, where said scripts have at least one of the 4 functions
+    - [ ] `OnLocalPlayerZoneEnter` (no parameter)
+    - [ ] `OnLocalPlayerZoneExit` (no parameter)
+    - [ ] `OnRemotePlayerZoneEnter` (1 parameter, the VRCPlayerApi of the remote player - only when using the abstract base class)
+    - [ ] `OnRemotePlayerZoneExit` (1 parameter, the VRCPlayerApi of the remote player - only when using the abstract base class)
+  - [ ] an abstract base class, ZoneListener, to have intellisense for the 4 events. Also makes it easy to have parameters for the remote player events
+    - [ ] probably has to be optional, which is unfortuante but probably managable
+    - [ ] when not using the abstract class, the `OnRemotePlayerZoneEnter` and `OnRemotePlayerZoneExit` events won't be able to take parameters, so have an api field on the Zone script as well to get the remote player in question. Set that player field even for `OnLocalPlayerZoneEnter` and `OnLocalPlayerZoneExit` even though those 2 events do not have parameters
+  - [ ] the scripts using the zones can have a serialized Zone field which gets populated at build time automatically too. This enables access to
+    - [ ] whether or not the local palyer is in the zone
+    - [ ] the list of players in the zone
+  - [ ] upon loading into the world determine which zones the local or remote players are in
+    - [ ] create capsule colliders, scaled according to eye height
+    - [ ] iterate all colliders and check which colliders they collide with
+    - [ ] zones which have players inside of them due to this method must periodically check if the players are still within the colliders, using the same collision checking method. They can stop doing so once the players has left, at which point trigger enter and exit events can be relied upon
