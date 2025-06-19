@@ -434,7 +434,7 @@ namespace JanSharp
             }
 
             index = IndexOfInFar(playerId, boneValue);
-            if (index == -1)
+            if (index != -1)
             {
                 Transform boneTransform = farAttachedTransforms[index];
                 if (boneTransform.childCount != 0)
