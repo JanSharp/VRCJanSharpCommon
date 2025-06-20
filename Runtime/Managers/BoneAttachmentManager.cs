@@ -343,7 +343,7 @@ namespace JanSharp
             int index = IndexOfInNear(playerId, boneValue);
             if (index != -1)
             {
-                AttachToBoneTransform(farAttachedTransforms[index], player, bone, toAttach);
+                AttachToBoneTransform(nearAttachedTransforms[index], player, bone, toAttach);
                 return;
             }
 
