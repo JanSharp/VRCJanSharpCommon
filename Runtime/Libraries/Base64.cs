@@ -19,7 +19,7 @@ namespace JanSharp
         public static bool TryDecode(string data, out byte[] result)
         {
             result = null;
-            int count = 0;
+            int whitespaceCount = 0;
             bool startedPadding = false;
             int paddingCount = 0;
             foreach (char c in data)
@@ -32,20 +32,20 @@ namespace JanSharp
                 {
                     if (startedPadding)
                         return false;
-                    count++;
                 }
                 else if (c == '=')
                 {
-                    count++;
                     startedPadding = true;
                     paddingCount++;
                     if (paddingCount > 2)
                         return false;
                 }
-                else if (!char.IsWhiteSpace(c))
+                else if (char.IsWhiteSpace(c))
+                    whitespaceCount++;
+                else
                     return false;
             }
-            if ((count % 4) != 0)
+            if (((data.Length - whitespaceCount) % 4) != 0)
                 return false;
 
             result = Convert.FromBase64String(data);
