@@ -208,6 +208,12 @@ namespace JanSharp
                 yield return new PersistentEventListenerWrapper(unityEventProperty, i);
         }
 
+        public static void DeletePersistentEventListenerAtIndex(SerializedProperty unityEventProperty, int index)
+        {
+            SerializedProperty calls = unityEventProperty.FindPropertyRelative("m_PersistentCalls.m_Calls");
+            calls.DeleteArrayElementAtIndex(index);
+        }
+
         public static void ConditionalButton<T>(
             GUIContent buttonContent,
             IEnumerable<T> targets,
