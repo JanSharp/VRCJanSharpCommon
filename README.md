@@ -59,6 +59,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
   - Note that I'm unsure how performance compares to using `SendCustomEventDelayedFrames` to effectively create an update loop
 - WannaBeClassesManager: A manager to enable creating instances of UdonSharpBehaviours which are pretending to be custom data structures. See [WannaBeClasses](#wannabeclasses) for details
 - InterpolationManager: A manager to linearly interpolate the position, rotation and or scale of objects, with callbacks once done
+- QuickDebugUI: Display/Monitor some real time values in a screen space overlay UI (Desktop UI) with relatively minimal setup
 
 ### Libraries
 
