@@ -16,9 +16,9 @@ namespace JanSharp
         /// </summary>
         public Transform prefabsParent;
         public Transform instancesParent;
-        [SerializeField] [HideInInspector] private string[] wannaBeClassNames;
-        [SerializeField] [HideInInspector] private GameObject[] wannaBeClassPrefabs;
-        [SerializeField] [HideInInspector] private WannaBeClass[] instancesExistingAtBuildTime;
+        [SerializeField][HideInInspector] private string[] wannaBeClassNames;
+        [SerializeField][HideInInspector] private GameObject[] wannaBeClassPrefabs;
+        [SerializeField][HideInInspector] private WannaBeClass[] instancesExistingAtBuildTime;
 
         private DataDictionary prefabsLut;
         private DataDictionary PrefabsLut
@@ -84,24 +84,24 @@ namespace JanSharp
         {
             if (!manager.TryGetPrefabInternal(wannaBeClassName, out GameObject prefab))
                 return null;
-            #if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
-            #endif
+#endif
             // By having this logic in a static function it gets put into each script which calls the New,
             // function, which then means that multiple scripts can call New inside of their
             // WannaBeConstructor without running into recursion issues.
             GameObject go = Object.Instantiate(prefab, manager.instancesParent);
-            #if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             double instantiateMs = sw.Elapsed.TotalMilliseconds;
-            #endif
+#endif
             WannaBeClass inst = (WannaBeClass)go.GetComponent<UdonSharpBehaviour>();
             // inst.SetProgramVariable("wannaBeClasses", manager); // Not needed because the "prefab" already has it set.
             inst.WannaBeConstructor();
-            #if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             double constructorMs = sw.Elapsed.TotalMilliseconds - instantiateMs;
             Debug.Log($"[JanSharpCommonDebug] [sw] WannaBeClassesManager  NewDynamic (inner) - instantiateMs: {instantiateMs}, constructorMs: {constructorMs}, wannaBeClassName: {wannaBeClassName}");
-            #endif
+#endif
             return inst;
         }
     }

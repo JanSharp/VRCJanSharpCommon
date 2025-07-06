@@ -25,7 +25,7 @@ namespace JanSharp
 
         public override void OnDeserialization()
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] UIToggleSync  OnDeserialization - isOn: {isOn}");
 #endif
             if (doNotifyOnReceive)
@@ -51,7 +51,7 @@ namespace JanSharp
         [PublicAPI]
         public void OnValueChanged()
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] UIToggleSync  OnValueChanged - toggle.isOn: {toggle.isOn}");
 #endif
             bool toggleIsOn = toggle.isOn;

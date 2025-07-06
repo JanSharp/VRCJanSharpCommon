@@ -207,7 +207,7 @@ namespace JanSharp
 
         private void CallCallback(object[] positionDef, Transform toInterpolate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CallCallback");
 #endif
             UdonSharpBehaviour callbackInst = (UdonSharpBehaviour)positionDef[CallbackUdonBehaviourIndex];
@@ -254,7 +254,7 @@ namespace JanSharp
 
             if (doDeregister)
             {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CustomUpdate (inner) - localPositionDefsCount: {localPositionDefsCount}, localRotationDefsCount: {localRotationDefsCount}, localScaleDefsCount: {localScaleDefsCount}, worldPositionDefsCount: {worldPositionDefsCount}, worldRotationDefsCount: {worldRotationDefsCount}");
 #endif
                 updateManager.Deregister(this);
@@ -266,7 +266,7 @@ namespace JanSharp
             Vector3 destinationLocalPosition,
             float interpolationDuration)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalPosition");
 #endif
             CancelWorldPositionInterpolation(toInterpolate);
@@ -297,7 +297,7 @@ namespace JanSharp
             string callbackEventName,
             object customCallbackData)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalPosition");
 #endif
             object[] def = InterpolateLocalPosition(toInterpolate, destinationLocalPosition, interpolationDuration);
@@ -312,7 +312,7 @@ namespace JanSharp
             Quaternion destinationLocalRotation,
             float interpolationDuration)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalRotation");
 #endif
             CancelWorldRotationInterpolation(toInterpolate);
@@ -343,7 +343,7 @@ namespace JanSharp
             string callbackEventName,
             object customCallbackData)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalRotation");
 #endif
             object[] def = InterpolateLocalRotation(toInterpolate, destinationLocalRotation, interpolationDuration);
@@ -358,7 +358,7 @@ namespace JanSharp
             Vector3 destinationLocalScale,
             float interpolationDuration)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalScale");
 #endif
             object[] def;
@@ -388,7 +388,7 @@ namespace JanSharp
             string callbackEventName,
             object customCallbackData)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalScale");
 #endif
             object[] def = InterpolateLocalScale(toInterpolate, destinationLocalScale, interpolationDuration);
@@ -403,7 +403,7 @@ namespace JanSharp
             Vector3 destinationWorldPosition,
             float interpolationDuration)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
 #endif
             CancelLocalPositionInterpolation(toInterpolate);
@@ -434,7 +434,7 @@ namespace JanSharp
             string callbackEventName,
             object customCallbackData)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
 #endif
             object[] def = InterpolateWorldPosition(toInterpolate, destinationWorldPosition, interpolationDuration);
@@ -449,7 +449,7 @@ namespace JanSharp
             Quaternion destinationWorldRotation,
             float interpolationDuration)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
 #endif
             CancelLocalRotationInterpolation(toInterpolate);
@@ -480,7 +480,7 @@ namespace JanSharp
             string callbackEventName,
             object customCallbackData)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
 #endif
             object[] def = InterpolateWorldRotation(toInterpolate, destinationWorldRotation, interpolationDuration);
@@ -492,7 +492,7 @@ namespace JanSharp
 
         public bool CancelLocalPositionInterpolation(Transform toInterpolate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelLocalPositionInterpolation");
 #endif
             if (!localPositionDefsLut.Remove(toInterpolate, out DataToken defToken))
@@ -503,7 +503,7 @@ namespace JanSharp
 
         public bool CancelLocalRotationInterpolation(Transform toInterpolate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelLocalRotationInterpolation");
 #endif
             if (!localRotationDefsLut.Remove(toInterpolate, out DataToken defToken))
@@ -514,7 +514,7 @@ namespace JanSharp
 
         public bool CancelLocalScaleInterpolation(Transform toInterpolate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelLocalScaleInterpolation");
 #endif
             if (!localScaleDefsLut.Remove(toInterpolate, out DataToken defToken))
@@ -525,7 +525,7 @@ namespace JanSharp
 
         public bool CancelWorldPositionInterpolation(Transform toInterpolate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelWorldPositionInterpolation");
 #endif
             if (!worldPositionDefsLut.Remove(toInterpolate, out DataToken defToken))
@@ -536,7 +536,7 @@ namespace JanSharp
 
         public bool CancelWorldRotationInterpolation(Transform toInterpolate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelWorldRotationInterpolation");
 #endif
             if (!worldRotationDefsLut.Remove(toInterpolate, out DataToken defToken))
@@ -547,7 +547,7 @@ namespace JanSharp
 
         public bool CancelPositionInterpolation(Transform toInterpolate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelPositionInterpolation");
 #endif
             return CancelLocalPositionInterpolation(toInterpolate)
@@ -556,7 +556,7 @@ namespace JanSharp
 
         public bool CancelRotationInterpolation(Transform toInterpolate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelRotationInterpolation");
 #endif
             return CancelLocalRotationInterpolation(toInterpolate)

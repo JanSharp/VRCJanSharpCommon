@@ -28,7 +28,7 @@ namespace JanSharp
 
         private void SetActiveToggle(Toggle toActivate)
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] UIToggleGroupSync  SetActiveToggle - toActivate: {(toActivate == null ? "<null>" : toActivate.name)}");
 #endif
             isReceiving = true;
@@ -62,7 +62,7 @@ namespace JanSharp
 
         public override void OnDeserialization()
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] UIToggleGroupSync  OnDeserialization - activeToggleIndex: {activeToggleIndex}");
 #endif
             if (activeToggleIndex == -1)
@@ -99,7 +99,7 @@ namespace JanSharp
         [PublicAPI]
         public void OnValueChanged()
         {
-#if JanSharpCommonDebug
+#if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] UIToggleGroupSync  OnValueChanged - isReceiving: {isReceiving}");
 #endif
             if (isReceiving)
