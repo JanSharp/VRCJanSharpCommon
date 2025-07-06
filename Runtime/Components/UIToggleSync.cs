@@ -1,9 +1,8 @@
-﻿using UdonSharp;
+﻿using JetBrains.Annotations;
+using UdonSharp;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDKBase;
-using VRC.Udon;
-using JetBrains.Annotations;
 using VRC.Udon.Common;
 
 namespace JanSharp
@@ -18,7 +17,7 @@ namespace JanSharp
             + "then this can be disabled to prevent odd network race conditions.")]
         [PublicAPI] public bool doNotifyOnReceive = true;
 
-        [UdonSynced] [SerializeField] [HideInInspector] private bool isOn; // Set in OnBuild.
+        [UdonSynced][SerializeField][HideInInspector] private bool isOn; // Set in OnBuild.
 
         private const float MinBackOffTime = 1f;
         private const float MaxBackOffTime = 16f;
@@ -26,6 +25,9 @@ namespace JanSharp
 
         public override void OnDeserialization()
         {
+#if JanSharpCommonDebug
+            Debug.Log($"[JanSharpCommonDebug] UIToggleSync  OnDeserialization - isOn: {isOn}");
+#endif
             if (doNotifyOnReceive)
                 toggle.isOn = isOn;
             else
@@ -34,26 +36,29 @@ namespace JanSharp
 
         public override void OnPostSerialization(SerializationResult result)
         {
-            if (!result.success)
-            {
-                SendCustomEventDelayedSeconds(nameof(InternalRequestSerializationDelayed), currentBackOffTime);
-                // Exponential back off.
-                currentBackOffTime = Mathf.Min(currentBackOffTime * 2, MaxBackOffTime);
-            }
-            else
+            if (result.success)
                 currentBackOffTime = MinBackOffTime;
+            else
+            {
+                SendCustomEventDelayedSeconds(nameof(RequestSerializationDelayed), currentBackOffTime);
+                currentBackOffTime = Mathf.Min(currentBackOffTime * 2, MaxBackOffTime); // Exponential back off.
+            }
         }
 
         /// <summary>This is not public API, do not call this function.</summary>
-        public void InternalRequestSerializationDelayed() => RequestSerialization();
+        public void RequestSerializationDelayed() => RequestSerialization();
 
-        [PublicAPI] public void OnValueChanged()
+        [PublicAPI]
+        public void OnValueChanged()
         {
+#if JanSharpCommonDebug
+            Debug.Log($"[JanSharpCommonDebug] UIToggleSync  OnValueChanged - toggle.isOn: {toggle.isOn}");
+#endif
             bool toggleIsOn = toggle.isOn;
             if (toggleIsOn == isOn)
                 return;
-            isOn = toggleIsOn;
 
+            isOn = toggleIsOn;
             Networking.SetOwner(Networking.LocalPlayer, this.gameObject);
             RequestSerialization();
         }

@@ -53,6 +53,11 @@
     - [ ] create capsule colliders, scaled according to eye height
     - [ ] iterate all colliders and check which colliders they collide with
     - [ ] zones which have players inside of them due to this method must periodically check if the players are still within the colliders, using the same collision checking method. They can stop doing so once the players has left, at which point trigger enter and exit events can be relied upon
-- [ ] automaticallyUseChildToggles for synced toggle groups is just broken
+- [x] ~~automaticallyUseChildToggles for synced toggle groups is just broken~~ Just remove that feature entirely and have it automatically find toggles in that group on build
+- [x] automatically set the toggle OnValueChanged listeners for all toggles in a group
+- [x] automatically remove the listener if a toggle is no longer in a group
+- [x] make UIToggleSync more automatic just like UIToggleGroupSync
 - [ ] TriggerBoxProxy
   - [ ] Receive OnTriggerEnter and OnTriggerExit events and pass them along to another script
+- [ ] SyncedToggleOnInteract
+- [ ] SyncedToggleMultipleOnInteract

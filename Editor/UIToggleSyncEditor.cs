@@ -1,39 +1,56 @@
-using UdonSharp;
+using System.Linq;
+using UdonSharpEditor;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using VRC.SDKBase;
 using VRC.Udon;
-using VRC.SDK3.Components;
-using UnityEditor;
-using UnityEditor.Events;
-using UdonSharpEditor;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace JanSharp
 {
     [InitializeOnLoad]
     public static class UIToggleSyncOnBuild
     {
-        static UIToggleSyncOnBuild()
-            => JanSharp.OnBuildUtil.RegisterType<UIToggleSync>(OnBuild);
+        static UIToggleSyncOnBuild() => OnBuildUtil.RegisterType<UIToggleSync>(OnBuild);
 
         private static bool OnBuild(UIToggleSync uiToggleSync)
         {
-            SerializedObject proxy = new SerializedObject(uiToggleSync);
+            SerializedObject so = new SerializedObject(uiToggleSync);
 
-            Toggle toggle = (Toggle)proxy.FindProperty("toggle").objectReferenceValue;
+            Toggle toggle = (Toggle)so.FindProperty("toggle").objectReferenceValue;
             if (toggle == null)
             {
-                Debug.LogError($"[JanSharp Common] The Toggle must not be null for the "
+                Debug.LogError($"[JanSharpCommon] The Toggle must not be null for the "
                     + $"{nameof(UIToggleSync)} {uiToggleSync.name}.", uiToggleSync);
                 return false;
             }
 
-            proxy.FindProperty("isOn").boolValue = toggle.isOn;
-            proxy.ApplyModifiedProperties();
+            SetupOnValueChangedListener(uiToggleSync, toggle);
+
+            so.FindProperty("isOn").boolValue = toggle.isOn;
+            so.ApplyModifiedProperties();
 
             return true;
+        }
+
+        private static void SetupOnValueChangedListener(UIToggleSync uiToggleSync, Toggle toggle)
+        {
+            SerializedObject so = new SerializedObject(toggle);
+            SerializedProperty onValueChangedProperty = so.FindProperty("onValueChanged");
+            UdonBehaviour udonBehaviour = UdonSharpEditorUtility.GetBackingUdonBehaviour(uiToggleSync);
+
+            if (EditorUtil.HasCustomEventListener(
+                onValueChangedProperty,
+                udonBehaviour,
+                nameof(UIToggleGroupSync.OnValueChanged)))
+            {
+                return;
+            }
+
+            EditorUtil.AddPersistentSendCustomEventListener(
+                onValueChangedProperty,
+                udonBehaviour,
+                nameof(UIToggleGroupSync.OnValueChanged));
+            so.ApplyModifiedProperties();
         }
     }
 
@@ -47,7 +64,6 @@ namespace JanSharp
                 return;
             EditorGUILayout.Space();
             base.OnInspectorGUI(); // draws public/serializable fields
-            EditorGUILayout.Space();
 
             EditorUtil.ConditionalButton(
                 new GUIContent("Set Toggle to itself", $"Use the Toggle component that's on the same "
@@ -56,7 +72,8 @@ namespace JanSharp
                     .Select(p => (proxy: new SerializedObject(p), interactProxy: p))
                     .Where(p => p.proxy.FindProperty("toggle").objectReferenceValue == null
                         && p.interactProxy.GetComponent<Toggle>() != null),
-                proxies => {
+                proxies =>
+                {
                     foreach (var p in proxies)
                     {
                         p.proxy.FindProperty("toggle").objectReferenceValue
@@ -66,14 +83,14 @@ namespace JanSharp
                 }
             );
 
-            EditorUtil.ConditionalRegisterCustomEventListenerButton(
-                new GUIContent("Setup OnValueChanged listener", "Add the OnValueChanged listener to the "
-                    + "UI Toggle component for this UdonBehaviour to receive the event, which is required."),
-                targets.Cast<UIToggleSync>(),
-                p => (Toggle)new SerializedObject(p).FindProperty("toggle").objectReferenceValue,
-                "onValueChanged",
-                nameof(UIToggleSync.OnValueChanged)
-            );
+            EditorGUILayout.Space();
+            GUILayout.Label("Automatically sets up an OnValueChanged listener on the UI Toggle "
+                + "upon entering play mode and on build.",
+                EditorStyles.wordWrappedLabel);
+            EditorGUILayout.Space();
+            GUILayout.Label("Use 'Tools -> JanSharp -> Remove UI Toggle Listeners Targeting Missing Objects' "
+                + "to remove stray listeners on UI Toggles after deleting a UI Toggle Sync script.",
+                EditorStyles.wordWrappedLabel);
         }
     }
 }
