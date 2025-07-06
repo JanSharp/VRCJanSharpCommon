@@ -15,45 +15,9 @@ namespace JanSharp
 
         static UIToggleGroupSyncOnBuild()
         {
-            // Specifically -105 and -104 because it's random to not conflict with other scripts wanting all toggles.
-            OnBuildUtil.RegisterType<Toggle>(OnToggleBuild, order: -105, includeEditorOnly: true);
+            // Specifically -104 because it's random to not conflict with other scripts wanting all toggles.
             OnBuildUtil.RegisterTypeCumulative<Toggle>(OnPreBuild, order: -104);
             OnBuildUtil.RegisterType<UIToggleGroupSync>(OnBuild, order: -10);
-        }
-
-        private static ToggleGroup GetToggleGroup(UIToggleGroupSync groupSync)
-        {
-            SerializedObject so = new SerializedObject(groupSync);
-            return (ToggleGroup)so.FindProperty("toggleGroup").objectReferenceValue;
-        }
-
-        private static bool OnToggleBuild(Toggle toggle)
-        {
-            SerializedObject so = new SerializedObject(toggle);
-            SerializedProperty onValueChangedProperty = so.FindProperty("onValueChanged");
-            List<int> toRemove = new();
-            bool foundOneValidOne = false;
-            foreach (var l in EditorUtil.EnumeratePersistentEventListeners(onValueChangedProperty)
-                .Select((listener, index) => (listener, index)))
-            {
-                if (l.listener.Target is not UdonBehaviour targetBehaviour
-                    || UdonSharpEditorUtility.GetProxyBehaviour(targetBehaviour) is not UIToggleGroupSync groupSync)
-                    continue;
-                if (!foundOneValidOne
-                    && toggle.group == GetToggleGroup(groupSync)
-                    && l.listener.MethodName == nameof(UdonBehaviour.SendCustomEvent)
-                    && l.listener.StringArgument == nameof(UIToggleGroupSync.OnValueChanged))
-                {
-                    foundOneValidOne = true;
-                    continue;
-                }
-                toRemove.Add(l.index);
-            }
-            toRemove.Reverse();
-            foreach (int index in toRemove)
-                EditorUtil.DeletePersistentEventListenerAtIndex(onValueChangedProperty, index);
-            so.ApplyModifiedProperties();
-            return true;
         }
 
         private static bool OnPreBuild(IEnumerable<Toggle> toggles)

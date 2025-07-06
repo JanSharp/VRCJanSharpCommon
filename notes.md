@@ -61,3 +61,4 @@
   - [ ] Receive OnTriggerEnter and OnTriggerExit events and pass them along to another script
 - [ ] SyncedToggleOnInteract
 - [ ] SyncedToggleMultipleOnInteract
+- [x] automatically remove listeners to UIToggleSync where that sync script does not point to the Toggle sending the event
