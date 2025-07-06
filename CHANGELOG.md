@@ -1,6 +1,42 @@
 
 # Changelog
 
+## [1.1.0] - 2025-07-06
+
+### Changed
+
+- **Breaking:** Make OnBuildUtil ignore EditorOnly objects by default ([`cf92b84`](https://github.com/JanSharp/VRCJanSharpCommon/commit/cf92b843fa5379b6b06b434198e4067035c4ae15))
+- Make UIToggleGroupSync work with potentially disabled UI Toggles ([`b4e7da2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b4e7da2be6301cab80230bb565fc22c075105b26))
+- Change UIToggleSync and UIToggleGroupSync Toggle listener adding/removing to be automatic using OnBuildUtil ([`b4e7da2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b4e7da2be6301cab80230bb565fc22c075105b26), [`2bee174`](https://github.com/JanSharp/VRCJanSharpCommon/commit/2bee174b462edfae261ad69874b483f59d59940f))
+- Make WannaBeClass instances that already exist in the scene run WannaBeConstructor on Start ([`304056e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/304056edc4be75e2db2e08ccb85c395536759fd2))
+- Make CustomRaisedEvents validation run OnBuild to avoid missing errors that were shown upon assembly reload ([`cc0e8ae`](https://github.com/JanSharp/VRCJanSharpCommon/commit/cc0e8ae9455b5608f9497dde937f854001b8e294))
+- Add validation for singleton prefabs actually containing the associated script ([`0788210`](https://github.com/JanSharp/VRCJanSharpCommon/commit/078821048f972a9e5223c9178fa9fb7e892c534f))
+- Improve ArrQueue array growth performance ([`9774fc6`](https://github.com/JanSharp/VRCJanSharpCommon/commit/9774fc6a636c5d8ffaaab02020f80cf3afd2eef1))
+- Optimize Base64.TryDecode speed slightly ([`a4a155e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/a4a155e54c9991fd532fba245c5988393f9ca468))
+- Improve abort message for on build actions ([`0a65328`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0a65328727797cfcfbf63bd63b95ec25788e0291))
+
+### Added
+
+- Add "Tools -> JanSharp -> Remove UI Toggle Listeners Targeting Missing Objects" ([`b4e7da2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b4e7da2be6301cab80230bb565fc22c075105b26))
+- Add "Do Notify On Receive" to UIToggleGroupSync, just like UIToggleSync ([`b4e7da2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b4e7da2be6301cab80230bb565fc22c075105b26))
+- Add QuickDebugUI to display some real time values ([`0e5d805`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0e5d80546f7b0720d682cee00bf5c0b244ede414), [`07d71a5`](https://github.com/JanSharp/VRCJanSharpCommon/commit/07d71a55b4dad20781a176b8cfca52b364d9eff1))
+- Add LocalToggleMultipleOnInteract component ([`1afdd93`](https://github.com/JanSharp/VRCJanSharpCommon/commit/1afdd935e175b7866b212cbf16d02522f1fb2236))
+- Add InterpolationManager ([`ffa5e02`](https://github.com/JanSharp/VRCJanSharpCommon/commit/ffa5e02cc9eec2195e87d941446bd6aa43812747), [`3cd2cf0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/3cd2cf0db45c3440955e8a767493915bff3e9db7), [`16c2bf1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/16c2bf1f74fb2835356bc7c05eade8ed6872e48c))
+- Add JAN_SHARP_COMMON_ON_BUILD_TRACE ([`613153c`](https://github.com/JanSharp/VRCJanSharpCommon/commit/613153c968be7b8039ccb8a5bd141d77ee80bd6c))
+- Add BypassBuildTimeIdAssignment component ([`14ad655`](https://github.com/JanSharp/VRCJanSharpCommon/commit/14ad65550ea873105246c80d1dc884e965433b3f))
+- Add DeletePersistentEventListenerAtIndex to EditorUtil ([`68108cc`](https://github.com/JanSharp/VRCJanSharpCommon/commit/68108cc9390ea85df307bfcb7725232a26f20178))
+- Add IsEditorOnly helper functions to EditorUtil ([`95a14e3`](https://github.com/JanSharp/VRCJanSharpCommon/commit/95a14e3b5cbbba1d4889ee4f62bfd3e1f2b203a8))
+- Add EnqueueAtFront and DequeueFromBack to ArrQueue ([`7049c14`](https://github.com/JanSharp/VRCJanSharpCommon/commit/7049c14b9dcfe40ec24f6b79a3ed2c1d8707617b))
+
+### Removed
+
+- **Breaking:** Remove "Automatically Use Child Toggles" from UIToggleGroupSync due to being unintuitive in favor of new editor scripting ([`b4e7da2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b4e7da2be6301cab80230bb565fc22c075105b26))
+
+### Fixed
+
+- Fix bone attachment error when reusing near bone ([`e5f8eb8`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e5f8eb82d0130e51c255449f997f8e8455057e9b))
+- Fix bone attachment index out of range exception ([`662cadf`](https://github.com/JanSharp/VRCJanSharpCommon/commit/662cadf26b052cf7a3b8c078edab277510e60711))
+
 ## [1.0.2] - 2025-04-24
 
 ### Added
@@ -187,6 +223,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.1.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.1.0
 [1.0.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.2
 [1.0.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.1
 [1.0.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.0
