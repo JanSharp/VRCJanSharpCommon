@@ -1,14 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using UdonSharp;
+using UdonSharpEditor;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using VRC.SDKBase;
-using VRC.Udon;
-using VRC.SDK3.Components;
-using UnityEditor;
-using UnityEditor.Events;
-using UdonSharpEditor;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace JanSharp
 {
@@ -29,7 +25,7 @@ namespace JanSharp
             Toggle toggle = (Toggle)proxy.FindProperty("toggle").objectReferenceValue;
             if (toggle == null)
             {
-                Debug.LogError($"[JanSharp Common] The Toggle must not be null for the "
+                Debug.LogError($"[JanSharpCommon] The Toggle must not be null for the "
                     + $"{typeof(T).Name} {uiToggleProxy.name}.", uiToggleProxy);
                 return false;
             }
@@ -52,7 +48,8 @@ namespace JanSharp
                 targets.Select(p => (proxy: new SerializedObject(p), interactProxy: p))
                     .Where(p => p.proxy.FindProperty("toggle").objectReferenceValue == null
                         && p.interactProxy.GetComponent<Toggle>() != null),
-                proxies => {
+                proxies =>
+                {
                     foreach (var p in proxies)
                     {
                         p.proxy.FindProperty("toggle").objectReferenceValue
@@ -69,8 +66,8 @@ namespace JanSharp
                 p => (Toggle)new SerializedObject(p).FindProperty("toggle").objectReferenceValue,
                 "onValueChanged",
                 nameof(UIToggleInteractProxy.OnValueChanged)
-                // Or this, also works, same thing:
-                // nameof(UIToggleSendLocalEvent.OnValueChanged)
+            // Or this, also works, same thing:
+            // nameof(UIToggleSendLocalEvent.OnValueChanged)
             );
         }
     }
