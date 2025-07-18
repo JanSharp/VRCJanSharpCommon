@@ -1,13 +1,24 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using UnityEngine;
-using UnityEditor;
-using UdonSharp;
 using System.Reflection;
+using UdonSharp;
+using UnityEditor;
+using UnityEngine;
 
 namespace JanSharp.Internal
 {
+    public interface ISingletonDependencyResolver
+    {
+        /// <summary>
+        /// <para>Leave <c>fieldName</c> <see langword="null"/> in order to have a dependency without the
+        /// given type having a field that the referenced singleton needs to get assigned to.</para>
+        /// <para>Note that for some implementations of this function it is convenient to use
+        /// <see langword="yield"/> <see langword="return"/>.</para>
+        /// </summary>
+        public IEnumerable<(string fieldName, System.Type singletonType, bool optional)> Resolve(System.Type ubType);
+    }
+
     [InitializeOnLoad]
     [DefaultExecutionOrder(-990)]
     public static class SingletonScriptEditor
@@ -32,6 +43,7 @@ namespace JanSharp.Internal
         /// <para>Not just fields, also includes dependencies, which simply have null field names.</para>
         /// </summary>
         private static Dictionary<System.Type, List<(string fieldName, System.Type singletonType, bool optional)>> typeCache = new();
+        private static List<ISingletonDependencyResolver> customDependencyResolvers = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
         static SingletonScriptEditor()
@@ -39,6 +51,7 @@ namespace JanSharp.Internal
             singletons.Clear();
             singletonsList.Clear();
             typeCache.Clear();
+            customDependencyResolvers.Clear();
 
             IEnumerable<System.Type> ubTypes = OnAssemblyLoadUtil.AllUdonSharpBehaviourTypes
                 .Where(t => t.IsDefined(typeof(SingletonScriptAttribute), inherit: false));
@@ -53,6 +66,11 @@ namespace JanSharp.Internal
                 OnBuildUtil.RegisterTypeCumulative(ubType, c => OnSingletonBuild(ubType, c), order: -151);
             OnBuildUtil.RegisterType<UdonSharpBehaviour>(OnBuild, order: -150);
             OnBuildUtil.RegisterType<SingletonManager>(OnSingletonManagerBuild, order: -149);
+        }
+
+        public static void RegisterCustomDependencyResolver(ISingletonDependencyResolver resolver)
+        {
+            customDependencyResolvers.Add(resolver);
         }
 
         private static bool OnPreSingletonBuild()
@@ -118,6 +136,9 @@ namespace JanSharp.Internal
                 cached.Add((field.Name, field.FieldType, attr.Optional));
             }
 
+            foreach (var resolver in customDependencyResolvers)
+                cached.AddRange(resolver.Resolve(ubType));
+
             typeCache.Add(ubType, cached);
             return true;
         }
@@ -137,7 +158,7 @@ namespace JanSharp.Internal
                 return false;
             }
             foreach (UdonSharpBehaviour ub in instGo.GetComponentsInChildren<UdonSharpBehaviour>(includeInactive: true))
-                    OnBuild(ub);
+                OnBuild(ub);
             OnBuildUtil.MarkForRerunDueToScriptInstantiation();
             return true;
         }

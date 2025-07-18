@@ -53,6 +53,10 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 - BoneAttachmentManager: To simplify the process of attaching any game object to bones of players, or tracking data for local players
 - SingletonManager: A manager which is a singleton itself which holds references to all singleton scripts which exist in the scene. See [Libraries](#libraries) for details about singletons
 - TrulyPostLateUpdateManager
+  - Put the `[OnTrulyPostLateUpdate]` attribute on a `public OnTrulyPostLateUpdate()` method
+  - Make an object with that script on it in the scene (notably instantiated objects with that script on it will not work)
+  - `OnTrulyPostLateUpdate` will now run inside of `OnWillRenderObject` which happens after `LateUpdate` and truly after the last time VRChat fetches tracking data, to my knowledge
+  - The active state of the listening object is ignored, even inactive objects will receive the event
 - UpdateManager: Register and deregister any behaviour for a CustomUpdate function at runtime (runs on Update)
   - Udon behaviours used with this require a `CustomUpdate` event (public method) and an int variable `customUpdateInternalIndex`
   - Registering an already registered behaviour is supported, it does nothing, same goes for deregistering an already deregistered behaviour
