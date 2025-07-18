@@ -1,6 +1,18 @@
 
 # Changelog
 
+## [1.1.1] - 2025-07-18
+
+### Changed
+
+- Make OnTrulyPostLateUpdate attribute automatically depend on and instantiate the manager singleton ([`495f294`](https://github.com/JanSharp/VRCJanSharpCommon/commit/495f294aacac433003e9403dc15485687f588a29))
+
+### Added
+
+- Add docs for how to use the OnTrulyPostLateUpdate attribute ([`495f294`](https://github.com/JanSharp/VRCJanSharpCommon/commit/495f294aacac433003e9403dc15485687f588a29))
+- Add LocalPlayerCapsule height and radius getters ([`c6e9599`](https://github.com/JanSharp/VRCJanSharpCommon/commit/c6e9599132916a4b276329b9bd6d285ead902530))
+- Add ShowForOneFrame to QuickDebugUI ([`4925029`](https://github.com/JanSharp/VRCJanSharpCommon/commit/49250293dbdfb12fd71c5eda0c441ca70cbcfa51))
+
 ## [1.1.0] - 2025-07-06
 
 ### Changed
@@ -223,6 +235,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.1.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.1.1
 [1.1.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.1.0
 [1.0.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.2
 [1.0.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.1
