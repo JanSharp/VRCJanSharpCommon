@@ -182,7 +182,7 @@ MonoBehaviour:
       Data: 11|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: JanSharp.LogToggleValueChange[], JanSharp.Common
+      Data: JanSharp.LogToggleValueChange[], JanSharp.Common.Dev
     - Name: 
       Entry: 8
       Data: 

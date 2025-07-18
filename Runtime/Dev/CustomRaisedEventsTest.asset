@@ -194,7 +194,7 @@ MonoBehaviour:
       Data: 13|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: JanSharp.CustomRaisedEventsTest, JanSharp.Common
+      Data: JanSharp.CustomRaisedEventsTest, JanSharp.Common.Dev
     - Name: 
       Entry: 8
       Data: 

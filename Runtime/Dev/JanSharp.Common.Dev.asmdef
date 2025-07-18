@@ -1,0 +1,20 @@
+{
+    "name": "JanSharp.Common.Dev",
+    "rootNamespace": "",
+    "references": [
+        "Unity.TextMeshPro",
+        "UdonSharp.Runtime",
+        "JanSharp.Common",
+        "VRC.SDKBase",
+        "VRC.Udon"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
