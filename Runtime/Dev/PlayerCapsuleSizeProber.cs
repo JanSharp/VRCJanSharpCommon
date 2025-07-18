@@ -2,7 +2,6 @@
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 
 namespace JanSharp
 {
@@ -23,39 +22,14 @@ namespace JanSharp
         public Transform cylinder;
         public LayerMask localPlayerLayer;
         public TextMeshProUGUI probedOutputText;
-        [SingletonReference] public QuickDebugUI qd;
-        private Vector3 firstBottomHit;
-        private Vector3 firstTopHit;
-        private Vector3 firstLeftHit;
-        private Vector3 firstRightHit;
-        private Vector3 firstBackHit;
-        private Vector3 firstFrontHit;
-        private Vector3 bottomCenter;
-        private Vector3 topCenter;
+        [HideInInspector][SerializeField][SingletonReference] private QuickDebugUI qd;
 
         private VRCPlayerApi localPlayer;
 
         private void Start()
         {
             localPlayer = Networking.LocalPlayer;
-            qd.Add(this, "firstBottomHit", nameof(UpdateFirstBottomHit));
-            qd.Add(this, "firstTopHit", nameof(UpdateFirstTopHit));
-            qd.Add(this, "firstLeftHit", nameof(UpdateFirstLeftHit));
-            qd.Add(this, "firstRightHit", nameof(UpdateFirstRightHit));
-            qd.Add(this, "firstBackHit", nameof(UpdateFirstBackHit));
-            qd.Add(this, "firstFrontHit", nameof(UpdateFirstFrontHit));
-            qd.Add(this, "bottomCenter", nameof(UpdateBottomCenter));
-            qd.Add(this, "topCenter", nameof(UpdateTopCenter));
         }
-
-        public void UpdateFirstBottomHit() => qd.DisplayValue = firstBottomHit.ToString();
-        public void UpdateFirstTopHit() => qd.DisplayValue = firstTopHit.ToString();
-        public void UpdateFirstLeftHit() => qd.DisplayValue = firstLeftHit.ToString();
-        public void UpdateFirstRightHit() => qd.DisplayValue = firstRightHit.ToString();
-        public void UpdateFirstBackHit() => qd.DisplayValue = firstBackHit.ToString();
-        public void UpdateFirstFrontHit() => qd.DisplayValue = firstFrontHit.ToString();
-        public void UpdateBottomCenter() => qd.DisplayValue = bottomCenter.ToString();
-        public void UpdateTopCenter() => qd.DisplayValue = topCenter.ToString();
 
         private void Update()
         {
@@ -67,31 +41,39 @@ namespace JanSharp
             Vector3 avatarRoot = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).position;
             if (!Physics.Raycast(avatarRoot + Vector3.down * 100f, Vector3.up, out RaycastHit hit, 110f, localPlayerLayer))
                 return;
-            firstBottomHit = hit.point;
+            Vector3 firstBottomHit = hit.point;
+            qd.ShowForOneFrame(this, "firstBottomHit", firstBottomHit.ToString("f6"));
             if (!Physics.Raycast(avatarRoot + Vector3.up * 100f, Vector3.down, out hit, 110f, localPlayerLayer))
                 return;
-            firstTopHit = hit.point;
+            Vector3 firstTopHit = hit.point;
+            qd.ShowForOneFrame(this, "firstTopHit", firstTopHit.ToString("f6"));
             Vector3 firstCenter = (firstBottomHit + firstTopHit) / 2f;
             if (!Physics.Raycast(firstCenter + Vector3.left * 100f, Vector3.right, out hit, 110f, localPlayerLayer))
                 return;
-            firstLeftHit = hit.point;
+            Vector3 firstLeftHit = hit.point;
+            qd.ShowForOneFrame(this, "firstLeftHit", firstLeftHit.ToString("f6"));
             if (!Physics.Raycast(firstCenter + Vector3.right * 100f, Vector3.left, out hit, 110f, localPlayerLayer))
                 return;
-            firstRightHit = hit.point;
+            Vector3 firstRightHit = hit.point;
+            qd.ShowForOneFrame(this, "firstRightHit", firstRightHit.ToString("f6"));
             Vector3 secondCenter = (firstLeftHit + firstRightHit) / 2f;
             if (!Physics.Raycast(secondCenter + Vector3.back * 100f, Vector3.forward, out hit, 110f, localPlayerLayer))
                 return;
-            firstBackHit = hit.point;
+            Vector3 firstBackHit = hit.point;
+            qd.ShowForOneFrame(this, "firstBackHit", firstBackHit.ToString("f6"));
             if (!Physics.Raycast(secondCenter + Vector3.forward * 100f, Vector3.back, out hit, 110f, localPlayerLayer))
                 return;
-            firstFrontHit = hit.point;
+            Vector3 firstFrontHit = hit.point;
+            qd.ShowForOneFrame(this, "firstFrontHit", firstFrontHit.ToString("f6"));
             Vector3 thirdCenter = (firstBackHit + firstFrontHit) / 2f;
             if (!Physics.Raycast(thirdCenter + Vector3.down * 100f, Vector3.up, out hit, 110f, localPlayerLayer))
                 return;
-            bottomCenter = hit.point;
+            Vector3 bottomCenter = hit.point;
+            qd.ShowForOneFrame(this, "bottomCenter", bottomCenter.ToString("f6"));
             if (!Physics.Raycast(thirdCenter + Vector3.up * 100f, Vector3.down, out hit, 110f, localPlayerLayer))
                 return;
-            topCenter = hit.point;
+            Vector3 topCenter = hit.point;
+            qd.ShowForOneFrame(this, "topCenter", topCenter.ToString("f6"));
             float diameter = firstFrontHit.z - firstBackHit.z;
             float height = topCenter.y - bottomCenter.y;
 
