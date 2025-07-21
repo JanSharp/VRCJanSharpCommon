@@ -281,14 +281,14 @@ namespace JanSharp
             {
                 def = new object[DefinitionSize];
                 localPositionDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref localPositionDefs, ref localPositionDefsCount, def);
+                updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
             def[StartTimeIndex] = Time.time;
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.localPosition;
             def[DestinationValueIndex] = destinationLocalPosition;
-            ArrList.Add(ref localPositionDefs, ref localPositionDefsCount, def);
-            updateManager.Register(this);
             return def;
         }
 
@@ -330,14 +330,14 @@ namespace JanSharp
             {
                 def = new object[DefinitionSize];
                 localRotationDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref localRotationDefs, ref localRotationDefsCount, def);
+                updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
             def[StartTimeIndex] = Time.time;
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.localRotation;
             def[DestinationValueIndex] = destinationLocalRotation;
-            ArrList.Add(ref localRotationDefs, ref localRotationDefsCount, def);
-            updateManager.Register(this);
             return def;
         }
 
@@ -378,14 +378,14 @@ namespace JanSharp
             {
                 def = new object[DefinitionSize];
                 localScaleDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref localScaleDefs, ref localScaleDefsCount, def);
+                updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
             def[StartTimeIndex] = Time.time;
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.localScale;
             def[DestinationValueIndex] = destinationLocalScale;
-            ArrList.Add(ref localScaleDefs, ref localScaleDefsCount, def);
-            updateManager.Register(this);
             return def;
         }
 
@@ -427,14 +427,14 @@ namespace JanSharp
             {
                 def = new object[DefinitionSize];
                 worldPositionDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref worldPositionDefs, ref worldPositionDefsCount, def);
+                updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
             def[StartTimeIndex] = Time.time;
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.position;
             def[DestinationValueIndex] = destinationWorldPosition;
-            ArrList.Add(ref worldPositionDefs, ref worldPositionDefsCount, def);
-            updateManager.Register(this);
             return def;
         }
 
@@ -476,14 +476,14 @@ namespace JanSharp
             {
                 def = new object[DefinitionSize];
                 worldRotationDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref worldRotationDefs, ref worldRotationDefsCount, def);
+                updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
             def[StartTimeIndex] = Time.time;
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.rotation;
             def[DestinationValueIndex] = destinationWorldRotation;
-            ArrList.Add(ref worldRotationDefs, ref worldRotationDefsCount, def);
-            updateManager.Register(this);
             return def;
         }
 
