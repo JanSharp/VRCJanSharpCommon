@@ -5090,12 +5090,12 @@ PrefabInstance:
         type: 3}
       propertyPath: DynamicMaterials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: c815f7613a04b724089c206857e57c6a, type: 2}
+      objectReference: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[1]
       value: 
-      objectReference: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+      objectReference: {fileID: 2100000, guid: c815f7613a04b724089c206857e57c6a, type: 2}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[2]
@@ -6874,6 +6874,7 @@ MonoBehaviour:
   lockstep: {fileID: 0}
   entitySystem: {fileID: 0}
   itemSystem: {fileID: 0}
+  updateManager: {fileID: 1482170321}
 --- !u!4 &1488895171
 Transform:
   m_ObjectHideFlags: 0
@@ -8353,13 +8354,15 @@ MonoBehaviour:
 
     avatarRoot.y: 0.000000
 
-    bottomCenter.y: 0.000000
+    bottomCenter.y:
+    0.000000
 
     capsule height: 0.000000
 
     capsule diameter: 0.000000
 
-    guessed height: 0.000000
+    guessed
+    height: 0.000000
 
     guessed diameter: 0.000000'
   m_isRightToLeft: 0
