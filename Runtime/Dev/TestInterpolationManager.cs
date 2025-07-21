@@ -17,6 +17,7 @@ namespace JanSharp
         {
             Position();
             Rotation();
+            Callbacks();
             // Combo();
 
             DataDictionary dict = new DataDictionary();
@@ -66,6 +67,24 @@ namespace JanSharp
         public void Function4()
         {
             manager.InterpolateLocalRotation(rotationInst, Quaternion.identity, 0.2f, this, nameof(Function3), null);
+        }
+
+        private void Callbacks()
+        {
+            Transform callbacksInst = Instantiate(testPrefab).transform;
+            callbacksInst.localPosition = Vector3.down;
+            manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to cancellation");
+            Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Callbacks - expecting callback due to cancellation");
+            manager.CancelLocalPositionInterpolation(callbacksInst);
+            manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to another interpolation");
+            Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Callbacks - expecting callback due to another interpolation");
+            manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to finishing");
+            Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Callbacks - expecting callback due to interpolation finishing");
+        }
+        public void InterpolationCallback()
+        {
+            string reason = (string)manager.CustomCallbackData;
+            Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  InterpolationCallback - {reason}");
         }
 
         // private Transform comboInst;

@@ -255,7 +255,7 @@ namespace JanSharp
             if (doDeregister)
             {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CustomUpdate (inner) - localPositionDefsCount: {localPositionDefsCount}, localRotationDefsCount: {localRotationDefsCount}, localScaleDefsCount: {localScaleDefsCount}, worldPositionDefsCount: {worldPositionDefsCount}, worldRotationDefsCount: {worldRotationDefsCount}");
+                Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CustomUpdate (inner) - localPositionDefsCount: {localPositionDefsCount}, localRotationDefsCount: {localRotationDefsCount}, localScaleDefsCount: {localScaleDefsCount}, worldPositionDefsCount: {worldPositionDefsCount}, worldRotationDefsCount: {worldRotationDefsCount}");
 #endif
                 updateManager.Deregister(this);
             }
@@ -273,7 +273,10 @@ namespace JanSharp
             object[] def;
             DataToken keyToken = toInterpolate;
             if (localPositionDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            {
                 def = (object[])defToken.Reference;
+                CallCallback(def, toInterpolate);
+            }
             else
             {
                 def = new object[DefinitionSize];
@@ -319,7 +322,10 @@ namespace JanSharp
             object[] def;
             DataToken keyToken = toInterpolate;
             if (localRotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            {
                 def = (object[])defToken.Reference;
+                CallCallback(def, toInterpolate);
+            }
             else
             {
                 def = new object[DefinitionSize];
@@ -364,7 +370,10 @@ namespace JanSharp
             object[] def;
             DataToken keyToken = toInterpolate;
             if (localScaleDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            {
                 def = (object[])defToken.Reference;
+                CallCallback(def, toInterpolate);
+            }
             else
             {
                 def = new object[DefinitionSize];
@@ -410,7 +419,10 @@ namespace JanSharp
             object[] def;
             DataToken keyToken = toInterpolate;
             if (worldPositionDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            {
                 def = (object[])defToken.Reference;
+                CallCallback(def, toInterpolate);
+            }
             else
             {
                 def = new object[DefinitionSize];
@@ -456,7 +468,10 @@ namespace JanSharp
             object[] def;
             DataToken keyToken = toInterpolate;
             if (worldRotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            {
                 def = (object[])defToken.Reference;
+                CallCallback(def, toInterpolate);
+            }
             else
             {
                 def = new object[DefinitionSize];
