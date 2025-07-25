@@ -1,7 +1,8 @@
-using UnityEngine;
-using UnityEditor;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using UdonSharpEditor;
+using UnityEditor;
+using UnityEngine;
 
 namespace JanSharp
 {
@@ -69,10 +70,11 @@ namespace JanSharp
                     existing.transform.SetSiblingIndex(i);
                     continue;
                 }
-                GameObject newPrefab = new GameObject(wannaBeClassType.name, wannaBeClassType.type);
+                GameObject newPrefab = new GameObject(wannaBeClassType.name);
                 Undo.RegisterCreatedObjectUndo(newPrefab, "Generate WannaBeClass Prefabs");
                 newPrefab.transform.SetParent(manager.prefabsParent, worldPositionStays: false);
                 newPrefab.transform.SetSiblingIndex(i);
+                UdonSharpUndo.AddComponent(newPrefab, wannaBeClassType.type);
                 OnBuildUtil.MarkForRerunDueToScriptInstantiation();
             }
             EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassNames"), wannaBeClassTypes, (p, v) => p.stringValue = v.name);
