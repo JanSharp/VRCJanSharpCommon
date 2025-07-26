@@ -62,3 +62,4 @@
 - [ ] SyncedToggleOnInteract
 - [ ] SyncedToggleMultipleOnInteract
 - [x] automatically remove listeners to UIToggleSync where that sync script does not point to the Toggle sending the event
+- [ ] expose properties for interpolation callbacks to know what caused the callback
