@@ -330,6 +330,7 @@ namespace JanSharp
         /// </summary>
         /// <param name="type"></param>
         /// <param name="bindingAttr"></param>
+        /// <param name="stopAtType">Excluded.</param>
         /// <returns></returns>
         public static IEnumerable<FieldInfo> GetFieldsIncludingBase(
             System.Type type,
@@ -357,7 +358,7 @@ namespace JanSharp
         /// <param name="type"></param>
         /// <param name="fieldName"></param>
         /// <param name="bindingAttr"></param>
-        /// <param name="stopAtType"></param>
+        /// <param name="stopAtType">Excluded.</param>
         /// <returns></returns>
         public static FieldInfo GetFieldIncludingBase(
             System.Type type,
@@ -381,6 +382,7 @@ namespace JanSharp
         /// </summary>
         /// <param name="type"></param>
         /// <param name="bindingAttr"></param>
+        /// <param name="stopAtType">Excluded.</param>
         /// <returns></returns>
         public static IEnumerable<MethodInfo> GetMethodsIncludingBase(
             System.Type type,
@@ -408,7 +410,7 @@ namespace JanSharp
         /// <param name="type"></param>
         /// <param name="methodName"></param>
         /// <param name="bindingAttr"></param>
-        /// <param name="stopAtType"></param>
+        /// <param name="stopAtType">Excluded.</param>
         /// <returns></returns>
         public static MethodInfo GetMethodIncludingBase(
             System.Type type,
