@@ -413,7 +413,7 @@ namespace JanSharp
                 IEnumerable<(Component component, bool editorOnly)> result = components;
                 if (!includeEditorOnly)
                     result = result.Where(c => !c.editorOnly);
-                return components.Select(c => c.component);
+                return result.Select(c => c.component);
             }
         }
     }
