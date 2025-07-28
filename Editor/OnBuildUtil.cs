@@ -21,6 +21,8 @@ namespace JanSharp
         private static bool rerunDueToScriptInstantiation = false;
         private static int runCounter = 1;
         private const int MaxRerunRecursion = 20;
+        private static bool isRunningOnBuildHandlers = false;
+        public static bool IsRunningOnBuildHandlers => isRunningOnBuildHandlers;
 
         static OnBuildUtil()
         {
@@ -201,6 +203,14 @@ namespace JanSharp
         }
 
         private static bool RunOnBuildIteration()
+        {
+            isRunningOnBuildHandlers = true;
+            bool result = RunOnBuildIterationInner();
+            isRunningOnBuildHandlers = false;
+            return result;
+        }
+
+        private static bool RunOnBuildIterationInner()
         {
             foreach (OnBuildCallbackData data in registeredTypes.Values)
                 data.components.Clear();
