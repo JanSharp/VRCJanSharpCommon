@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UdonSharp;
 using UnityEditor;
 
 namespace JanSharp.Internal
@@ -19,7 +20,7 @@ namespace JanSharp.Internal
 
             public IEnumerable<(string fieldName, System.Type singletonType, bool optional)> Resolve(System.Type ubType)
             {
-                if (ubType.GetMethods(PrivateAndPublicFlags)
+                if (EditorUtil.GetMethodsIncludingBase(ubType, PrivateAndPublicFlags, typeof(UdonSharpBehaviour))
                     .Any(m => m.GetCustomAttributes<CustomRaisedEventBaseAttribute>()
                         .Any(a => a.GetType() == typeof(OnTrulyPostLateUpdateAttribute))))
                 {
