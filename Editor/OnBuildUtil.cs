@@ -292,7 +292,7 @@ namespace JanSharp
             return true;
         }
 
-        private struct OrderedOnBuildCallbackData
+        private class OrderedOnBuildCallbackData
         {
             public OnBuildCallbackData data;
             public int order;
@@ -302,7 +302,7 @@ namespace JanSharp
             public bool usesCustomCallbackParamType;
             public Func<List<Component>, object> toCorrectlyTypedCallbackParamType;
 
-            public readonly bool IsAction => data == null;
+            public bool IsAction => data == null;
 
             public OrderedOnBuildCallbackData(
                 OnBuildCallbackData data,
@@ -322,7 +322,7 @@ namespace JanSharp
                 this.toCorrectlyTypedCallbackParamType = toCorrectlyTypedCallbackParamType;
             }
 
-            public readonly bool InvokeCallback()
+            public bool InvokeCallback()
             {
 #if JAN_SHARP_COMMON_ON_BUILD_TRACE
                 // TODO: this is printing some useless lines. I thought it might be due to lambda expressions, but
@@ -336,10 +336,24 @@ namespace JanSharp
                         : InvokeCallbackForeach();
             }
 
-            private readonly bool InvokeCallbackForeach()
+            private bool InvokeSafe(Func<bool> invokeFunc)
+            {
+                try
+                {
+                    return invokeFunc();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    // The calling function then logs in which OnBuild handler the exception was thrown.
+                    return false;
+                }
+            }
+
+            private bool InvokeCallbackForeach()
             {
                 foreach (Component component in data.GetComponents(includeEditorOnly))
-                    if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { component }))
+                    if (!InvokeSafe(() => (bool)callbackInfo.Invoke(callbackInstance, new[] { component })))
                     {
                         Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}' on '{component.name}'.", component);
                         return false;
@@ -347,11 +361,11 @@ namespace JanSharp
                 return true;
             }
 
-            private readonly bool InvokeCallbackWithCustomParamType()
+            private bool InvokeCallbackWithCustomParamType()
             {
-                if (!(bool)callbackInfo.Invoke(
+                if (!InvokeSafe(() => (bool)callbackInfo.Invoke(
                     callbackInstance,
-                    new[] { toCorrectlyTypedCallbackParamType(data.GetComponents(includeEditorOnly).ToList()) }))
+                    new[] { toCorrectlyTypedCallbackParamType(data.GetComponents(includeEditorOnly).ToList()) })))
                 {
                     Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}'.");
                     return false;
@@ -359,9 +373,9 @@ namespace JanSharp
                 return true;
             }
 
-            private readonly bool InvokeActionCallback()
+            private bool InvokeActionCallback()
             {
-                if (!(bool)callbackInfo.Invoke(callbackInstance, new object[0]))
+                if (!InvokeSafe(() => (bool)callbackInfo.Invoke(callbackInstance, new object[0])))
                 {
                     Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running "
                         + $"the action {callbackInfo.DeclaringType?.Name ?? " ?"}.{callbackInfo.Name}.");
