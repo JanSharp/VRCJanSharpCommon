@@ -24,7 +24,8 @@
 - [ ] add editor scripting for LocalToggleMultipleOnInteract
   - [ ] only show the 2 interaction fields when the checkbox is enabled
   - [ ] the activate text is actually grayed out and automatically matches the interaction text of the UB itself
-- [ ] AlwaysActive script with a manager which moves a given objects into the manager as a child on Start
+- [x] AlwaysActive script with a manager which moves a given objects into the manager as a child on Start
+  - [x] These are neat ideas, but a simple AlwaysActive implementation that does not care about transform values covers most use cases
   - [ ] dropdown for "Retain World Transform" with options
     - [ ] "Auto" - Choses "Yes" as soon as the object to move has any component on it that isn't a custom script. May also "whitelist" other components, like ToggleGroup for example.
     - [ ] "Yes" - If this is the case then the editor script has to build a replica of the transform tree specifically to be able to maintain non uniform scaling. Uniformly scaled transforms can be collapsed into their parent
