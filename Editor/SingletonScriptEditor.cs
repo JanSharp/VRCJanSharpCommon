@@ -37,6 +37,7 @@ namespace JanSharp.Internal
             }
         }
 
+        private static SingletonManager singletonManager;
         private static Dictionary<System.Type, SingletonData> singletons = new();
         private static List<SingletonData> singletonsList = new();
         /// <summary>
@@ -48,10 +49,14 @@ namespace JanSharp.Internal
 
         static SingletonScriptEditor()
         {
+            singletonManager = null; // Just for cleanliness. The rest are very much needed.
             singletons.Clear();
             singletonsList.Clear();
             typeCache.Clear();
             customDependencyResolvers.Clear();
+
+            // Must always register this in order for the EnsureSingletonExists api to update the singleton manager
+            OnBuildUtil.RegisterType<SingletonManager>(OnSingletonManagerBuild, order: -149);
 
             IEnumerable<System.Type> ubTypes = OnAssemblyLoadUtil.AllUdonSharpBehaviourTypes
                 .Where(t => t.IsDefined(typeof(SingletonScriptAttribute), inherit: false));
@@ -65,12 +70,40 @@ namespace JanSharp.Internal
             foreach (System.Type ubType in ubTypes)
                 OnBuildUtil.RegisterTypeCumulative(ubType, c => OnSingletonBuild(ubType, c), order: -151);
             OnBuildUtil.RegisterType<UdonSharpBehaviour>(OnBuild, order: -150);
-            OnBuildUtil.RegisterType<SingletonManager>(OnSingletonManagerBuild, order: -149);
         }
 
         public static void RegisterCustomDependencyResolver(ISingletonDependencyResolver resolver)
         {
             customDependencyResolvers.Add(resolver);
+        }
+
+        /// <summary>
+        /// <para>Must be called within a handler for <see cref="OnBuildUtil"/>.</para>
+        /// <para>Ensures that the singleton for the given type exists in the scene.</para>
+        /// </summary>
+        public static void EnsureSingletonExists<T>()
+            where T : UdonSharpBehaviour
+        {
+            if (!singletons.TryGetValue(typeof(T), out SingletonData singletonData))
+                throw new System.Exception($"[JanSharpCommon] Attempt to EnsureSingletonExists the type "
+                    + $"{typeof(T).Name}, which does not have the {nameof(SingletonScriptAttribute)}.");
+            if (!OnBuildUtil.IsRunningOnBuildHandlers)
+                throw new System.Exception($"[JanSharpCommon] Attempt to EnsureSingletonExists outside of an "
+                    + $"on build handler. Use one of the register functions on the OnBuildUtil and call "
+                    + $"EnsureSingletonExists from within a registered callback.");
+            if (Object.FindObjectsByType<T>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                .Any(c => !EditorUtil.IsEditorOnly(c)))
+            {
+                return;
+            }
+            InstantiatePrefab(singletonData, escalateToException: true);
+            if (singletonManager != null)
+            {
+                // If the OnBuild for the manager already ran, update properties again.
+                // This isn't even really needed because instantiating a prefab tells the OnBuildUtil to rerun
+                // all on build handlers again, but it just feels right to do this here too.
+                UpdateSingletonManagerProperties(singletonManager);
+            }
         }
 
         private static bool OnPreSingletonBuild()
@@ -143,20 +176,28 @@ namespace JanSharp.Internal
             return true;
         }
 
-        private static bool InstantiatePrefab(SingletonData singleton)
+        private static bool InstantiatePrefab(SingletonData singleton, bool escalateToException = false)
         {
-            Object prefab = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(singleton.prefabGuid));
-            Object instObj = PrefabUtility.InstantiatePrefab(prefab);
-            Undo.RegisterCreatedObjectUndo(instObj, "Instantiate singleton prefab");
-            GameObject instGo = (GameObject)instObj;
-            singleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(singleton.singletonType);
-            if (singleton.inst == null)
+            bool Error(string msg)
             {
-                Debug.LogError($"[JanSharpCommon] The singleton prefab {AssetDatabase.GUIDToAssetPath(singleton.prefabGuid)} "
-                    + $"does not contain an UdonSharpBehavior of the type {singleton.singletonType.Name}, "
-                    + $"even though the prefab is associated with this singleton script.");
+                if (escalateToException)
+                    throw new System.Exception(msg);
+                else
+                    Debug.LogError(msg);
                 return false;
             }
+            GameObject prefab = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(singleton.prefabGuid)) as GameObject;
+            if (prefab == null)
+                return Error($"[JanSharpCommon] The prefab guid for the {singleton.singletonType.Name} "
+                    + $"singleton references an asset which is not a prefab.\n"
+                    + $"'{singleton.prefabGuid}' resolves to: '{AssetDatabase.GUIDToAssetPath(singleton.prefabGuid)}'.");
+            GameObject instGo = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            Undo.RegisterCreatedObjectUndo(instGo, "Instantiate singleton prefab");
+            singleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(singleton.singletonType);
+            if (singleton.inst == null)
+                return Error($"[JanSharpCommon] The singleton prefab {AssetDatabase.GUIDToAssetPath(singleton.prefabGuid)} "
+                    + $"does not contain an UdonSharpBehavior of the type {singleton.singletonType.Name}, "
+                    + $"even though the prefab is associated with this singleton script.");
             foreach (UdonSharpBehaviour ub in instGo.GetComponentsInChildren<UdonSharpBehaviour>(includeInactive: true))
                 OnBuild(ub);
             OnBuildUtil.MarkForRerunDueToScriptInstantiation();
@@ -187,18 +228,8 @@ namespace JanSharp.Internal
 
         private static bool OnSingletonManagerBuild(SingletonManager manager)
         {
-            SerializedObject so = new SerializedObject(manager);
-            List<SingletonData> existentSingletons = singletonsList.Where(s => s.inst != null).ToList();
-            EditorUtil.SetArrayProperty(
-                so.FindProperty("singletonInsts"),
-                existentSingletons,
-                (p, v) => p.objectReferenceValue = v.inst);
-            EditorUtil.SetArrayProperty(
-                so.FindProperty("singletonClassNames"),
-                existentSingletons,
-                (p, v) => p.stringValue = v.singletonType.Name);
-            so.ApplyModifiedProperties();
-
+            singletonManager = manager;
+            UpdateSingletonManagerProperties(manager);
             if (manager.transform.parent != null)
             {
                 Debug.LogError("[JanSharpCommon] The SingletonManager must be in the root of the scene hierarchy.", manager);
@@ -210,6 +241,21 @@ namespace JanSharp.Internal
                 return false;
             }
             return true;
+        }
+
+        private static void UpdateSingletonManagerProperties(SingletonManager manager)
+        {
+            SerializedObject so = new SerializedObject(manager);
+            List<SingletonData> existentSingletons = singletonsList.Where(s => s.inst != null).ToList();
+            EditorUtil.SetArrayProperty(
+                so.FindProperty("singletonInsts"),
+                existentSingletons,
+                (p, v) => p.objectReferenceValue = v.inst);
+            EditorUtil.SetArrayProperty(
+                so.FindProperty("singletonClassNames"),
+                existentSingletons,
+                (p, v) => p.stringValue = v.singletonType.Name);
+            so.ApplyModifiedProperties();
         }
     }
 }
