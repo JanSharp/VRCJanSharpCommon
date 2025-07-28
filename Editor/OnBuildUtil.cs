@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using UnityEngine;
-using UnityEditor;
-using VRC.SDKBase.Editor.BuildPipeline;
-using UnityEditor.Build;
-using System.Diagnostics;
 using System.Reflection;
+using UnityEditor;
+using UnityEditor.Build;
+using UnityEngine;
+using VRC.SDKBase.Editor.BuildPipeline;
 
 namespace JanSharp
 {
@@ -97,7 +96,7 @@ namespace JanSharp
             {
                 if (data.allOrders.Contains(order))
                 {
-                    UnityEngine.Debug.LogError($"[JanSharpCommon] Attempt to register the same Component type with the same order twice (type: {type.Name}, order: {order}).");
+                    Debug.LogError($"[JanSharpCommon] Attempt to register the same Component type with the same order twice (type: {type.Name}, order: {order}).");
                     return;
                 }
                 else
@@ -240,7 +239,7 @@ namespace JanSharp
             rerunDueToScriptInstantiation = false;
             runCounter = 1;
 
-            Stopwatch sw = new Stopwatch();
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             bool success;
             bool reachedMaxRerunRecursion = false;
@@ -261,7 +260,7 @@ namespace JanSharp
 
             if (success && runCounter != 1 && abortIfRerunsHappened)
             {
-                UnityEngine.Debug.LogError("Udon scripts were instantiated during the OnBuild process, VRChat "
+                Debug.LogError("Udon scripts were instantiated during the OnBuild process, VRChat "
                     + "may need to do some setup for those, I don't know, either way please try again.");
                 ShowNotification("Scripts were instantiated during OnBuild, please go again.");
                 return false;
@@ -269,7 +268,7 @@ namespace JanSharp
 
             if (success)
             {
-                UnityEngine.Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}."
+                Debug.Log($"[JanSharpCommon] OnBuild handlers took: {sw.Elapsed}."
                     + (runCounter == 1 ? "" : $" (Had to run {runCounter} times.)"));
                 return true;
             }
@@ -328,7 +327,7 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_ON_BUILD_TRACE
                 // TODO: this is printing some useless lines. I thought it might be due to lambda expressions, but
                 // the only one using lambda expressions is UIToggleProxyOnBuild
-                UnityEngine.Debug.Log($"[JanSharpCommon] Invoking {callbackInfo.DeclaringType?.Name ?? "?"}.{callbackInfo.Name}");
+                Debug.Log($"[JanSharpCommon] Invoking {callbackInfo.DeclaringType?.Name ?? "?"}.{callbackInfo.Name}");
 #endif
                 return IsAction
                     ? InvokeActionCallback()
@@ -342,7 +341,7 @@ namespace JanSharp
                 foreach (Component component in data.GetComponents(includeEditorOnly))
                     if (!(bool)callbackInfo.Invoke(callbackInstance, new[] { component }))
                     {
-                        UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}' on '{component.name}'.", component);
+                        Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}' on '{component.name}'.", component);
                         return false;
                     }
                 return true;
@@ -354,7 +353,7 @@ namespace JanSharp
                     callbackInstance,
                     new[] { toCorrectlyTypedCallbackParamType(data.GetComponents(includeEditorOnly).ToList()) }))
                 {
-                    UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}'.");
+                    Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}'.");
                     return false;
                 }
                 return true;
@@ -364,7 +363,7 @@ namespace JanSharp
             {
                 if (!(bool)callbackInfo.Invoke(callbackInstance, new object[0]))
                 {
-                    UnityEngine.Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running "
+                    Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running "
                         + $"the action {callbackInfo.DeclaringType?.Name ?? " ?"}.{callbackInfo.Name}.");
                     return false;
                 }
