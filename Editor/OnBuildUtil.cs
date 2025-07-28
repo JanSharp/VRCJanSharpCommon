@@ -231,7 +231,10 @@ namespace JanSharp
             foreach (OrderedOnBuildCallbackData orderedData in typesToLookForList.OrderBy(d => d.order))
             {
                 if (!orderedData.InvokeCallback())
+                {
+                    rerunDueToScriptInstantiation = false; // Do not rerun if an error occurred.
                     return false;
+                }
                 if (rerunDueToScriptInstantiation)
                     return false; // Return value does not matter here.
             }
