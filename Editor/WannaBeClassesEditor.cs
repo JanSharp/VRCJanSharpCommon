@@ -10,11 +10,33 @@ namespace JanSharp
     public static class WannaBeClassesEditor
     {
         private static WannaBeClassesManager manager = null;
+        private static List<(string name, System.Type type)> wannaBeClassTypes = null;
 
         static WannaBeClassesEditor()
         {
+            wannaBeClassTypes = null;
+            ValidateWannaBeClasses();
             OnBuildUtil.RegisterTypeCumulative<WannaBeClassesManager>(OnManagerBuild, order: 0);
             OnBuildUtil.RegisterTypeCumulative<WannaBeClass>(OnClassInstancesBuild, order: 1);
+        }
+
+        private static bool ValidateWannaBeClasses()
+        {
+            wannaBeClassTypes ??= OnAssemblyLoadUtil.AllUdonSharpBehaviourTypes
+                .Where(t => EditorUtil.DerivesFrom(t, typeof(WannaBeClass)) && !t.IsAbstract)
+                .Select(t => (name: t.Name, type: t))
+                .OrderBy(t => t.name)
+                .ToList();
+            var duplicates = wannaBeClassTypes.GroupBy(t => t.name).Where(g => g.Count() > 1);
+            if (duplicates.Any())
+            {
+                foreach (var duplicate in duplicates)
+                    Debug.LogError($"[JanSharpCommon] There are {duplicate.Count()} WannaBeClasses with the name '{duplicate.Key}', "
+                        + $"however each WannaBeClass name must be unique, even if they are in different namespaces. Duplicates:\n"
+                        + string.Join('\n', duplicate.Select(d => d.type.FullName)));
+                return false;
+            }
+            return true;
         }
 
         private static bool OnManagerBuild(IEnumerable<WannaBeClassesManager> managers)
@@ -29,21 +51,8 @@ namespace JanSharp
                     + "there are multiple WannaBeClassesManagers which is not allowed.");
                 return false;
             }
-            SerializedObject so = new SerializedObject(manager);
-            List<(string name, System.Type type)> wannaBeClassTypes = OnAssemblyLoadUtil.AllUdonSharpBehaviourTypes
-                .Where(t => EditorUtil.DerivesFrom(t, typeof(WannaBeClass)) && !t.IsAbstract)
-                .Select(t => (name: t.Name, type: t))
-                .OrderBy(t => t.name)
-                .ToList();
-            var duplicates = wannaBeClassTypes.GroupBy(t => t.name).Where(g => g.Count() > 1);
-            if (duplicates.Any())
-            {
-                foreach (var duplicate in duplicates)
-                    Debug.LogError($"[JanSharpCommon] There are {duplicate.Count()} WannaBeClasses with the name '{duplicate.Key}', "
-                        + $"however each WannaBeClass name must be unique, even if they are in different namespaces. Duplicates:\n"
-                        + string.Join('\n', duplicate.Select(d => d.type.FullName)));
+            if (!ValidateWannaBeClasses())
                 return false;
-            }
             foreach (var child in manager.prefabsParent.Cast<Transform>().Where(t => t.GetComponent<WannaBeClass>() == null).ToList())
                 Undo.DestroyObjectImmediate(child.gameObject);
             var existingPrefabs = manager.prefabsParent.Cast<Transform>()
@@ -78,6 +87,7 @@ namespace JanSharp
                 UdonSharpUndo.AddComponent(newPrefab, wannaBeClassType.type);
                 OnBuildUtil.MarkForRerunDueToScriptInstantiation();
             }
+            SerializedObject so = new SerializedObject(manager);
             EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassNames"), wannaBeClassTypes, (p, v) => p.stringValue = v.name);
             EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassPrefabs"), manager.prefabsParent.Cast<Transform>().ToList(), (p, v) => p.objectReferenceValue = v.gameObject);
             so.ApplyModifiedProperties();
