@@ -39,8 +39,9 @@ namespace JanSharp
             if (duplicates.Any())
             {
                 foreach (var duplicate in duplicates)
-                    Debug.LogError($"[JanSharpCommon] There are multiple WannaBeClasses with the name {duplicate.Key}, however each "
-                        + $" WannaBeClass name must be unique, even if they are in different namespaces.");
+                    Debug.LogError($"[JanSharpCommon] There are {duplicate.Count()} WannaBeClasses with the name '{duplicate.Key}', "
+                        + $"however each WannaBeClass name must be unique, even if they are in different namespaces. Duplicates:\n"
+                        + string.Join('\n', duplicate.Select(d => d.type.FullName)));
                 return false;
             }
             foreach (var child in manager.prefabsParent.Cast<Transform>().Where(t => t.GetComponent<WannaBeClass>() == null).ToList())
