@@ -54,7 +54,7 @@ namespace JanSharp
             if (!ValidateWannaBeClasses())
                 return false;
             foreach (var child in manager.prefabsParent.Cast<Transform>().Where(t => t.GetComponent<WannaBeClass>() == null).ToList())
-                Undo.DestroyObjectImmediate(child.gameObject);
+                OnBuildUtil.UndoDestroyObjectImmediate(child.gameObject);
             var existingPrefabs = manager.prefabsParent.Cast<Transform>()
                 .Select(t => t.GetComponent<WannaBeClass>())
                 .Select(c => (name: c.GetType().Name, inst: c))

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using UdonSharp;
+using UdonSharpEditor;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
@@ -19,6 +21,7 @@ namespace JanSharp
         private static HashSet<Type> typesToSearchForCache;
         private static Dictionary<Type, List<OnBuildCallbackData>> matchingDataInBaseTypesCache;
         private static bool rerunDueToScriptInstantiation = false;
+        private static bool rerunDueToObjectDestruction = false;
         private static int runCounter = 1;
         private const int MaxRerunRecursion = 20;
         private static bool isRunningOnBuildHandlers = false;
@@ -37,7 +40,7 @@ namespace JanSharp
         private static void OnPlayModeStateChanged(PlayModeStateChange data)
         {
             if (data == PlayModeStateChange.ExitingEditMode)
-                if (!RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: true, abortIfRerunsHappened: true))
+                if (!RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: true, abortIfScriptsGotInstantiated: true))
                     EditorApplication.isPlaying = false;
         }
 
@@ -132,6 +135,34 @@ namespace JanSharp
             rerunDueToScriptInstantiation = true;
         }
 
+        /// <summary>
+        /// <para>OnBuild handlers generally expect to operate on the complete list of components they are
+        /// registered for. When a component gets destroyed in a handler running after some on build handler,
+        /// the result may end up being invalid as the former handler is unaware.</para>
+        /// <para>To fix this, ensure to call this function when destroying objects.</para>
+        /// <para>Or use the <see cref="UndoDestroyObjectImmediate(UnityEngine.Object)"/> function.</para>
+        /// </summary>
+        public static void MarkForRerunDueToDestruction()
+        {
+            rerunDueToObjectDestruction = true;
+        }
+
+        /// <summary>
+        /// <para>Calls <see cref="UdonSharpUndo.DestroyImmediate(UdonSharpBehaviour)"/> or
+        /// <see cref="Undo.DestroyObjectImmediate(UnityEngine.Object)"/> respectively, depending on what type
+        /// <paramref name="obj"/> has.</para>
+        /// <para>Then calls <see cref="MarkForRerunDueToDestruction"/>, see its annotations for reasons why
+        /// to use this function.</para>
+        /// </summary>
+        public static void UndoDestroyObjectImmediate(UnityEngine.Object obj)
+        {
+            if (obj is UdonSharpBehaviour ub)
+                UdonSharpUndo.DestroyImmediate(ub);
+            else
+                Undo.DestroyObjectImmediate(obj);
+            MarkForRerunDueToDestruction();
+        }
+
         private static void FigureOutWhatTypesToReallySearchFor()
         {
             if (typesToSearchForCache != null)
@@ -199,7 +230,7 @@ namespace JanSharp
         [MenuItem("Tools/JanSharp/Run All OnBuild handlers", priority = 10005)]
         public static void RunOnBuildMenuItem()
         {
-            RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: false, abortIfRerunsHappened: false);
+            RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: false, abortIfScriptsGotInstantiated: false);
         }
 
         private static bool RunOnBuildIteration()
@@ -232,16 +263,18 @@ namespace JanSharp
             {
                 if (!orderedData.InvokeCallback())
                 {
-                    rerunDueToScriptInstantiation = false; // Do not rerun if an error occurred.
+                    // Do not rerun if an error occurred.
+                    rerunDueToScriptInstantiation = false;
+                    rerunDueToObjectDestruction = false;
                     return false;
                 }
-                if (rerunDueToScriptInstantiation)
+                if (rerunDueToScriptInstantiation || rerunDueToObjectDestruction)
                     return false; // Return value does not matter here.
             }
             return true;
         }
 
-        public static bool RunOnBuild(bool showDialogOnFailure, bool useSceneViewNotification, bool abortIfRerunsHappened)
+        public static bool RunOnBuild(bool showDialogOnFailure, bool useSceneViewNotification, bool abortIfScriptsGotInstantiated)
         {
             void ShowNotification(string msg)
             {
@@ -250,7 +283,10 @@ namespace JanSharp
             }
 
             rerunDueToScriptInstantiation = false;
+            rerunDueToObjectDestruction = false;
             runCounter = 1;
+
+            bool scriptsDidGetInstantiated = false;
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
@@ -259,19 +295,21 @@ namespace JanSharp
             while (true)
             {
                 success = RunOnBuildIteration();
-                if (!rerunDueToScriptInstantiation)
+                if (!rerunDueToScriptInstantiation && !rerunDueToObjectDestruction)
                     break;
+                scriptsDidGetInstantiated |= rerunDueToScriptInstantiation;
                 if (runCounter == MaxRerunRecursion)
                 {
                     reachedMaxRerunRecursion = true;
                     break;
                 }
                 rerunDueToScriptInstantiation = false;
+                rerunDueToObjectDestruction = false;
                 runCounter++;
             }
             sw.Stop();
 
-            if (success && runCounter != 1 && abortIfRerunsHappened)
+            if (success && scriptsDidGetInstantiated && abortIfScriptsGotInstantiated)
             {
                 Debug.LogError("Udon scripts were instantiated during the OnBuild process, VRChat "
                     + "may need to do some setup for those, I don't know, either way please try again.");
@@ -290,8 +328,8 @@ namespace JanSharp
                 return false;
 
             ShowNotification(reachedMaxRerunRecursion
-                ? $"OnBuild handlers reran {MaxRerunRecursion} times due to scripts "
-                    + $"being instantiated mid run, could be recursive, aborting."
+                ? $"OnBuild handlers reran {MaxRerunRecursion} times due to scripts being instantiated mid run "
+                    + $"and or objects getting destroyed, could be recursive, aborting."
                 : $"OnBuild handlers failed, check the Console to review errors.");
             return false;
         }
@@ -351,6 +389,8 @@ namespace JanSharp
 
             private bool InvokeSafe(Func<bool> invokeFunc)
             {
+                if (rerunDueToObjectDestruction)
+                    return false;
                 try
                 {
                     return invokeFunc();
@@ -416,7 +456,13 @@ namespace JanSharp
                 IEnumerable<(Component component, bool editorOnly)> result = components;
                 if (!includeEditorOnly)
                     result = result.Where(c => !c.editorOnly);
-                return result.Select(c => c.component);
+                return result.Where(c =>
+                {
+                    bool result = c.component != null;
+                    if (!result)
+                        MarkForRerunDueToDestruction(); // Basically telling InvokeSafe() to abort.
+                    return result;
+                }).Select(c => c.component);
             }
         }
     }
@@ -431,7 +477,7 @@ namespace JanSharp
         {
             if (requestedBuildType == VRCSDKRequestedBuildType.Avatar)
                 return true;
-            return OnBuildUtil.RunOnBuild(showDialogOnFailure: false, useSceneViewNotification: false, abortIfRerunsHappened: true);
+            return OnBuildUtil.RunOnBuild(showDialogOnFailure: false, useSceneViewNotification: false, abortIfScriptsGotInstantiated: true);
         }
     }
 }
