@@ -39,6 +39,7 @@ namespace JanSharp.Internal
 
         private static SingletonManager singletonManager;
         private static Dictionary<System.Type, SingletonData> singletons = new();
+        private static Dictionary<string, List<SingletonData>> singletonsByAssetGuid = new();
         private static List<SingletonData> singletonsList = new();
         /// <summary>
         /// <para>Not just fields, also includes dependencies, which simply have null field names.</para>
@@ -51,6 +52,7 @@ namespace JanSharp.Internal
         {
             singletonManager = null; // Just for cleanliness. The rest are very much needed.
             singletons.Clear();
+            singletonsByAssetGuid.Clear();
             singletonsList.Clear();
             typeCache.Clear();
             customDependencyResolvers.Clear();
@@ -66,6 +68,9 @@ namespace JanSharp.Internal
                 .Select(t => new SingletonData(t, null, t.GetCustomAttribute<SingletonScriptAttribute>().PrefabGuid))
                 .ToList();
             singletons = singletonsList.ToDictionary(s => s.singletonType, s => s);
+            singletonsByAssetGuid = singletonsList
+                .GroupBy(s => s.prefabGuid)
+                .ToDictionary(g => g.Key, g => g.ToList());
             OnBuildUtil.RegisterAction(OnPreSingletonBuild, order: -152);
             foreach (System.Type ubType in ubTypes)
                 OnBuildUtil.RegisterTypeCumulative(ubType, c => OnSingletonBuild(ubType, c), order: -151);
@@ -193,11 +198,14 @@ namespace JanSharp.Internal
                     + $"'{singleton.prefabGuid}' resolves to: '{AssetDatabase.GUIDToAssetPath(singleton.prefabGuid)}'.");
             GameObject instGo = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
             Undo.RegisterCreatedObjectUndo(instGo, "Instantiate singleton prefab");
-            singleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(singleton.singletonType);
-            if (singleton.inst == null)
-                return Error($"[JanSharpCommon] The singleton prefab {AssetDatabase.GUIDToAssetPath(singleton.prefabGuid)} "
-                    + $"does not contain an UdonSharpBehavior of the type {singleton.singletonType.Name}, "
-                    + $"even though the prefab is associated with this singleton script.");
+            foreach (SingletonData otherSingleton in singletonsByAssetGuid[singleton.prefabGuid])
+            {
+                otherSingleton.inst = (UdonSharpBehaviour)instGo.GetComponentInChildren(otherSingleton.singletonType);
+                if (otherSingleton.inst == null)
+                    return Error($"[JanSharpCommon] The singleton prefab {AssetDatabase.GUIDToAssetPath(otherSingleton.prefabGuid)} "
+                        + $"does not contain an UdonSharpBehavior of the type {otherSingleton.singletonType.Name}, "
+                        + $"even though the prefab is associated with this singleton script.");
+            }
             foreach (UdonSharpBehaviour ub in instGo.GetComponentsInChildren<UdonSharpBehaviour>(includeInactive: true))
                 OnBuild(ub);
             OnBuildUtil.MarkForRerunDueToScriptInstantiation();
