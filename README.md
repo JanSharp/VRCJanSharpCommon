@@ -87,6 +87,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 - WannaBeArrQueue: An extension of ArrQueue, however holding strong references to WannaBeClass instances
 - WannaBeClass: These are an unfortunately complex concept so they get [their own section](#wannabeclasses)
 - LocalPlayerCapsule: Get the height and radius of the local player's capsule. They appear to be constants currently, but that might change
+- StopwatchUtil: Make it easier to display stopwatch values as "average | min | max" while doing performance tests
 - ArithBitConverter: Deprecated, was useful when BitConverter wasn't exposed yet. Uses arithmetics to convert floating point numbers to their binary representation and back
 
 ### WannaBeClasses
