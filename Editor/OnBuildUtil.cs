@@ -311,8 +311,8 @@ namespace JanSharp
 
             if (success && scriptsDidGetInstantiated && abortIfScriptsGotInstantiated)
             {
-                Debug.LogError("Udon scripts were instantiated during the OnBuild process, VRChat "
-                    + "may need to do some setup for those, I don't know, either way please try again.");
+                Debug.LogError("[JanSharpCommon] Udon scripts were instantiated during the OnBuild process, "
+                    + "VRChat may need to do some setup for those, I don't know, either way please try again.");
                 ShowNotification("Scripts were instantiated during OnBuild, please go again.");
                 return false;
             }
@@ -327,10 +327,15 @@ namespace JanSharp
             if (!showDialogOnFailure)
                 return false;
 
-            ShowNotification(reachedMaxRerunRecursion
-                ? $"OnBuild handlers reran {MaxRerunRecursion} times due to scripts being instantiated mid run "
-                    + $"and or objects getting destroyed, could be recursive, aborting."
-                : $"OnBuild handlers failed, check the Console to review errors.");
+            if (reachedMaxRerunRecursion)
+            {
+                string msg = $"OnBuild handlers reran {MaxRerunRecursion} times due to scripts being "
+                    + $"instantiated mid run and or objects getting destroyed, could be recursive, aborting.";
+                Debug.LogError($"[JanSharpCommon] {msg}");
+                ShowNotification(msg);
+                return false;
+            }
+            ShowNotification($"OnBuild handlers failed, check the Console to review errors.");
             return false;
         }
 
