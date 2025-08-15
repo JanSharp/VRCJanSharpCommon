@@ -1,6 +1,41 @@
 
 # Changelog
 
+## [1.2.0] - 2025-08-15
+
+_Technically the same breaking change as in 1.1.0, as in 1.1.0 it was not actually working._
+
+### Changed
+
+- Include handler name in error when an OnBuild handler fails ([`e567b1a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e567b1a208fec34d2ede700ec1acac4b3c32a3eb))
+- Mention that build time assigned ids are sorted in xml docs ([`3e10404`](https://github.com/JanSharp/VRCJanSharpCommon/commit/3e10404da063e7ddd80a835f80804ca5046e0e35))
+- Handle objects getting destroyed during OnBuild ([`8256c3a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8256c3ac554a3df2736a31eed6e10ca4194c7066), [`64c99d1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/64c99d1ed3f37e1738f66f1bded8cb57e0028c51))
+- Run WannaBeClasses validation also on assembly load to more quickly show issues ([`e2b27cb`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e2b27cb52ea4a287c489d9e4705d8c5e0d08acb0))
+- Improve error msg for duplicate WannaBeClass names ([`488e23d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/488e23deb711b64e2176c35c33ae82a4a6fc09ed))
+- Handle exceptions thrown inside OnBuild handlers to show clearer error messages ([`8a74fe8`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8a74fe833ff04a3e1bf9a213066b5bff960b58e5))
+
+### Added
+
+- Add StopwatchUtil to help with performance testing ([`ae45798`](https://github.com/JanSharp/VRCJanSharpCommon/commit/ae45798f3f0169f36e6b1b3627ded2b626a8d144))
+- Add api for other scripts to handle destroying objects inside of OnBuild handlers properly ([`8256c3a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8256c3ac554a3df2736a31eed6e10ca4194c7066), [`64c99d1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/64c99d1ed3f37e1738f66f1bded8cb57e0028c51))
+- Add AlwaysActive script, attribute and manager ([`0ee2950`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0ee2950f6c42e291c15d240234f69fa94579ad6c))
+- Add api to more manually depend on a singleton through custom editor scripting ([`382c072`](https://github.com/JanSharp/VRCJanSharpCommon/commit/382c072ba475ccaf2ac3cf9cd46b8092fcb861b8))
+- Add IsRunningOnBuildHandlers to OnBuildUtil ([`7c2997d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/7c2997d1e4f679ebe4539eb5d5437933ad215509))
+- Add tiny xml annotation for stopAtType param for EditorUtil "get member including base" functions ([`0870ddc`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0870ddc918000aec6cf60ea6acdac9f8df1b132e))
+
+### Fixed
+
+- **Breaking:** Fix OnBuildUtil always including editor only, the change in 1.1.0 was entirely broken ([`8402383`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8402383e732755bfb4ebc4713aa1e278e53b4af8))
+- Fix inactive BypassBuildTimeIdAssignment being ignored ([`b9e38a1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b9e38a126ca4ee32dcee7919ae02a5ced224da16))
+- Fix inactive BypassSingletonDependencyInstantiation being ignored ([`6728a73`](https://github.com/JanSharp/VRCJanSharpCommon/commit/6728a73facb5355e7dc3f994be7b05f67eabf8fe))
+- Fix transform of the SingletonManager prefab ([`edd690b`](https://github.com/JanSharp/VRCJanSharpCommon/commit/edd690b59d9544ef31b0db9f714b1ac149724459))
+- Fix singleton prefabs containing multiple singleton scripts getting instantiated multiple times ([`3d10a50`](https://github.com/JanSharp/VRCJanSharpCommon/commit/3d10a503c00ddc6fbff119856bbc84399d7e1611))
+- Fix OnBuildUtil rerunning even when an error occurred ([`2b932d2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/2b932d296ad21569860d3ea97c09e065499674e4))
+- Fix TrulyPostLateUpdateEditor ignoring types where the base type defined the listener method ([`81b8ccf`](https://github.com/JanSharp/VRCJanSharpCommon/commit/81b8ccfa692045d649dca6c7b47334754efb068d))
+- Fix UdonSharp warnings caused by the WannaBeClassesEditor ([`68510fc`](https://github.com/JanSharp/VRCJanSharpCommon/commit/68510fc2dc0f0c23564c988c100bbf7a7c23593a))
+- Fix overwriting interpolation double registering internal data ultimately also doubling the callback ([`a0e3ceb`](https://github.com/JanSharp/VRCJanSharpCommon/commit/a0e3ceb0a964047244a4f6ee99fdb0f7b7940b77))
+- Fix overwriting interpolation not calling the callback for the previously registered interpolation ([`7a0b18e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/7a0b18e1190785ce46896297c26f58ba4f9e6463))
+
 ## [1.1.1] - 2025-07-18
 
 ### Changed
@@ -235,6 +270,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.2.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.2.0
 [1.1.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.1.1
 [1.1.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.1.0
 [1.0.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.0.2
