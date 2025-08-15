@@ -390,7 +390,7 @@ namespace JanSharp
             private bool InvokeSafe(Func<bool> invokeFunc)
             {
                 if (rerunDueToObjectDestruction)
-                    return false;
+                    return true;
                 try
                 {
                     return invokeFunc();
