@@ -403,12 +403,15 @@ namespace JanSharp
                 }
             }
 
+            private string CallbackInfoToString() => $"{callbackInfo.DeclaringType?.Name ?? "?"}.{callbackInfo.Name}";
+
             private bool InvokeCallbackForeach()
             {
                 foreach (Component component in data.GetComponents(includeEditorOnly))
                     if (!InvokeSafe(() => (bool)callbackInfo.Invoke(callbackInstance, new[] { component })))
                     {
-                        Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}' on '{component.name}'.", component);
+                        Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler "
+                            + $"'{CallbackInfoToString()}' for '{data.type.Name}' on '{component.name}'.", component);
                         return false;
                     }
                 return true;
@@ -420,7 +423,8 @@ namespace JanSharp
                     callbackInstance,
                     new[] { toCorrectlyTypedCallbackParamType(data.GetComponents(includeEditorOnly).ToList()) })))
                 {
-                    Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler for '{data.type.Name}'.");
+                    Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running the handler "
+                        + $"'{CallbackInfoToString()}' for '{data.type.Name}'.");
                     return false;
                 }
                 return true;
@@ -431,7 +435,7 @@ namespace JanSharp
                 if (!InvokeSafe(() => (bool)callbackInfo.Invoke(callbackInstance, new object[0])))
                 {
                     Debug.LogError($"[JanSharpCommon] OnBuild handlers aborted when running "
-                        + $"the action {callbackInfo.DeclaringType?.Name ?? " ?"}.{callbackInfo.Name}.");
+                        + $"the action {CallbackInfoToString()}.");
                     return false;
                 }
                 return true;
