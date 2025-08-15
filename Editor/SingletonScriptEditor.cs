@@ -223,7 +223,7 @@ namespace JanSharp.Internal
             foreach (var field in cached)
             {
                 SingletonData singleton = singletons[field.singletonType];
-                if (!field.optional && singleton.inst == null && ub.GetComponentInParent<BypassSingletonDependencyInstantiation>() == null)
+                if (!field.optional && singleton.inst == null && ub.GetComponentInParent<BypassSingletonDependencyInstantiation>(includeInactive: true) == null)
                     if (!InstantiatePrefab(singleton))
                         return false;
                 if (field.fieldName != null)
