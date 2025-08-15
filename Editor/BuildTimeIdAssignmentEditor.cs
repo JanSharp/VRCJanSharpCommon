@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEditor;
-using UdonSharp;
 using System.Reflection;
+using UdonSharp;
+using UnityEditor;
+using UnityEngine;
 
 namespace JanSharp.Internal
 {
@@ -222,7 +222,7 @@ namespace JanSharp.Internal
                 manager.managerInst = ub;
                 return true;
             }
-            if (ub.GetComponentInParent<BypassBuildTimeIdAssignment>() != null)
+            if (ub.GetComponentInParent<BypassBuildTimeIdAssignment>(includeInactive: true) != null)
                 return true;
             if (!TryGetTypeCache(ub.GetType(), out var associatedEntries))
                 return false;
