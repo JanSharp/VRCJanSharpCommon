@@ -64,3 +64,4 @@
 - [ ] SyncedToggleMultipleOnInteract
 - [x] automatically remove listeners to UIToggleSync where that sync script does not point to the Toggle sending the event
 - [ ] expose properties for interpolation callbacks to know what caused the callback
+- [ ] expand the "Remove UI Toggle Listeners Targeting Missing Objects" feature to not just UI Toggles, to enable other scripts to interact with other UI events and their listeners in their on build handlers without having to add their own cleanup menu item
