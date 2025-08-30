@@ -33,7 +33,7 @@ namespace JanSharp
         }
 
         /// <summary>
-        /// <para>Intended to be called once per frame stopwatch dataContainer pair.</para>
+        /// <para>Intended to be called once per frame per stopwatch dataContainer pair.</para>
         /// <para>Formats the stopwatch in the "average | min | max" format in milliseconds.</para>
         /// <para>Average displays time over the last about 16 frames.</para>
         /// <para>Min and max are the fastest and slowest frames in the last 5 seconds.</para>
