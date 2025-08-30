@@ -49,18 +49,38 @@ namespace JanSharp
 
         private const float NearDistanceThreshold = 32f;
 
+#if JAN_SHARP_COMMON_STOPWATCH
+        [HideInInspector][SerializeField][SingletonReference] private QuickDebugUI qd;
+        private System.Diagnostics.Stopwatch updateSw = new System.Diagnostics.Stopwatch();
+        private System.Diagnostics.Stopwatch trulyPostLateUpdateSw = new System.Diagnostics.Stopwatch();
+        private object[] updateContainer;
+        private object[] trulyPostLateUpdateContainer;
+#endif
+
         private void Start()
         {
             localPlayer = Networking.LocalPlayer;
             localPlayerId = localPlayer.playerId;
+#if JAN_SHARP_COMMON_STOPWATCH
+            updateContainer = StopwatchUtil.CreateDataContainer();
+            trulyPostLateUpdateContainer = StopwatchUtil.CreateDataContainer();
+#endif
         }
 
         private void Update()
         {
+#if JAN_SHARP_COMMON_STOPWATCH
+            updateSw.Reset();
+            updateSw.Start();
+#endif
             localPlayerPosition = localPlayer.GetPosition();
             DistanceCheckNearIncremental();
             UpdateNear();
             UpdateFarIncremental();
+#if JAN_SHARP_COMMON_STOPWATCH
+            updateSw.Stop();
+            qd.ShowForOneFrame(this, "Update MS", StopwatchUtil.FormatAvgMinMax(updateSw, updateContainer));
+#endif
         }
 
         private void FixedUpdate()
@@ -141,6 +161,10 @@ namespace JanSharp
         [OnTrulyPostLateUpdate]
         public void OnTrulyPostLateUpdate()
         {
+#if JAN_SHARP_COMMON_STOPWATCH
+            trulyPostLateUpdateSw.Reset();
+            trulyPostLateUpdateSw.Start();
+#endif
             for (int i = 0; i < localBonesCount; i++)
             {
                 HumanBodyBones bone = (HumanBodyBones)localBones[i];
@@ -154,6 +178,10 @@ namespace JanSharp
                 VRCPlayerApi.TrackingData data = localPlayer.GetTrackingData((VRCPlayerApi.TrackingDataType)localTrackingTypes[i]);
                 localTrackingTransforms[i].SetPositionAndRotation(data.position, data.rotation);
             }
+#if JAN_SHARP_COMMON_STOPWATCH
+            trulyPostLateUpdateSw.Stop();
+            qd.ShowForOneFrame(this, "Truly Post Late Update MS", StopwatchUtil.FormatAvgMinMax(trulyPostLateUpdateSw, trulyPostLateUpdateContainer));
+#endif
         }
 
         private bool IsNear(Vector3 bonePosition) => Vector3.Distance(localPlayerPosition, bonePosition) <= NearDistanceThreshold;
