@@ -271,20 +271,30 @@ namespace JanSharp
             ArrList.EnsureCapacity(ref localTrackingTransforms, localTrackingCount);
         }
 
-        private static int IndexOfInternal<T1, T2>(T1[] arrayOne, T2[] arrayTwo, int listCount, T1 valueOne, T2 valueTwo)
+        private int IndexOfInNear(int playerId, int bone)
         {
-            int index = -1;
+            int index = 0;
             while (true)
             {
-                index = System.Array.IndexOf(arrayOne, valueOne, index + 1, listCount);
-                if (index == -1 || arrayTwo[index].Equals(valueTwo))
+                index = System.Array.IndexOf(nearAttachedPlayerIds, playerId, index, nearAttachedCount - index);
+                if (index == -1 || nearAttachedBones[index] == bone)
                     return index;
+                if (++index == nearAttachedCount)
+                    return -1;
             }
         }
-        private int IndexOfInNear(int playerId, int bone)
-            => IndexOfInternal(nearAttachedPlayerIds, nearAttachedBones, nearAttachedCount, playerId, bone);
         private int IndexOfInFar(int playerId, int bone)
-            => IndexOfInternal(farAttachedPlayerIds, farAttachedBones, farAttachedCount, playerId, bone);
+        {
+            int index = 0;
+            while (true)
+            {
+                index = System.Array.IndexOf(farAttachedPlayerIds, playerId, index, farAttachedCount - index);
+                if (index == -1 || farAttachedBones[index] == bone)
+                    return index;
+                if (++index == farAttachedCount)
+                    return -1;
+            }
+        }
 
         private int IndexOfInLocalBones(int bone) => System.Array.IndexOf(localBones, bone, 0, localBonesCount);
         private int IndexOfInLocalTracking(int trackingType) => System.Array.IndexOf(localTrackingTypes, trackingType, 0, localTrackingCount);
