@@ -67,3 +67,6 @@
 - [ ] expand the "Remove UI Toggle Listeners Targeting Missing Objects" feature to not just UI Toggles, to enable other scripts to interact with other UI events and their listeners in their on build handlers without having to add their own cleanup menu item
 - [x] make the bone attachment manager not use on truly post late update. It's just not needed nor worth it
 - [x] BoneAttachmentManager exception in IndexOfInternal on System.Array.IndexOf: "Count must be positive and count must refer to a location within the string/array/collection."
+- [ ] maybe add a feature to the interpolation manager to support a fully custom interpolation function, yet still have the ability to cancel it
+- [ ] maybe just add a hermite spline to the interpolation manager
+- [ ] maybe consolidate those separate arrays in the interpolation manager into one
