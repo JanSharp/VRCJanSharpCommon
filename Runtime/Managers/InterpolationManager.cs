@@ -218,37 +218,50 @@ namespace JanSharp
             }
         }
 
-        public object[] InterpolateLocalPosition(
-            Transform toInterpolate,
-            Vector3 destinationLocalPosition,
-            float interpolationDuration)
+        #region AddingPositionDefs
+
+        /// <summary>
+        /// <para>Uses <see cref="currentToInterpolate"/>.</para>
+        /// <para>Writes to <see cref="currentDef"/>.</para>
+        /// </summary>
+        private void AddPositionInterpolationDef()
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalPosition");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  AddPositionInterpolationDef");
 #endif
-            object[] def;
-            DataToken keyToken = toInterpolate;
+            DataToken keyToken = currentToInterpolate;
             if (positionDefsLut.TryGetValue(keyToken, out DataToken defToken))
             {
-                def = (object[])defToken.Reference;
-                currentDef = def;
-                currentToInterpolate = toInterpolate;
+                currentDef = (object[])defToken.Reference;
                 CallCallback();
+                currentDef[CallbackUdonBehaviourIndex] = null;
             }
             else
             {
-                def = new object[DefinitionSize];
-                positionDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref positionDefs, ref positionDefsCount, def);
+                currentDef = new object[DefinitionSize];
+                positionDefsLut.Add(keyToken, new DataToken(currentDef));
+                ArrList.Add(ref positionDefs, ref positionDefsCount, currentDef);
                 updateManager.Register(this);
             }
-            def[ToInterpolateIndex] = toInterpolate;
-            def[StartTimeIndex] = Time.time;
-            def[InterpolationDurationIndex] = interpolationDuration;
-            def[SourceValueIndex] = toInterpolate.localPosition;
-            def[DestinationValueIndex] = destinationLocalPosition;
-            def[InterpolationEventNameIndex] = nameof(LerpLocalPositionHandler);
-            return def;
+            currentDef[ToInterpolateIndex] = currentToInterpolate;
+            currentDef[StartTimeIndex] = Time.time;
+        }
+
+        public object[] InterpolateLocalPosition(
+            Transform toInterpolate,
+            Vector3 destinationLocalPosition,
+            float interpolationDuration)
+        {
+#if JAN_SHARP_COMMON_DEBUG
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalPosition");
+#endif
+            currentToInterpolate = toInterpolate;
+            AddPositionInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.localPosition;
+            currentDef[DestinationValueIndex] = destinationLocalPosition;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpLocalPositionHandler);
+            return currentDef;
         }
 
         public object[] InterpolateLocalPosition(
@@ -262,11 +275,87 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalPosition");
 #endif
-            object[] def = InterpolateLocalPosition(toInterpolate, destinationLocalPosition, interpolationDuration);
-            def[CallbackUdonBehaviourIndex] = callbackInst;
-            def[CallbackEventNameIndex] = callbackEventName;
-            def[CustomCallbackDataIndex] = customCallbackData;
-            return def;
+            currentToInterpolate = toInterpolate;
+            AddPositionInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.localPosition;
+            currentDef[DestinationValueIndex] = destinationLocalPosition;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpLocalPositionHandler);
+            currentDef[CallbackUdonBehaviourIndex] = callbackInst;
+            currentDef[CallbackEventNameIndex] = callbackEventName;
+            currentDef[CustomCallbackDataIndex] = customCallbackData;
+            return currentDef;
+        }
+
+        public object[] InterpolateWorldPosition(
+            Transform toInterpolate,
+            Vector3 destinationWorldPosition,
+            float interpolationDuration)
+        {
+#if JAN_SHARP_COMMON_DEBUG
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
+#endif
+            currentToInterpolate = toInterpolate;
+            AddPositionInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.position;
+            currentDef[DestinationValueIndex] = destinationWorldPosition;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpWorldPositionHandler);
+            return currentDef;
+        }
+
+        public object[] InterpolateWorldPosition(
+            Transform toInterpolate,
+            Vector3 destinationWorldPosition,
+            float interpolationDuration,
+            UdonSharpBehaviour callbackInst,
+            string callbackEventName,
+            object customCallbackData)
+        {
+#if JAN_SHARP_COMMON_DEBUG
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
+#endif
+            currentToInterpolate = toInterpolate;
+            AddPositionInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.position;
+            currentDef[DestinationValueIndex] = destinationWorldPosition;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpWorldPositionHandler);
+            currentDef[CallbackUdonBehaviourIndex] = callbackInst;
+            currentDef[CallbackEventNameIndex] = callbackEventName;
+            currentDef[CustomCallbackDataIndex] = customCallbackData;
+            return currentDef;
+        }
+
+        #endregion
+
+        #region AddingRotationDefs
+
+        /// <summary>
+        /// <para>Uses <see cref="currentToInterpolate"/>.</para>
+        /// <para>Writes to <see cref="currentDef"/>.</para>
+        /// </summary>
+        private void AddRotationInterpolationDef()
+        {
+#if JAN_SHARP_COMMON_DEBUG
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  AddRotationInterpolationDef");
+#endif
+            DataToken keyToken = currentToInterpolate;
+            if (rotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            {
+                currentDef = (object[])defToken.Reference;
+                CallCallback();
+                currentDef[CallbackUdonBehaviourIndex] = null;
+            }
+            else
+            {
+                currentDef = new object[DefinitionSize];
+                rotationDefsLut.Add(keyToken, new DataToken(currentDef));
+                ArrList.Add(ref rotationDefs, ref rotationDefsCount, currentDef);
+                updateManager.Register(this);
+            }
+            currentDef[ToInterpolateIndex] = currentToInterpolate;
+            currentDef[StartTimeIndex] = Time.time;
         }
 
         public object[] InterpolateLocalRotation(
@@ -277,29 +366,13 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalRotation");
 #endif
-            object[] def;
-            DataToken keyToken = toInterpolate;
-            if (rotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
-            {
-                def = (object[])defToken.Reference;
-                currentDef = def;
-                currentToInterpolate = toInterpolate;
-                CallCallback();
-            }
-            else
-            {
-                def = new object[DefinitionSize];
-                rotationDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref rotationDefs, ref rotationDefsCount, def);
-                updateManager.Register(this);
-            }
-            def[ToInterpolateIndex] = toInterpolate;
-            def[StartTimeIndex] = Time.time;
-            def[InterpolationDurationIndex] = interpolationDuration;
-            def[SourceValueIndex] = toInterpolate.localRotation;
-            def[DestinationValueIndex] = destinationLocalRotation;
-            def[InterpolationEventNameIndex] = nameof(LerpLocalRotationHandler);
-            return def;
+            currentToInterpolate = toInterpolate;
+            AddRotationInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.localRotation;
+            currentDef[DestinationValueIndex] = destinationLocalRotation;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpLocalRotationHandler);
+            return currentDef;
         }
 
         public object[] InterpolateLocalRotation(
@@ -313,44 +386,104 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalRotation");
 #endif
-            object[] def = InterpolateLocalRotation(toInterpolate, destinationLocalRotation, interpolationDuration);
-            def[CallbackUdonBehaviourIndex] = callbackInst;
-            def[CallbackEventNameIndex] = callbackEventName;
-            def[CustomCallbackDataIndex] = customCallbackData;
-            return def;
+            currentToInterpolate = toInterpolate;
+            AddRotationInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.localRotation;
+            currentDef[DestinationValueIndex] = destinationLocalRotation;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpLocalRotationHandler);
+            currentDef[CallbackUdonBehaviourIndex] = callbackInst;
+            currentDef[CallbackEventNameIndex] = callbackEventName;
+            currentDef[CustomCallbackDataIndex] = customCallbackData;
+            return currentDef;
         }
 
-        public object[] InterpolateLocalScale(
+        public object[] InterpolateWorldRotation(
             Transform toInterpolate,
-            Vector3 destinationLocalScale,
+            Quaternion destinationWorldRotation,
             float interpolationDuration)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalScale");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
 #endif
-            object[] def;
-            DataToken keyToken = toInterpolate;
+            currentToInterpolate = toInterpolate;
+            AddRotationInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.rotation;
+            currentDef[DestinationValueIndex] = destinationWorldRotation;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpWorldRotationHandler);
+            return currentDef;
+        }
+
+        public object[] InterpolateWorldRotation(
+            Transform toInterpolate,
+            Quaternion destinationWorldRotation,
+            float interpolationDuration,
+            UdonSharpBehaviour callbackInst,
+            string callbackEventName,
+            object customCallbackData)
+        {
+#if JAN_SHARP_COMMON_DEBUG
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
+#endif
+            currentToInterpolate = toInterpolate;
+            AddRotationInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.rotation;
+            currentDef[DestinationValueIndex] = destinationWorldRotation;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpWorldRotationHandler);
+            currentDef[CallbackUdonBehaviourIndex] = callbackInst;
+            currentDef[CallbackEventNameIndex] = callbackEventName;
+            currentDef[CustomCallbackDataIndex] = customCallbackData;
+            return currentDef;
+        }
+
+        #endregion
+
+        #region AddingScaleDefs
+
+        /// <summary>
+        /// <para>Uses <see cref="currentToInterpolate"/>.</para>
+        /// <para>Writes to <see cref="currentDef"/>.</para>
+        /// </summary>
+        private void AddScaleInterpolationDef()
+        {
+#if JAN_SHARP_COMMON_DEBUG
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  AddScaleInterpolationDef");
+#endif
+            DataToken keyToken = currentToInterpolate;
             if (scaleDefsLut.TryGetValue(keyToken, out DataToken defToken))
             {
-                def = (object[])defToken.Reference;
-                currentDef = def;
-                currentToInterpolate = toInterpolate;
+                currentDef = (object[])defToken.Reference;
                 CallCallback();
+                currentDef[CallbackUdonBehaviourIndex] = null;
             }
             else
             {
-                def = new object[DefinitionSize];
-                scaleDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref scaleDefs, ref scaleDefsCount, def);
+                currentDef = new object[DefinitionSize];
+                scaleDefsLut.Add(keyToken, new DataToken(currentDef));
+                ArrList.Add(ref scaleDefs, ref scaleDefsCount, currentDef);
                 updateManager.Register(this);
             }
-            def[ToInterpolateIndex] = toInterpolate;
-            def[StartTimeIndex] = Time.time;
-            def[InterpolationDurationIndex] = interpolationDuration;
-            def[SourceValueIndex] = toInterpolate.localScale;
-            def[DestinationValueIndex] = destinationLocalScale;
-            def[InterpolationEventNameIndex] = nameof(LerpLocalScaleHandler);
-            return def;
+            currentDef[ToInterpolateIndex] = currentToInterpolate;
+            currentDef[StartTimeIndex] = Time.time;
+        }
+
+        public object[] InterpolateLocalScale(
+            Transform toInterpolate,
+            Vector3 destinationLocalScale,
+            float interpolationDuration)
+        {
+#if JAN_SHARP_COMMON_DEBUG
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalScale");
+#endif
+            currentToInterpolate = toInterpolate;
+            AddScaleInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.localScale;
+            currentDef[DestinationValueIndex] = destinationLocalScale;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpLocalScaleHandler);
+            return currentDef;
         }
 
         public object[] InterpolateLocalScale(
@@ -364,114 +497,21 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalScale");
 #endif
-            object[] def = InterpolateLocalScale(toInterpolate, destinationLocalScale, interpolationDuration);
-            def[CallbackUdonBehaviourIndex] = callbackInst;
-            def[CallbackEventNameIndex] = callbackEventName;
-            def[CustomCallbackDataIndex] = customCallbackData;
-            return def;
+            currentToInterpolate = toInterpolate;
+            AddScaleInterpolationDef();
+            currentDef[InterpolationDurationIndex] = interpolationDuration;
+            currentDef[SourceValueIndex] = toInterpolate.localScale;
+            currentDef[DestinationValueIndex] = destinationLocalScale;
+            currentDef[InterpolationEventNameIndex] = nameof(LerpLocalScaleHandler);
+            currentDef[CallbackUdonBehaviourIndex] = callbackInst;
+            currentDef[CallbackEventNameIndex] = callbackEventName;
+            currentDef[CustomCallbackDataIndex] = customCallbackData;
+            return currentDef;
         }
 
-        public object[] InterpolateWorldPosition(
-            Transform toInterpolate,
-            Vector3 destinationWorldPosition,
-            float interpolationDuration)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
-#endif
-            object[] def;
-            DataToken keyToken = toInterpolate;
-            if (positionDefsLut.TryGetValue(keyToken, out DataToken defToken))
-            {
-                def = (object[])defToken.Reference;
-                currentDef = def;
-                currentToInterpolate = toInterpolate;
-                CallCallback();
-            }
-            else
-            {
-                def = new object[DefinitionSize];
-                positionDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref positionDefs, ref positionDefsCount, def);
-                updateManager.Register(this);
-            }
-            def[ToInterpolateIndex] = toInterpolate;
-            def[StartTimeIndex] = Time.time;
-            def[InterpolationDurationIndex] = interpolationDuration;
-            def[SourceValueIndex] = toInterpolate.position;
-            def[DestinationValueIndex] = destinationWorldPosition;
-            def[InterpolationEventNameIndex] = nameof(LerpWorldPositionHandler);
-            return def;
-        }
+        #endregion
 
-        public object[] InterpolateWorldPosition(
-            Transform toInterpolate,
-            Vector3 destinationWorldPosition,
-            float interpolationDuration,
-            UdonSharpBehaviour callbackInst,
-            string callbackEventName,
-            object customCallbackData)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
-#endif
-            object[] def = InterpolateWorldPosition(toInterpolate, destinationWorldPosition, interpolationDuration);
-            def[CallbackUdonBehaviourIndex] = callbackInst;
-            def[CallbackEventNameIndex] = callbackEventName;
-            def[CustomCallbackDataIndex] = customCallbackData;
-            return def;
-        }
-
-        public object[] InterpolateWorldRotation(
-            Transform toInterpolate,
-            Quaternion destinationWorldRotation,
-            float interpolationDuration)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
-#endif
-            object[] def;
-            DataToken keyToken = toInterpolate;
-            if (rotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
-            {
-                def = (object[])defToken.Reference;
-                currentDef = def;
-                currentToInterpolate = toInterpolate;
-                CallCallback();
-            }
-            else
-            {
-                def = new object[DefinitionSize];
-                rotationDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref rotationDefs, ref rotationDefsCount, def);
-                updateManager.Register(this);
-            }
-            def[ToInterpolateIndex] = toInterpolate;
-            def[StartTimeIndex] = Time.time;
-            def[InterpolationDurationIndex] = interpolationDuration;
-            def[SourceValueIndex] = toInterpolate.rotation;
-            def[DestinationValueIndex] = destinationWorldRotation;
-            def[InterpolationEventNameIndex] = nameof(LerpWorldRotationHandler);
-            return def;
-        }
-
-        public object[] InterpolateWorldRotation(
-            Transform toInterpolate,
-            Quaternion destinationWorldRotation,
-            float interpolationDuration,
-            UdonSharpBehaviour callbackInst,
-            string callbackEventName,
-            object customCallbackData)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
-#endif
-            object[] def = InterpolateWorldRotation(toInterpolate, destinationWorldRotation, interpolationDuration);
-            def[CallbackUdonBehaviourIndex] = callbackInst;
-            def[CallbackEventNameIndex] = callbackEventName;
-            def[CustomCallbackDataIndex] = customCallbackData;
-            return def;
-        }
+        #region Cancelling
 
         public bool CancelPositionInterpolation(Transform toInterpolate)
         {
@@ -480,7 +520,7 @@ namespace JanSharp
 #endif
             if (!positionDefsLut.Remove(toInterpolate, out DataToken defToken))
                 return false;
-            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
+            ((object[])defToken.Reference)[ToInterpolateIndex] = null; // Update logic handles callback and removing.
             return true;
         }
 
@@ -491,7 +531,7 @@ namespace JanSharp
 #endif
             if (!rotationDefsLut.Remove(toInterpolate, out DataToken defToken))
                 return false;
-            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
+            ((object[])defToken.Reference)[ToInterpolateIndex] = null; // Update logic handles callback and removing.
             return true;
         }
 
@@ -502,8 +542,10 @@ namespace JanSharp
 #endif
             if (!scaleDefsLut.Remove(toInterpolate, out DataToken defToken))
                 return false;
-            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
+            ((object[])defToken.Reference)[ToInterpolateIndex] = null; // Update logic handles callback and removing.
             return true;
         }
+
+        #endregion
     }
 }
