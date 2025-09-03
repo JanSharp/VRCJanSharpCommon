@@ -46,11 +46,11 @@ namespace JanSharp
         }
         public void Function1()
         {
-            manager.InterpolateLocalPosition(positionInst, basePos + Vector3.forward * 5f, 1f, this, nameof(Function2), null);
+            manager.LerpLocalPosition(positionInst, basePos + Vector3.forward * 5f, 1f, this, nameof(Function2), null);
         }
         public void Function2()
         {
-            manager.InterpolateLocalPosition(positionInst, basePos, 0.2f, this, nameof(Function1), null);
+            manager.LerpLocalPosition(positionInst, basePos, 0.2f, this, nameof(Function1), null);
         }
 
         private Transform rotationInst;
@@ -62,23 +62,23 @@ namespace JanSharp
         }
         public void Function3()
         {
-            manager.InterpolateLocalRotation(rotationInst, Quaternion.AngleAxis(135f, Vector3.up), 1f, this, nameof(Function4), null);
+            manager.LerpLocalRotation(rotationInst, Quaternion.AngleAxis(135f, Vector3.up), 1f, this, nameof(Function4), null);
         }
         public void Function4()
         {
-            manager.InterpolateLocalRotation(rotationInst, Quaternion.identity, 0.2f, this, nameof(Function3), null);
+            manager.LerpLocalRotation(rotationInst, Quaternion.identity, 0.2f, this, nameof(Function3), null);
         }
 
         private void Callbacks()
         {
             Transform callbacksInst = Instantiate(testPrefab).transform;
             callbacksInst.localPosition = Vector3.down;
-            manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to cancellation");
+            manager.LerpLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to cancellation");
             Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Callbacks - expecting callback due to cancellation");
             manager.CancelPositionInterpolation(callbacksInst);
-            manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to another interpolation");
+            manager.LerpLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to another interpolation");
             Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Callbacks - expecting callback due to another interpolation");
-            manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to finishing");
+            manager.LerpLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to finishing");
             Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Callbacks - expecting callback due to interpolation finishing");
         }
         public void InterpolationCallback()

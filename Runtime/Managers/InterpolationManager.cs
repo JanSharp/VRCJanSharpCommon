@@ -247,13 +247,13 @@ namespace JanSharp
             currentDef[StartTimeIndex] = Time.time;
         }
 
-        public object[] InterpolateLocalPosition(
+        public object[] LerpLocalPosition(
             Transform toInterpolate,
             Vector3 destinationLocalPosition,
             float interpolationDuration)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalPosition");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpLocalPosition");
 #endif
             currentToInterpolate = toInterpolate;
             AddPositionInterpolationDef();
@@ -264,7 +264,7 @@ namespace JanSharp
             return currentDef;
         }
 
-        public object[] InterpolateLocalPosition(
+        public object[] LerpLocalPosition(
             Transform toInterpolate,
             Vector3 destinationLocalPosition,
             float interpolationDuration,
@@ -273,7 +273,7 @@ namespace JanSharp
             object customCallbackData)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalPosition");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpLocalPosition");
 #endif
             currentToInterpolate = toInterpolate;
             AddPositionInterpolationDef();
@@ -287,13 +287,13 @@ namespace JanSharp
             return currentDef;
         }
 
-        public object[] InterpolateWorldPosition(
+        public object[] LerpWorldPosition(
             Transform toInterpolate,
             Vector3 destinationWorldPosition,
             float interpolationDuration)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpWorldPosition");
 #endif
             currentToInterpolate = toInterpolate;
             AddPositionInterpolationDef();
@@ -304,7 +304,7 @@ namespace JanSharp
             return currentDef;
         }
 
-        public object[] InterpolateWorldPosition(
+        public object[] LerpWorldPosition(
             Transform toInterpolate,
             Vector3 destinationWorldPosition,
             float interpolationDuration,
@@ -313,7 +313,7 @@ namespace JanSharp
             object customCallbackData)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpWorldPosition");
 #endif
             currentToInterpolate = toInterpolate;
             AddPositionInterpolationDef();
@@ -358,13 +358,13 @@ namespace JanSharp
             currentDef[StartTimeIndex] = Time.time;
         }
 
-        public object[] InterpolateLocalRotation(
+        public object[] LerpLocalRotation(
             Transform toInterpolate,
             Quaternion destinationLocalRotation,
             float interpolationDuration)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalRotation");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpLocalRotation");
 #endif
             currentToInterpolate = toInterpolate;
             AddRotationInterpolationDef();
@@ -375,7 +375,7 @@ namespace JanSharp
             return currentDef;
         }
 
-        public object[] InterpolateLocalRotation(
+        public object[] LerpLocalRotation(
             Transform toInterpolate,
             Quaternion destinationLocalRotation,
             float interpolationDuration,
@@ -384,7 +384,7 @@ namespace JanSharp
             object customCallbackData)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalRotation");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpLocalRotation");
 #endif
             currentToInterpolate = toInterpolate;
             AddRotationInterpolationDef();
@@ -398,13 +398,13 @@ namespace JanSharp
             return currentDef;
         }
 
-        public object[] InterpolateWorldRotation(
+        public object[] LerpWorldRotation(
             Transform toInterpolate,
             Quaternion destinationWorldRotation,
             float interpolationDuration)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpWorldRotation");
 #endif
             currentToInterpolate = toInterpolate;
             AddRotationInterpolationDef();
@@ -415,7 +415,7 @@ namespace JanSharp
             return currentDef;
         }
 
-        public object[] InterpolateWorldRotation(
+        public object[] LerpWorldRotation(
             Transform toInterpolate,
             Quaternion destinationWorldRotation,
             float interpolationDuration,
@@ -424,7 +424,7 @@ namespace JanSharp
             object customCallbackData)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpWorldRotation");
 #endif
             currentToInterpolate = toInterpolate;
             AddRotationInterpolationDef();
@@ -469,13 +469,13 @@ namespace JanSharp
             currentDef[StartTimeIndex] = Time.time;
         }
 
-        public object[] InterpolateLocalScale(
+        public object[] LerpLocalScale(
             Transform toInterpolate,
             Vector3 destinationLocalScale,
             float interpolationDuration)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalScale");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpLocalScale");
 #endif
             currentToInterpolate = toInterpolate;
             AddScaleInterpolationDef();
@@ -486,7 +486,7 @@ namespace JanSharp
             return currentDef;
         }
 
-        public object[] InterpolateLocalScale(
+        public object[] LerpLocalScale(
             Transform toInterpolate,
             Vector3 destinationLocalScale,
             float interpolationDuration,
@@ -495,7 +495,7 @@ namespace JanSharp
             object customCallbackData)
         {
 #if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalScale");
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  LerpLocalScale");
 #endif
             currentToInterpolate = toInterpolate;
             AddScaleInterpolationDef();
