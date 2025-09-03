@@ -75,7 +75,7 @@ namespace JanSharp
             callbacksInst.localPosition = Vector3.down;
             manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to cancellation");
             Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Callbacks - expecting callback due to cancellation");
-            manager.CancelLocalPositionInterpolation(callbacksInst);
+            manager.CancelPositionInterpolation(callbacksInst);
             manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to another interpolation");
             Debug.Log($"[JanSharpCommonDebug] TestInterpolationManager  Callbacks - expecting callback due to another interpolation");
             manager.InterpolateLocalPosition(callbacksInst, Vector3.down, 0.1f, this, nameof(InterpolationCallback), "due to finishing");

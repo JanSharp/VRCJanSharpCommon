@@ -1,8 +1,6 @@
 ﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
-using VRC.SDKBase;
-using VRC.Udon;
 
 namespace JanSharp
 {
@@ -18,204 +16,173 @@ namespace JanSharp
         private const int InterpolationDurationIndex = 2;
         private const int SourceValueIndex = 3;
         private const int DestinationValueIndex = 4;
-        private const int CallbackUdonBehaviourIndex = 5;
-        private const int CallbackEventNameIndex = 6;
-        private const int CustomCallbackDataIndex = 7;
-        private const int DefinitionSize = 8;
+        private const int InterpolationEventNameIndex = 5;
+        private const int CallbackUdonBehaviourIndex = 6;
+        private const int CallbackEventNameIndex = 7;
+        private const int CustomCallbackDataIndex = 8;
+        private const int DefinitionSize = 9;
 
-        private object[][] localPositionDefs = new object[ArrList.MinCapacity][];
-        private int localPositionDefsCount = 0;
-        private DataDictionary localPositionDefsLut = new DataDictionary();
+        private object[][] positionDefs = new object[ArrList.MinCapacity][];
+        private int positionDefsCount = 0;
+        private DataDictionary positionDefsLut = new DataDictionary();
 
-        private object[][] localRotationDefs = new object[ArrList.MinCapacity][];
-        private int localRotationDefsCount = 0;
-        private DataDictionary localRotationDefsLut = new DataDictionary();
+        private object[][] rotationDefs = new object[ArrList.MinCapacity][];
+        private int rotationDefsCount = 0;
+        private DataDictionary rotationDefsLut = new DataDictionary();
 
-        private object[][] localScaleDefs = new object[ArrList.MinCapacity][];
-        private int localScaleDefsCount = 0;
-        private DataDictionary localScaleDefsLut = new DataDictionary();
-
-        private object[][] worldPositionDefs = new object[ArrList.MinCapacity][];
-        private int worldPositionDefsCount = 0;
-        private DataDictionary worldPositionDefsLut = new DataDictionary();
-
-        private object[][] worldRotationDefs = new object[ArrList.MinCapacity][];
-        private int worldRotationDefsCount = 0;
-        private DataDictionary worldRotationDefsLut = new DataDictionary();
+        private object[][] scaleDefs = new object[ArrList.MinCapacity][];
+        private int scaleDefsCount = 0;
+        private DataDictionary scaleDefsLut = new DataDictionary();
 
         private Transform finishedTransform;
         public Transform FinishedTransform => finishedTransform;
         private object customCallbackData;
         public object CustomCallbackData => customCallbackData;
 
-        private float time;
+        private float timeTime;
 
-        private void UpdateLocalPositionDefs()
+        private object[] currentDef;
+        private Transform currentToInterpolate;
+        private float currentT;
+
+        private void UpdatePositionDefs()
         {
-            for (int i = localPositionDefsCount - 1; i >= 0; i--)
+            for (int i = positionDefsCount - 1; i >= 0; i--)
             {
-                object[] def = localPositionDefs[i];
-                Transform toInterpolate = (Transform)def[ToInterpolateIndex];
-                if (toInterpolate == null)
+                currentDef = positionDefs[i];
+                currentToInterpolate = (Transform)currentDef[ToInterpolateIndex];
+                if (currentToInterpolate == null)
                 {
-                    localPositionDefs[i] = localPositionDefs[--localPositionDefsCount];
+                    positionDefs[i] = positionDefs[--positionDefsCount];
                     // Cannot remove from the lut using 'null' as the key - that does nothing - so cannot clean up.
-                    CallCallback(def, toInterpolate);
+                    CallCallback();
                     continue;
                 }
-                Vector3 destination = (Vector3)def[DestinationValueIndex];
-
-                float startTime = (float)def[StartTimeIndex];
-                float interpolationDuration = (float)def[InterpolationDurationIndex];
-                float t = (time - startTime) / interpolationDuration;
-                if (t < 1f)
+                float startTime = (float)currentDef[StartTimeIndex];
+                float interpolationDuration = (float)currentDef[InterpolationDurationIndex];
+                currentT = (timeTime - startTime) / interpolationDuration;
+                if (currentT >= 1f)
                 {
-                    Vector3 source = (Vector3)def[SourceValueIndex];
-                    toInterpolate.localPosition = Vector3.Lerp(source, destination, t);
+                    currentToInterpolate.localPosition = (Vector3)currentDef[DestinationValueIndex];
+                    positionDefs[i] = positionDefs[--positionDefsCount];
+                    positionDefsLut.Remove(currentToInterpolate);
+                    CallCallback();
                     continue;
                 }
-                toInterpolate.localPosition = destination;
-                localPositionDefs[i] = localPositionDefs[--localPositionDefsCount];
-                localPositionDefsLut.Remove(toInterpolate);
-                CallCallback(def, toInterpolate);
+                SendCustomEvent((string)currentDef[InterpolationEventNameIndex]);
             }
         }
 
-        private void UpdateLocalRotationDefs()
+        private void UpdateRotationDefs()
         {
-            for (int i = localRotationDefsCount - 1; i >= 0; i--)
+            for (int i = rotationDefsCount - 1; i >= 0; i--)
             {
-                object[] def = localRotationDefs[i];
-                Transform toInterpolate = (Transform)def[ToInterpolateIndex];
-                if (toInterpolate == null)
+                currentDef = rotationDefs[i];
+                currentToInterpolate = (Transform)currentDef[ToInterpolateIndex];
+                if (currentToInterpolate == null)
                 {
-                    localRotationDefs[i] = localRotationDefs[--localRotationDefsCount];
+                    rotationDefs[i] = rotationDefs[--rotationDefsCount];
                     // Cannot remove from the lut using 'null' as the key - that does nothing - so cannot clean up.
-                    CallCallback(def, toInterpolate);
+                    CallCallback();
                     continue;
                 }
-                Quaternion destination = (Quaternion)def[DestinationValueIndex];
-
-                float startTime = (float)def[StartTimeIndex];
-                float interpolationDuration = (float)def[InterpolationDurationIndex];
-                float t = (time - startTime) / interpolationDuration;
-                if (t < 1f)
+                float startTime = (float)currentDef[StartTimeIndex];
+                float interpolationDuration = (float)currentDef[InterpolationDurationIndex];
+                currentT = (timeTime - startTime) / interpolationDuration;
+                if (currentT >= 1f)
                 {
-                    Quaternion source = (Quaternion)def[SourceValueIndex];
-                    toInterpolate.localRotation = Quaternion.Lerp(source, destination, t);
+                    currentToInterpolate.localRotation = (Quaternion)currentDef[DestinationValueIndex];
+                    rotationDefs[i] = rotationDefs[--rotationDefsCount];
+                    rotationDefsLut.Remove(currentToInterpolate);
+                    CallCallback();
                     continue;
                 }
-                toInterpolate.localRotation = destination;
-                localRotationDefs[i] = localRotationDefs[--localRotationDefsCount];
-                localRotationDefsLut.Remove(toInterpolate);
-                CallCallback(def, toInterpolate);
+                SendCustomEvent((string)currentDef[InterpolationEventNameIndex]);
             }
         }
 
-        private void UpdateLocalScaleDefs()
+        private void UpdateScaleDefs()
         {
-            for (int i = localScaleDefsCount - 1; i >= 0; i--)
+            for (int i = scaleDefsCount - 1; i >= 0; i--)
             {
-                object[] def = localScaleDefs[i];
-                Transform toInterpolate = (Transform)def[ToInterpolateIndex];
-                if (toInterpolate == null)
+                currentDef = scaleDefs[i];
+                currentToInterpolate = (Transform)currentDef[ToInterpolateIndex];
+                if (currentToInterpolate == null)
                 {
-                    localScaleDefs[i] = localScaleDefs[--localScaleDefsCount];
+                    scaleDefs[i] = scaleDefs[--scaleDefsCount];
                     // Cannot remove from the lut using 'null' as the key - that does nothing - so cannot clean up.
-                    CallCallback(def, toInterpolate);
+                    CallCallback();
                     continue;
                 }
-                Vector3 destination = (Vector3)def[DestinationValueIndex];
-
-                float startTime = (float)def[StartTimeIndex];
-                float interpolationDuration = (float)def[InterpolationDurationIndex];
-                float t = (time - startTime) / interpolationDuration;
-                if (t < 1f)
+                float startTime = (float)currentDef[StartTimeIndex];
+                float interpolationDuration = (float)currentDef[InterpolationDurationIndex];
+                currentT = (timeTime - startTime) / interpolationDuration;
+                if (currentT >= 1f)
                 {
-                    Vector3 source = (Vector3)def[SourceValueIndex];
-                    toInterpolate.localScale = Vector3.Lerp(source, destination, t);
+                    currentToInterpolate.localScale = (Vector3)currentDef[DestinationValueIndex];
+                    scaleDefs[i] = scaleDefs[--scaleDefsCount];
+                    scaleDefsLut.Remove(currentToInterpolate);
+                    CallCallback();
                     continue;
                 }
-                toInterpolate.localScale = destination;
-                localScaleDefs[i] = localScaleDefs[--localScaleDefsCount];
-                localScaleDefsLut.Remove(toInterpolate);
-                CallCallback(def, toInterpolate);
+                SendCustomEvent((string)currentDef[InterpolationEventNameIndex]);
             }
         }
 
-        private void UpdateWorldPositionDefs()
+        public void LerpLocalPositionHandler()
         {
-            for (int i = worldPositionDefsCount - 1; i >= 0; i--)
-            {
-                object[] def = worldPositionDefs[i];
-                Transform toInterpolate = (Transform)def[ToInterpolateIndex];
-                if (toInterpolate == null)
-                {
-                    worldPositionDefs[i] = worldPositionDefs[--worldPositionDefsCount];
-                    // Cannot remove from the lut using 'null' as the key - that does nothing - so cannot clean up.
-                    CallCallback(def, toInterpolate);
-                    continue;
-                }
-                Vector3 destination = (Vector3)def[DestinationValueIndex];
-
-                float startTime = (float)def[StartTimeIndex];
-                float interpolationDuration = (float)def[InterpolationDurationIndex];
-                float t = (time - startTime) / interpolationDuration;
-                if (t < 1f)
-                {
-                    Vector3 source = (Vector3)def[SourceValueIndex];
-                    toInterpolate.position = Vector3.Lerp(source, destination, t);
-                    continue;
-                }
-                toInterpolate.position = destination;
-                worldPositionDefs[i] = worldPositionDefs[--worldPositionDefsCount];
-                worldPositionDefsLut.Remove(toInterpolate);
-                CallCallback(def, toInterpolate);
-            }
+            currentToInterpolate.localPosition = Vector3.Lerp(
+                (Vector3)currentDef[SourceValueIndex],
+                (Vector3)currentDef[DestinationValueIndex],
+                currentT);
         }
 
-        private void UpdateWorldRotationDefs()
+        public void LerpWorldPositionHandler()
         {
-            for (int i = worldRotationDefsCount - 1; i >= 0; i--)
-            {
-                object[] def = worldRotationDefs[i];
-                Transform toInterpolate = (Transform)def[ToInterpolateIndex];
-                if (toInterpolate == null)
-                {
-                    worldRotationDefs[i] = worldRotationDefs[--worldRotationDefsCount];
-                    // Cannot remove from the lut using 'null' as the key - that does nothing - so cannot clean up.
-                    CallCallback(def, toInterpolate);
-                    continue;
-                }
-                Quaternion destination = (Quaternion)def[DestinationValueIndex];
-
-                float startTime = (float)def[StartTimeIndex];
-                float interpolationDuration = (float)def[InterpolationDurationIndex];
-                float t = (time - startTime) / interpolationDuration;
-                if (t < 1f)
-                {
-                    Quaternion source = (Quaternion)def[SourceValueIndex];
-                    toInterpolate.rotation = Quaternion.Lerp(source, destination, t);
-                    continue;
-                }
-                toInterpolate.rotation = destination;
-                worldRotationDefs[i] = worldRotationDefs[--worldRotationDefsCount];
-                worldRotationDefsLut.Remove(toInterpolate);
-                CallCallback(def, toInterpolate);
-            }
+            currentToInterpolate.position = Vector3.Lerp(
+                (Vector3)currentDef[SourceValueIndex],
+                (Vector3)currentDef[DestinationValueIndex],
+                currentT);
         }
 
-        private void CallCallback(object[] positionDef, Transform toInterpolate)
+        public void LerpLocalRotationHandler()
+        {
+            currentToInterpolate.localRotation = Quaternion.Lerp(
+                (Quaternion)currentDef[SourceValueIndex],
+                (Quaternion)currentDef[DestinationValueIndex],
+                currentT);
+        }
+
+        public void LerpWorldRotationHandler()
+        {
+            currentToInterpolate.rotation = Quaternion.Lerp(
+                (Quaternion)currentDef[SourceValueIndex],
+                (Quaternion)currentDef[DestinationValueIndex],
+                currentT);
+        }
+
+        public void LerpLocalScaleHandler()
+        {
+            currentToInterpolate.localScale = Vector3.Lerp(
+                (Vector3)currentDef[SourceValueIndex],
+                (Vector3)currentDef[DestinationValueIndex],
+                currentT);
+        }
+
+        /// <summary>
+        /// <para>Uses <see cref="currentDef"/> and <see cref="currentToInterpolate"/></para>
+        /// </summary>
+        private void CallCallback()
         {
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CallCallback");
 #endif
-            UdonSharpBehaviour callbackInst = (UdonSharpBehaviour)positionDef[CallbackUdonBehaviourIndex];
+            UdonSharpBehaviour callbackInst = (UdonSharpBehaviour)currentDef[CallbackUdonBehaviourIndex];
             if (callbackInst != null)
             {
-                string callbackEventName = (string)positionDef[CallbackEventNameIndex];
-                customCallbackData = positionDef[CustomCallbackDataIndex];
-                finishedTransform = toInterpolate;
+                string callbackEventName = (string)currentDef[CallbackEventNameIndex];
+                customCallbackData = currentDef[CustomCallbackDataIndex];
+                finishedTransform = currentToInterpolate;
                 callbackInst.SendCustomEvent(callbackEventName);
                 finishedTransform = null;
                 customCallbackData = null;
@@ -224,38 +191,28 @@ namespace JanSharp
 
         public void CustomUpdate()
         {
-            time = Time.time;
+            timeTime = Time.time;
             bool doDeregister = true;
-            if (localPositionDefsCount != 0)
+            if (positionDefsCount != 0)
             {
-                UpdateLocalPositionDefs();
+                UpdatePositionDefs();
                 doDeregister = false;
             }
-            if (localRotationDefsCount != 0)
+            if (rotationDefsCount != 0)
             {
-                UpdateLocalRotationDefs();
+                UpdateRotationDefs();
                 doDeregister = false;
             }
-            if (localScaleDefsCount != 0)
+            if (scaleDefsCount != 0)
             {
-                UpdateLocalScaleDefs();
-                doDeregister = false;
-            }
-            if (worldPositionDefsCount != 0)
-            {
-                UpdateWorldPositionDefs();
-                doDeregister = false;
-            }
-            if (worldRotationDefsCount != 0)
-            {
-                UpdateWorldRotationDefs();
+                UpdateScaleDefs();
                 doDeregister = false;
             }
 
             if (doDeregister)
             {
 #if JAN_SHARP_COMMON_DEBUG
-                Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CustomUpdate (inner) - localPositionDefsCount: {localPositionDefsCount}, localRotationDefsCount: {localRotationDefsCount}, localScaleDefsCount: {localScaleDefsCount}, worldPositionDefsCount: {worldPositionDefsCount}, worldRotationDefsCount: {worldRotationDefsCount}");
+                Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CustomUpdate (inner) - positionDefsCount: {positionDefsCount}, rotationDefsCount: {rotationDefsCount}, scaleDefsCount: {scaleDefsCount}");
 #endif
                 updateManager.Deregister(this);
             }
@@ -269,19 +226,20 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalPosition");
 #endif
-            CancelWorldPositionInterpolation(toInterpolate);
             object[] def;
             DataToken keyToken = toInterpolate;
-            if (localPositionDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            if (positionDefsLut.TryGetValue(keyToken, out DataToken defToken))
             {
                 def = (object[])defToken.Reference;
-                CallCallback(def, toInterpolate);
+                currentDef = def;
+                currentToInterpolate = toInterpolate;
+                CallCallback();
             }
             else
             {
                 def = new object[DefinitionSize];
-                localPositionDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref localPositionDefs, ref localPositionDefsCount, def);
+                positionDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref positionDefs, ref positionDefsCount, def);
                 updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
@@ -289,6 +247,7 @@ namespace JanSharp
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.localPosition;
             def[DestinationValueIndex] = destinationLocalPosition;
+            def[InterpolationEventNameIndex] = nameof(LerpLocalPositionHandler);
             return def;
         }
 
@@ -318,19 +277,20 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateLocalRotation");
 #endif
-            CancelWorldRotationInterpolation(toInterpolate);
             object[] def;
             DataToken keyToken = toInterpolate;
-            if (localRotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            if (rotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
             {
                 def = (object[])defToken.Reference;
-                CallCallback(def, toInterpolate);
+                currentDef = def;
+                currentToInterpolate = toInterpolate;
+                CallCallback();
             }
             else
             {
                 def = new object[DefinitionSize];
-                localRotationDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref localRotationDefs, ref localRotationDefsCount, def);
+                rotationDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref rotationDefs, ref rotationDefsCount, def);
                 updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
@@ -338,6 +298,7 @@ namespace JanSharp
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.localRotation;
             def[DestinationValueIndex] = destinationLocalRotation;
+            def[InterpolationEventNameIndex] = nameof(LerpLocalRotationHandler);
             return def;
         }
 
@@ -369,16 +330,18 @@ namespace JanSharp
 #endif
             object[] def;
             DataToken keyToken = toInterpolate;
-            if (localScaleDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            if (scaleDefsLut.TryGetValue(keyToken, out DataToken defToken))
             {
                 def = (object[])defToken.Reference;
-                CallCallback(def, toInterpolate);
+                currentDef = def;
+                currentToInterpolate = toInterpolate;
+                CallCallback();
             }
             else
             {
                 def = new object[DefinitionSize];
-                localScaleDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref localScaleDefs, ref localScaleDefsCount, def);
+                scaleDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref scaleDefs, ref scaleDefsCount, def);
                 updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
@@ -386,6 +349,7 @@ namespace JanSharp
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.localScale;
             def[DestinationValueIndex] = destinationLocalScale;
+            def[InterpolationEventNameIndex] = nameof(LerpLocalScaleHandler);
             return def;
         }
 
@@ -415,19 +379,20 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldPosition");
 #endif
-            CancelLocalPositionInterpolation(toInterpolate);
             object[] def;
             DataToken keyToken = toInterpolate;
-            if (worldPositionDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            if (positionDefsLut.TryGetValue(keyToken, out DataToken defToken))
             {
                 def = (object[])defToken.Reference;
-                CallCallback(def, toInterpolate);
+                currentDef = def;
+                currentToInterpolate = toInterpolate;
+                CallCallback();
             }
             else
             {
                 def = new object[DefinitionSize];
-                worldPositionDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref worldPositionDefs, ref worldPositionDefsCount, def);
+                positionDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref positionDefs, ref positionDefsCount, def);
                 updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
@@ -435,6 +400,7 @@ namespace JanSharp
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.position;
             def[DestinationValueIndex] = destinationWorldPosition;
+            def[InterpolationEventNameIndex] = nameof(LerpWorldPositionHandler);
             return def;
         }
 
@@ -464,19 +430,20 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  InterpolateWorldRotation");
 #endif
-            CancelLocalRotationInterpolation(toInterpolate);
             object[] def;
             DataToken keyToken = toInterpolate;
-            if (worldRotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
+            if (rotationDefsLut.TryGetValue(keyToken, out DataToken defToken))
             {
                 def = (object[])defToken.Reference;
-                CallCallback(def, toInterpolate);
+                currentDef = def;
+                currentToInterpolate = toInterpolate;
+                CallCallback();
             }
             else
             {
                 def = new object[DefinitionSize];
-                worldRotationDefsLut.Add(keyToken, new DataToken(def));
-                ArrList.Add(ref worldRotationDefs, ref worldRotationDefsCount, def);
+                rotationDefsLut.Add(keyToken, new DataToken(def));
+                ArrList.Add(ref rotationDefs, ref rotationDefsCount, def);
                 updateManager.Register(this);
             }
             def[ToInterpolateIndex] = toInterpolate;
@@ -484,6 +451,7 @@ namespace JanSharp
             def[InterpolationDurationIndex] = interpolationDuration;
             def[SourceValueIndex] = toInterpolate.rotation;
             def[DestinationValueIndex] = destinationWorldRotation;
+            def[InterpolationEventNameIndex] = nameof(LerpWorldRotationHandler);
             return def;
         }
 
@@ -505,68 +473,15 @@ namespace JanSharp
             return def;
         }
 
-        public bool CancelLocalPositionInterpolation(Transform toInterpolate)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelLocalPositionInterpolation");
-#endif
-            if (!localPositionDefsLut.Remove(toInterpolate, out DataToken defToken))
-                return false;
-            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
-            return true;
-        }
-
-        public bool CancelLocalRotationInterpolation(Transform toInterpolate)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelLocalRotationInterpolation");
-#endif
-            if (!localRotationDefsLut.Remove(toInterpolate, out DataToken defToken))
-                return false;
-            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
-            return true;
-        }
-
-        public bool CancelLocalScaleInterpolation(Transform toInterpolate)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelLocalScaleInterpolation");
-#endif
-            if (!localScaleDefsLut.Remove(toInterpolate, out DataToken defToken))
-                return false;
-            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
-            return true;
-        }
-
-        public bool CancelWorldPositionInterpolation(Transform toInterpolate)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelWorldPositionInterpolation");
-#endif
-            if (!worldPositionDefsLut.Remove(toInterpolate, out DataToken defToken))
-                return false;
-            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
-            return true;
-        }
-
-        public bool CancelWorldRotationInterpolation(Transform toInterpolate)
-        {
-#if JAN_SHARP_COMMON_DEBUG
-            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelWorldRotationInterpolation");
-#endif
-            if (!worldRotationDefsLut.Remove(toInterpolate, out DataToken defToken))
-                return false;
-            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
-            return true;
-        }
-
         public bool CancelPositionInterpolation(Transform toInterpolate)
         {
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelPositionInterpolation");
 #endif
-            return CancelLocalPositionInterpolation(toInterpolate)
-                || CancelWorldPositionInterpolation(toInterpolate);
+            if (!positionDefsLut.Remove(toInterpolate, out DataToken defToken))
+                return false;
+            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
+            return true;
         }
 
         public bool CancelRotationInterpolation(Transform toInterpolate)
@@ -574,8 +489,21 @@ namespace JanSharp
 #if JAN_SHARP_COMMON_DEBUG
             Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelRotationInterpolation");
 #endif
-            return CancelLocalRotationInterpolation(toInterpolate)
-                || CancelWorldRotationInterpolation(toInterpolate);
+            if (!rotationDefsLut.Remove(toInterpolate, out DataToken defToken))
+                return false;
+            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
+            return true;
+        }
+
+        public bool CancelScaleInterpolation(Transform toInterpolate)
+        {
+#if JAN_SHARP_COMMON_DEBUG
+            Debug.Log($"[JanSharpCommonDebug] InterpolationManager  CancelScaleInterpolation");
+#endif
+            if (!scaleDefsLut.Remove(toInterpolate, out DataToken defToken))
+                return false;
+            ((object[])defToken.Reference)[ToInterpolateIndex] = null;
+            return true;
         }
     }
 }
