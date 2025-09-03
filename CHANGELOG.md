@@ -1,6 +1,22 @@
 
 # Changelog
 
+## [1.2.1] - 2025-09-03
+
+### Changed
+
+- Improve on build recursion error message ([`9ea685d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/9ea685d2ba7383961ed9bcd99f82b0d6905dabb5))
+- Do not use TrulyPostLateUpdate for bone attachment as it mostly just wastes performance ([`641843b`](https://github.com/JanSharp/VRCJanSharpCommon/commit/641843b540e00cb4750a973e6529acc797156de1))
+- Add missing word to an xml annotation in the StopwatchUtil ([`7a16339`](https://github.com/JanSharp/VRCJanSharpCommon/commit/7a16339037d18bad5a0ad1a87dae8d107ff789bf))
+
+### Added
+
+- Add performance profiling to BoneAttachmentManager using the JAN_SHARP_COMMON_STOPWATCH define ([`819ae3e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/819ae3e4f79618d84ffdb2aeb8152e5c9dbdc622))
+
+### Fixed
+
+- Fix BoneAttachmentManager randomly erroring when attaching or detaching ([`addc7a2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/addc7a20bc20d6b106a3cb0561365a0ec3ee94c8))
+
 ## [1.2.0] - 2025-08-15
 
 _Technically the same breaking change as in 1.1.0, as in 1.1.0 it was not actually working._
@@ -270,6 +286,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.2.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.2.1
 [1.2.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.2.0
 [1.1.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.1.1
 [1.1.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.1.0
