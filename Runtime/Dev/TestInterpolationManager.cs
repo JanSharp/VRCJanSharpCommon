@@ -46,7 +46,7 @@ namespace JanSharp
         }
         public void Function1()
         {
-            manager.LerpLocalPosition(positionInst, basePos + Vector3.forward * 5f, 1f, this, nameof(Function2), null);
+            manager.HermiteCurveLocalPosition(positionInst, Vector3.left * 20f, basePos + Vector3.forward * 5f, Vector3.back * 10f, 1f, this, nameof(Function2), null);
         }
         public void Function2()
         {
