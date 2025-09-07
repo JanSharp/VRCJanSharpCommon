@@ -86,6 +86,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 - WannaBeArrList: An extension of ArrList, however holding strong references to WannaBeClass instances
 - WannaBeArrQueue: An extension of ArrQueue, however holding strong references to WannaBeClass instances
 - WannaBeClass: These are an unfortunately complex concept so they get [their own section](#wannabeclasses)
+- RNG: A random number generator in the form of a WannaBeClass, which is to say that multiple instances of rng can be crated each with their own seed, and the internal `seed`, `lcg` and `hash` state be read and set
 - LocalPlayerCapsule: Get the height and radius of the local player's capsule. They appear to be constants currently, but that might change
 - StopwatchUtil: Make it easier to display stopwatch values as "average | min | max" while doing performance tests
 - ArithBitConverter: Deprecated, was useful when BitConverter wasn't exposed yet. Uses arithmetics to convert floating point numbers to their binary representation and back
@@ -111,3 +112,4 @@ Some UI sprites for UI without rounded corners which I use across other packages
 A big thank you to all the open source contributors out there! This project uses code from:
 
 - [crc32](https://github.com/stbrumme/crc32), Copyright (c) 2011-2016 Stephan Brumme
+- [prvhash](https://github.com/avaneev/prvhash), Copyright (c) 2020-2025 Aleksey Vaneev
