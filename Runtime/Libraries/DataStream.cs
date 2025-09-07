@@ -16,31 +16,11 @@ namespace JanSharp
     /// </summary>
     public static class DataStream
     {
-        // If you're reading through this code and you're putting your hand through your face, well you have
-        // good reason to. It is truly ridiculous. Let's break it down step by step.
-        // 1. Udon does not expose any functions to convert numbers to and from bytes.
-        // 2. Udon does not expose number casting.
-        // "But wait, there's casts all over the place?!"
-        // You fool! Please stop making sense. Those aren't casts, those clearly are System.Convert.ToFoo()
-        // function calls.
-        // Now to be clear, _thank god_ UdonSharp allows writing casts and it just ends up compiling those
-        // into System.Convert.ToFoo() calls. I mean it kind of has to since implicit casts are a thing and if
-        // you had to start casting _everything_ explicitly because Udon doesn't have casts, well that would
-        // have taken it to the next level. The fault definitely does not lie with UdonSharp here. It's just
-        // Udon being high levels of stupid.
-        // Anyway, about those convert functions... They perform bounds checks and throw exceptions if a
-        // number is out of bounds of the type its being converted to. But for this code here we don't care
-        // about numeric bounds, we just care about the underlying bits.
-        // However since we don't have proper functions for converting to and from bytes directly, and we
-        // can't even cast between signed and unsigned numbers, we have to do some real dumb logic to
-        // indirectly access or manipulate the underlying bits.
-        // Oh and the floating point numbers, single and double, are the icing on the cake. We don't have
-        // BitConverter, so I wrote conversions for those using arithmetics instead.
-
         public static void Write(ref byte[] stream, ref int streamSize, sbyte value)
         {
             ArrList.EnsureCapacity(ref stream, streamSize + 1);
             // Logical AND away the top bits, including the int's sign bit, putting it in bounds of a `byte`.
+            // These casts are actually System.Convert.ToFoo() calls, thus the requirement to be within bounds.
             stream[streamSize++] = (byte)((int)value & 0xff);
         }
 
@@ -547,7 +527,8 @@ namespace JanSharp
                     | (bytes & 0b0011_1111));
                 return;
             }
-            /**/ restIsOne = bytes >= 0xe000;
+            /**/
+            restIsOne = bytes >= 0xe000;
             if (restIsOne || bytes <= 0x1fff)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 2);
@@ -641,7 +622,8 @@ namespace JanSharp
                     | (bytes & 0b0011_1111u));
                 return;
             }
-            /**/ restIsOne = bytes >= 0xffffe000u;
+            /**/
+            restIsOne = bytes >= 0xffffe000u;
             if (restIsOne || bytes <= 0x00001fffu)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 2);
@@ -650,7 +632,8 @@ namespace JanSharp
                 stream[streamSize++] = (byte)(bytes & 0xffu);
                 return;
             }
-            /**/ restIsOne = bytes >= 0xfff00000u;
+            /**/
+            restIsOne = bytes >= 0xfff00000u;
             if (restIsOne || bytes <= 0x000fffffu)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 3);
@@ -660,7 +643,8 @@ namespace JanSharp
                 stream[streamSize++] = (byte)(bytes & 0xffu);
                 return;
             }
-            /**/ restIsOne = bytes >= 0xf8000000u;
+            /**/
+            restIsOne = bytes >= 0xf8000000u;
             if (restIsOne || bytes <= 0x07ffffffu)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 4);
@@ -802,7 +786,8 @@ namespace JanSharp
                     | (bytes & 0b0011_1111uL));
                 return;
             }
-            /**/ restIsOne = bytes >= 0xffffffffffffe000uL;
+            /**/
+            restIsOne = bytes >= 0xffffffffffffe000uL;
             if (restIsOne || bytes <= 0x0000000000001fffuL)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 2);
@@ -811,7 +796,8 @@ namespace JanSharp
                 stream[streamSize++] = (byte)(bytes & 0xffuL);
                 return;
             }
-            /**/ restIsOne = bytes >= 0xfffffffffff00000uL;
+            /**/
+            restIsOne = bytes >= 0xfffffffffff00000uL;
             if (restIsOne || bytes <= 0x00000000000fffffuL)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 3);
@@ -821,7 +807,8 @@ namespace JanSharp
                 stream[streamSize++] = (byte)(bytes & 0xffuL);
                 return;
             }
-            /**/ restIsOne = bytes >= 0xfffffffff8000000uL;
+            /**/
+            restIsOne = bytes >= 0xfffffffff8000000uL;
             if (restIsOne || bytes <= 0x0000000007ffffffuL)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 4);
@@ -832,7 +819,8 @@ namespace JanSharp
                 stream[streamSize++] = (byte)(bytes & 0xffuL);
                 return;
             }
-            /**/ restIsOne = bytes >= 0xfffffffc00000000uL;
+            /**/
+            restIsOne = bytes >= 0xfffffffc00000000uL;
             if (restIsOne || bytes <= 0x00000003ffffffffuL)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 5);
@@ -844,7 +832,8 @@ namespace JanSharp
                 stream[streamSize++] = (byte)(bytes & 0xffuL);
                 return;
             }
-            /**/ restIsOne = bytes >= 0xfffffe0000000000uL;
+            /**/
+            restIsOne = bytes >= 0xfffffe0000000000uL;
             if (restIsOne || bytes <= 0x000001ffffffffffuL)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 6);
@@ -857,7 +846,8 @@ namespace JanSharp
                 stream[streamSize++] = (byte)(bytes & 0xffuL);
                 return;
             }
-            /**/ restIsOne = bytes >= 0xffff000000000000uL;
+            /**/
+            restIsOne = bytes >= 0xffff000000000000uL;
             if (restIsOne || bytes <= 0x0000ffffffffffffuL)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 7);
@@ -870,7 +860,8 @@ namespace JanSharp
                 stream[streamSize++] = (byte)(bytes & 0xffuL);
                 return;
             }
-            /**/ restIsOne = bytes >= 0xff80000000000000uL;
+            /**/
+            restIsOne = bytes >= 0xff80000000000000uL;
             if (restIsOne || bytes <= 0x007fffffffffffffuL)
             {
                 ArrList.EnsureCapacity(ref stream, streamSize + 8);
