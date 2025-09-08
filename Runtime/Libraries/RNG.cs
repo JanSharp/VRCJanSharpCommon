@@ -32,6 +32,7 @@
  */
 
 using UnityEngine;
+using VRC.SDK3.Data;
 
 namespace JanSharp
 {
@@ -307,6 +308,54 @@ namespace JanSharp
                 hdr: true);
             result.a = Mathf.Lerp(minAlpha, maxAlpha, ((rv2 & 0x00000000FFFFFFFFuL) >> (9 /* 32 - 23 */)) * X1P23);
             return result;
+        }
+
+        /// <inheritdoc cref="ShuffleDataList(DataList, int, int)"/>
+        public void ShuffleDataList(DataList list) => ShuffleDataList(list, 0, list.Count);
+
+        /// <inheritdoc cref="ShuffleDataList(DataList, int, int)"/>
+        public void ShuffleDataList(DataList list, int count) => ShuffleDataList(list, 0, count);
+
+        /// <summary>
+        /// <para>Uses the Fisher-Yates algorithm (aka Knuth Shuffle).</para>
+        /// </summary>
+        public void ShuffleDataList(DataList list, int startIndex, int count)
+        {
+            while (count > 1)
+            {
+                double value01 = (PrvhashCore64() >> (11 /* 64 - 53 */)) * X1P53;
+                int newIndex = startIndex + (int)(value01 * count);
+                int oldIndex = startIndex + --count;
+                DataToken temp = list[oldIndex];
+                list[oldIndex] = list[newIndex];
+                list[newIndex] = temp;
+            }
+        }
+    }
+
+    // Only extension methods can have generic type parameters in UdonSharp.
+    public static class RNGExtensions
+    {
+        /// <inheritdoc cref="ShuffleArray{T}(RNG, T[], int, int)"/>
+        public static void ShuffleArray<T>(this RNG rng, T[] array) => ShuffleArray(rng, array, 0, array.Length);
+
+        /// <inheritdoc cref="ShuffleArray{T}(RNG, T[], int, int)"/>
+        public static void ShuffleArray<T>(this RNG rng, T[] array, int count) => ShuffleArray(rng, array, 0, count);
+
+        /// <summary>
+        /// <para>Uses the Fisher-Yates algorithm (aka Knuth Shuffle).</para>
+        /// </summary>
+        public static void ShuffleArray<T>(this RNG rng, T[] array, int startIndex, int count)
+        {
+            while (count > 1)
+            {
+                double value01 = (rng.PrvhashCore64() >> (11 /* 64 - 53 */)) * RNG.X1P53;
+                int newIndex = startIndex + (int)(value01 * count);
+                int oldIndex = startIndex + --count;
+                T temp = array[oldIndex];
+                array[oldIndex] = array[newIndex];
+                array[newIndex] = temp;
+            }
         }
     }
 }

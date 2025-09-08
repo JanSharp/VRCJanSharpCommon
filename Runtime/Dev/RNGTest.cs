@@ -15,16 +15,27 @@ namespace JanSharp
             rng.SetSeed(0uL);
             Debug.Log($"[JanSharpCommon] seed: 0x{rng.seed:X16}, lcg: 0x{rng.lcg:X16}, hash: 0x{rng.hash:X16}");
             rng.SetSeed((ulong)Random.Range(0, int.MaxValue));
+
             for (int i = 0; i < 16; i++)
             {
                 double value = rng.GetDouble01();
                 Debug.Log($"[JanSharpCommon] random double01 {i + 1}: {value:F10}");
             }
+
             for (int i = 0; i < 16; i++)
             {
                 float value = rng.GetFloat01();
                 Debug.Log($"[JanSharpCommon] random float01 {i + 1}: {value:F10}");
             }
+
+            int count = 16;
+            int[] shuffledArray = new int[count];
+            for (int i = 0; i < count; i++)
+                shuffledArray[i] = i;
+            rng.ShuffleArray(shuffledArray, startIndex: 4, count: 8);
+            for (int i = 0; i < count; i++)
+                Debug.Log($"[JanSharpCommon] shuffledArray[{i}]: {shuffledArray[i]}");
+
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             for (int x = 0; x < 16; x++)
                 for (int z = 0; z < 16; z++)

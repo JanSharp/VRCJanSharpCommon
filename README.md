@@ -86,7 +86,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 - WannaBeArrList: An extension of ArrList, however holding strong references to WannaBeClass instances
 - WannaBeArrQueue: An extension of ArrQueue, however holding strong references to WannaBeClass instances
 - WannaBeClass: These are an unfortunately complex concept so they get [their own section](#wannabeclasses)
-- RNG: A random number generator in the form of a WannaBeClass, which is to say that multiple instances of rng can be crated each with their own seed, and the internal `seed`, `lcg` and `hash` state be read and set
+- RNG: A random number generator in the form of a WannaBeClass, which is to say that multiple instances of rng can be crated each with their own seed, and the internal `seed`, `lcg` and `hash` state be read and set. Also supports shuffling arrays and DatLists
 - LocalPlayerCapsule: Get the height and radius of the local player's capsule. They appear to be constants currently, but that might change
 - StopwatchUtil: Make it easier to display stopwatch values as "average | min | max" while doing performance tests
 - ArithBitConverter: Deprecated, was useful when BitConverter wasn't exposed yet. Uses arithmetics to convert floating point numbers to their binary representation and back

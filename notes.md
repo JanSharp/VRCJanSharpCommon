@@ -70,4 +70,4 @@
 - [ ] maybe add a feature to the interpolation manager to support a fully custom interpolation function, yet still have the ability to cancel it
 - [x] maybe just add a hermite spline to the interpolation manager
 - [x] maybe consolidate those separate arrays in the interpolation manager into one
-- [ ] add shuffling to RNG
+- [x] add shuffling to RNG
