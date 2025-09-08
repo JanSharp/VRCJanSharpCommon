@@ -1,6 +1,28 @@
 
 # Changelog
 
+## [1.3.0] - 2025-09-08
+
+_The InterpolationManager should now have a more stable API going forward. It was not really finished before, thus the breaking change now._
+
+### Changed
+
+- **Breaking:** Rename "InterpolateFoo" functions to "LerpFoo" functions in InterpolationManager ([`d038063`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d0380636b844fae28aec61781702cd49d72dbfef), [`b0543c9`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b0543c96d9088f2f8662f3da3a51d958236c54ce), [`756dda1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/756dda1e4e4bf96813d13dd19ca7b15dd3eb22d4))
+
+### Added
+
+- Add seed-able random number generator using prvhash ([`d8c5b4d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d8c5b4dfb494479e4b6d0950bbc46b051cfa51f0))
+- Add array and DataList shuffling to random number generator ([`36babdf`](https://github.com/JanSharp/VRCJanSharpCommon/commit/36babdfabd28aecde6ef9efe1a274825ee1ba8b9))
+- Add hermite curves for position and scale to InterpolationManager ([`d24d461`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d24d46197206bf4295f7de76abd63e495a4f428d))
+
+### Removed
+
+- Remove outdated rant comment ([`46325d3`](https://github.com/JanSharp/VRCJanSharpCommon/commit/46325d3d4a6b3253745b06b27bf75ff74c2ec820))
+
+### Fixed
+
+- Fix overwriting an interpolation which has a callback defined with an interpolation which does not define a callback ends up not clearing the callback, thus calling it again when the newly overwritten interpolation finishes ([`b0543c9`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b0543c96d9088f2f8662f3da3a51d958236c54ce))
+
 ## [1.2.1] - 2025-09-03
 
 ### Changed
@@ -286,6 +308,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.3.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.3.0
 [1.2.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.2.1
 [1.2.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.2.0
 [1.1.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.1.1
