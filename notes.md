@@ -54,6 +54,7 @@
     - [ ] create capsule colliders, scaled according to eye height
     - [ ] iterate all colliders and check which colliders they collide with
     - [ ] zones which have players inside of them due to this method must periodically check if the players are still within the colliders, using the same collision checking method. They can stop doing so once the players has left, at which point trigger enter and exit events can be relied upon
+  - [ ] an option to have some proxy (primitive) collider take precedence over the player trigger events to support tracking which zones a player is in while they are in a station
 - [x] ~~automaticallyUseChildToggles for synced toggle groups is just broken~~ Just remove that feature entirely and have it automatically find toggles in that group on build
 - [x] automatically set the toggle OnValueChanged listeners for all toggles in a group
 - [x] automatically remove the listener if a toggle is no longer in a group
