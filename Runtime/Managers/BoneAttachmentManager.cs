@@ -305,7 +305,29 @@ namespace JanSharp
 
         private void AttachToBoneTransform(Transform boneTransform, VRCPlayerApi player, HumanBodyBones bone, Transform toAttach)
         {
-            boneTransform.SetPositionAndRotation(player.GetBonePosition(bone), player.GetBoneRotation(bone));
+            Vector3 position = player.GetBonePosition(bone);
+            if (position != Vector3.zero)
+                boneTransform.SetPositionAndRotation(position, player.GetBoneRotation(bone));
+            else if (boneTransform.position == Vector3.zero) // Only newly created/reused boneTransforms.
+            {
+                // Best effort to put the boneTransform at some reasonable location around the given player.
+                // That's at least better than putting it at Vector3.zero and Quaternion.identity.
+                // After this positioning here the boneTransform isn't going to move until the actual target
+                // bone begins existing. it will just sit still. This should make it easier for any synced
+                // systems to attach objects to bones of remote players without having to worry at what point
+                // exactly said players are changing and or finishing loading their avatar on each client.
+
+                // I think every avatar must have a hip bone. Maybe. I know from testing that not every avatar has a head bone.
+                position = player.GetBonePosition(HumanBodyBones.Hips);
+                if (position != Vector3.zero)
+                    boneTransform.SetPositionAndRotation(position, player.GetBoneRotation(HumanBodyBones.Hips));
+                else
+                {
+                    // If not then just go by position and rotation of the player itself, half way up their eye height.
+                    position = player.GetPosition() + Vector3.up * player.GetAvatarEyeHeightAsMeters() * 0.5f;
+                    boneTransform.SetPositionAndRotation(position, player.GetRotation());
+                }
+            }
             toAttach.SetParent(boneTransform); // After updating the bone transform to make it a clean transition.
         }
 
