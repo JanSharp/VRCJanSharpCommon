@@ -72,7 +72,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 ### Libraries
 
 - ArrList: Makes it easier to make list like arrays. They are statically typed, unlike DataLists
-- ArrQueue: Makes it easier to make queue like arrays. First in, first out
+- ArrQueue: Makes it easier to make queue like arrays. Statically typed. Elements can be enqueued and dequeued from either side (front or back), though it would likely be used in cases where first in first out is desired
 - Base64: Validate base 64 encoded strings to prevent throwing exceptions on invalid input
 - BuildTimeIdAssignment: Associates ids with custom script instances in the scene at build time, while ensuring an id never gets reused, even ids for deleted script instances do not get reused
   - The BypassBuildTimeIdAssignment component can be used to mark an object and its children to be ignored by this system, meaning they will not get ids assigned to them
@@ -86,7 +86,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 - WannaBeArrList: An extension of ArrList, however holding strong references to WannaBeClass instances
 - WannaBeArrQueue: An extension of ArrQueue, however holding strong references to WannaBeClass instances
 - WannaBeClass: These are an unfortunately complex concept so they get [their own section](#wannabeclasses)
-- RNG: A random number generator in the form of a WannaBeClass, which is to say that multiple instances of rng can be crated each with their own seed, and the internal `seed`, `lcg` and `hash` state be read and set. Also supports shuffling arrays and DatLists
+- RNG: A random number generator in the form of a WannaBeClass, which is to say that multiple instances of rng can be created each with their own seed, and the internal `seed`, `lcg` and `hash` state can be read and set. Also supports shuffling arrays and DatLists
 - LocalPlayerCapsule: Get the height and radius of the local player's capsule. They appear to be constants currently, but that might change
 - StopwatchUtil: Make it easier to display stopwatch values as "average | min | max" while doing performance tests
 - ArithBitConverter: Deprecated, was useful when BitConverter wasn't exposed yet. Uses arithmetics to convert floating point numbers to their binary representation and back
