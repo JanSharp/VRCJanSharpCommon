@@ -2,7 +2,7 @@ using UdonSharp;
 
 namespace JanSharp
 {
-    [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    [System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     public sealed class SingletonScriptAttribute : System.Attribute
     {
         // See the attribute guidelines at
