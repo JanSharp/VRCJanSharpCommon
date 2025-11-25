@@ -1,21 +1,23 @@
 ﻿using UdonSharp;
 using UnityEngine;
-using VRC.SDKBase;
-using VRC.Udon;
 
 namespace JanSharp
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public abstract class WannaBeClass : UdonSharpBehaviour
     {
-        [HideInInspector] [SerializeField] [SingletonReference] private WannaBeClassesManager wannaBeClasses;
+        [HideInInspector][SerializeField][SingletonReference] private WannaBeClassesManager wannaBeClasses;
         public WannaBeClassesManager WannaBeClasses => wannaBeClasses;
         private int referencesCount = 1;
+        private bool hasBeenDestructed = false;
 
         public virtual void WannaBeConstructor() { }
         public virtual void WannaBeDestructor() { }
         public void Delete()
         {
+            if (hasBeenDestructed)
+                return;
+            hasBeenDestructed = true;
             WannaBeDestructor();
             Destroy(this.gameObject);
         }
@@ -41,10 +43,16 @@ namespace JanSharp
             SendCustomEventDelayedFrames(nameof(CheckLiveliness), 1);
             return this;
         }
-        public void CheckLiveliness()
+        /// <summary>
+        /// </summary>
+        /// <returns><see langword="true"/> if the object is still alive. When <see langword="false"/> Unity
+        /// has already been instructed to destroy this game object, it will turn <see langword="null"/>
+        /// soon.</returns>
+        public bool CheckLiveliness()
         {
             if (referencesCount <= 0)
                 Delete();
+            return !hasBeenDestructed;
         }
         public void IncrementRefsCount() => referencesCount++;
         public void DecrementRefsCount()
