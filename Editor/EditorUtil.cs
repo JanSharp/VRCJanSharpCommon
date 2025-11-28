@@ -492,5 +492,48 @@ namespace JanSharp
             }
             return false;
         }
+
+        public static int GetHierarchyDepth(Transform transform)
+        {
+            int depth = 0;
+            while (transform != null)
+            {
+                depth++;
+                transform = transform.parent;
+            }
+            return depth;
+        }
+
+        public static Transform FindCommonParent(IEnumerable<Transform> transforms)
+        {
+            Transform parent = transforms.FirstOrDefault()?.parent;
+            int depth = GetHierarchyDepth(parent);
+            foreach (var transform in transforms.Skip(1))
+            {
+                Transform currentParent = transform.parent;
+                if (currentParent == parent)
+                    continue;
+                int currentDepth = GetHierarchyDepth(currentParent);
+                while (currentDepth > depth)
+                {
+                    currentParent = currentParent.parent;
+                    currentDepth--;
+                }
+                while (depth > currentDepth)
+                {
+                    parent = parent.parent;
+                    depth--;
+                }
+                while (currentParent != parent)
+                {
+                    parent = parent.parent;
+                    currentParent = currentParent.parent;
+                    depth--;
+                }
+                if (depth == 0)
+                    break;
+            }
+            return parent;
+        }
     }
 }
