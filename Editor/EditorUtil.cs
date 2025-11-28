@@ -535,5 +535,15 @@ namespace JanSharp
             }
             return parent;
         }
+
+        public static string GetAssetGuidOrNull(Object assetObj)
+            => assetObj != null && AssetDatabase.TryGetGUIDAndLocalFileIdentifier(assetObj, out string guid, out long _)
+                ? guid
+                : null;
+
+        public static string GetAssetGuidOrEmpty(Object assetObj)
+            => assetObj != null && AssetDatabase.TryGetGUIDAndLocalFileIdentifier(assetObj, out string guid, out long _)
+                ? guid
+                : "";
     }
 }
