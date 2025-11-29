@@ -35,20 +35,9 @@ namespace JanSharp
         private static void SetupOnValueChangedListener(UIToggleSync uiToggleSync, Toggle toggle)
         {
             SerializedObject so = new SerializedObject(toggle);
-            SerializedProperty onValueChangedProperty = so.FindProperty("onValueChanged");
-            UdonBehaviour udonBehaviour = UdonSharpEditorUtility.GetBackingUdonBehaviour(uiToggleSync);
-
-            if (EditorUtil.HasCustomEventListener(
-                onValueChangedProperty,
-                udonBehaviour,
-                nameof(UIToggleGroupSync.OnValueChanged)))
-            {
-                return;
-            }
-
-            EditorUtil.AddPersistentSendCustomEventListener(
-                onValueChangedProperty,
-                udonBehaviour,
+            EditorUtil.EnsureHasPersistentSendCustomEventListener(
+                so.FindProperty("onValueChanged"),
+                UdonSharpEditorUtility.GetBackingUdonBehaviour(uiToggleSync),
                 nameof(UIToggleGroupSync.OnValueChanged));
             so.ApplyModifiedProperties();
         }

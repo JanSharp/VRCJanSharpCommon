@@ -194,7 +194,7 @@ namespace JanSharp
             UdonBehaviour target,
             string customEventName)
         {
-            return EditorUtil.EnumeratePersistentEventListeners(unityEventProp)
+            return EnumeratePersistentEventListeners(unityEventProp)
                 .Any(l => l.Target is UdonBehaviour targetBehaviour
                     && targetBehaviour == target
                     && l.MethodName == nameof(UdonBehaviour.SendCustomEvent)
@@ -206,6 +206,18 @@ namespace JanSharp
             SerializedProperty calls = unityEventProperty.FindPropertyRelative("m_PersistentCalls.m_Calls");
             for (int i = 0; i < calls.arraySize; i++)
                 yield return new PersistentEventListenerWrapper(unityEventProperty, i);
+        }
+
+        /// <summary>
+        /// Make sure to call <see cref="SerializedObject.ApplyModifiedProperties"/> after calling this.
+        /// </summary>
+        public static void EnsureHasPersistentSendCustomEventListener(
+            SerializedProperty unityEventProp,
+            UdonBehaviour target,
+            string customEventName)
+        {
+            if (!HasCustomEventListener(unityEventProp, target, customEventName))
+                AddPersistentSendCustomEventListener(unityEventProp, target, customEventName);
         }
 
         public static void DeletePersistentEventListenerAtIndex(SerializedProperty unityEventProperty, int index)
@@ -233,7 +245,7 @@ namespace JanSharp
             where TTarget : UdonSharpBehaviour
             where TEventSource : Object
         {
-            EditorUtil.ConditionalButton(
+            ConditionalButton(
                 buttonContent,
                 targets
                     .Select(t => (
