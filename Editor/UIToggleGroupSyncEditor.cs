@@ -59,7 +59,7 @@ namespace JanSharp
         private static void SetupOnValueChangedListeners(UIToggleGroupSync uiToggleGroupSync, List<Toggle> togglesInGroup)
         {
             UdonBehaviour udonBehaviour = UdonSharpEditorUtility.GetBackingUdonBehaviour(uiToggleGroupSync);
-            foreach (Toggle toggle in togglesInGroup.Where(t => !EditorUtil.HasCustomEventListener(
+            foreach (Toggle toggle in togglesInGroup.Where(t => !EditorUtil.HasPersistentSendCustomEventListener(
                 new SerializedObject(t).FindProperty("onValueChanged"),
                 udonBehaviour,
                 nameof(UIToggleGroupSync.OnValueChanged))))

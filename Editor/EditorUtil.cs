@@ -189,7 +189,16 @@ namespace JanSharp
             listener.CallState = UnityEventCallState.RuntimeOnly;
         }
 
+        [System.Obsolete("Use HasPersistentSendCustomEventListener instead.")]
         public static bool HasCustomEventListener(
+            SerializedProperty unityEventProp,
+            UdonBehaviour target,
+            string customEventName)
+        {
+            return HasPersistentSendCustomEventListener(unityEventProp, target, customEventName);
+        }
+
+        public static bool HasPersistentSendCustomEventListener(
             SerializedProperty unityEventProp,
             UdonBehaviour target,
             string customEventName)
@@ -216,7 +225,7 @@ namespace JanSharp
             UdonBehaviour target,
             string customEventName)
         {
-            if (!HasCustomEventListener(unityEventProp, target, customEventName))
+            if (!HasPersistentSendCustomEventListener(unityEventProp, target, customEventName))
                 AddPersistentSendCustomEventListener(unityEventProp, target, customEventName);
         }
 
@@ -253,7 +262,7 @@ namespace JanSharp
                         udonBehaviour: UdonSharpEditorUtility.GetBackingUdonBehaviour(t)
                     ))
                     .Where(d => d.source != null
-                        && !HasCustomEventListener(new SerializedObject(d.source).FindProperty(unityEventSerializedPropertyPath),
+                        && !HasPersistentSendCustomEventListener(new SerializedObject(d.source).FindProperty(unityEventSerializedPropertyPath),
                             d.udonBehaviour,
                             customEventName)
                     ),
