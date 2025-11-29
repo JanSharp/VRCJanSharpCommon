@@ -210,6 +210,16 @@ namespace JanSharp
                     && l.StringArgument == customEventName);
         }
 
+        public static bool HasPersistentInteractListener(
+            SerializedProperty unityEventProp,
+            UdonBehaviour target)
+        {
+            return EnumeratePersistentEventListeners(unityEventProp)
+                .Any(l => l.Target is UdonBehaviour targetBehaviour
+                    && targetBehaviour == target
+                    && l.MethodName == nameof(UdonBehaviour.Interact));
+        }
+
         public static IEnumerable<PersistentEventListenerWrapper> EnumeratePersistentEventListeners(SerializedProperty unityEventProperty)
         {
             SerializedProperty calls = unityEventProperty.FindPropertyRelative("m_PersistentCalls.m_Calls");
@@ -227,6 +237,17 @@ namespace JanSharp
         {
             if (!HasPersistentSendCustomEventListener(unityEventProp, target, customEventName))
                 AddPersistentSendCustomEventListener(unityEventProp, target, customEventName);
+        }
+
+        /// <summary>
+        /// Make sure to call <see cref="SerializedObject.ApplyModifiedProperties"/> after calling this.
+        /// </summary>
+        public static void EnsureHasPersistentInteractListener(
+            SerializedProperty unityEventProp,
+            UdonBehaviour target)
+        {
+            if (!HasPersistentInteractListener(unityEventProp, target))
+                AddPersistentInteractListener(unityEventProp, target);
         }
 
         public static void DeletePersistentEventListenerAtIndex(SerializedProperty unityEventProperty, int index)
