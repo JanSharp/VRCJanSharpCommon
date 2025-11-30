@@ -12,6 +12,8 @@ namespace JanSharp
 {
     public static class EditorUtil
     {
+        public static readonly GUIContent mixedValueGUIContent = EditorGUIUtility.TrTextContent("\u2014", "Mixed Values");
+
         public static void SetArrayProperty<T>(SerializedProperty property, ICollection<T> newValues, System.Action<SerializedProperty, T> setValue)
         {
             property.ClearArray();
