@@ -472,7 +472,7 @@ namespace JanSharp
             return null;
         }
 
-        private static HashSet<Transform> cachedEditorOnlyTransforms = new();
+        private static Dictionary<Transform, bool> cachedEditorOnlyLut = new();
         private static uint performingCachedEditorOnlyChecksCounter = 0u;
         public static bool IsPerformingCachedEditorOnlyChecks => performingCachedEditorOnlyChecksCounter != 0u;
 
@@ -486,7 +486,7 @@ namespace JanSharp
             if (performingCachedEditorOnlyChecksCounter == 0u)
                 return;
             if ((--performingCachedEditorOnlyChecksCounter) == 0u)
-                cachedEditorOnlyTransforms.Clear();
+                cachedEditorOnlyLut.Clear();
         }
 
         public static BatchedEditorOnlyChecksScope BatchedEditorOnlyChecks() => new();
@@ -519,21 +519,25 @@ namespace JanSharp
 
         private static bool CachedIsEditorOnly(Transform t)
         {
-            if (cachedEditorOnlyTransforms.Contains(t))
-                return true;
+            if (cachedEditorOnlyLut.TryGetValue(t, out bool result))
+                return result;
             if (t.CompareTag("EditorOnly"))
             {
-                cachedEditorOnlyTransforms.Add(t);
+                cachedEditorOnlyLut.Add(t, true);
                 return true;
             }
             Transform parent = t.parent;
             if (parent == null)
+            {
+                cachedEditorOnlyLut.Add(t, false);
                 return false;
+            }
             if (CachedIsEditorOnly(parent))
             {
-                cachedEditorOnlyTransforms.Add(t);
+                cachedEditorOnlyLut.Add(t, true);
                 return true;
             }
+            cachedEditorOnlyLut.Add(t, false);
             return false;
         }
 
