@@ -474,7 +474,7 @@ namespace JanSharp
 
         private static HashSet<Transform> cachedEditorOnlyTransforms = new();
         private static uint performingCachedEditorOnlyChecksCounter = 0u;
-        public static bool IsPerformingCachedEditorOnlyChecks = performingCachedEditorOnlyChecksCounter != 0u;
+        public static bool IsPerformingCachedEditorOnlyChecks => performingCachedEditorOnlyChecksCounter != 0u;
 
         public static void BeginBatchedEditorOnlyChecks()
         {
