@@ -76,3 +76,15 @@
   - [ ] maybe make including deriving classes an option
 - [ ] clarify for build time id assignment whether or not it includes deriving class types
 - [ ] a component which adds scroll support to UI scroll views using right stick up and down. Using hover events (cursor enter and exit)
+- [ ] consuming input manager
+  - [ ] listen to all of VRChat's input events which fire every frame and put that those in local variables.
+    - [ ] I really don't understand why VRChat doesn't provide properties to access the current values for a frame, like unity does
+  - [ ] approach one
+    - [ ] register callbacks with some priority
+    - [ ] the manger calls these every frame
+    - [ ] callbacks can tell the manager that for this frame some key or input axis has been consumed
+  - [ ] approach two
+    - [ ] register callbacks associated with some key or axis
+    - [ ] callback registrations can be active or inactive (to make context aware inputs possible)
+    - [ ] either the callbacks tell the manager that they consumed a key, or the registration as a whole is either consuming or non consuming
+    - [ ] have the ability for other systems such as UIs to rebind inputs
