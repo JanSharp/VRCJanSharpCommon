@@ -75,3 +75,4 @@
 - [ ] a \[FindAllInScene\] attribute which is basically just a stripped down version of build time id assignment as it just finds all instances of a given UB class
   - [ ] maybe make including deriving classes an option
 - [ ] clarify for build time id assignment whether or not it includes deriving class types
+- [ ] a component which adds scroll support to UI scroll views using right stick up and down. Using hover events (cursor enter and exit)
