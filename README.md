@@ -78,6 +78,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
   - The BypassBuildTimeIdAssignment component can be used to mark an object and its children to be ignored by this system, meaning they will not get ids assigned to them
 - CRC32: Calculate a crc 32 checksum of a byte array
 - CustomRaisedEvents: Helps creating scripts, likely singletons, which raise events other scripts may listen to. Uses attributes and enums
+- FindInParent: An attribute to populate a field effectively equivalently to doing `GetComponentInParent`, but at build time rather than runtime
 - DataStream: For binary serialization and deserialization using byte arrays
 - SingletonScript: Attributes to
   - Define a script as being a singleton, it only being allowed to exist once in the scene

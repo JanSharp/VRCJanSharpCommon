@@ -75,6 +75,7 @@
 - [ ] a \[FindAllInScene\] attribute which is basically just a stripped down version of build time id assignment as it just finds all instances of a given UB class
   - [ ] maybe make including deriving classes an option
 - [ ] clarify for build time id assignment whether or not it includes deriving class types
+- [x] a \[FindInParents\] attribute which is effectively a GetComponentInParents at build time helper
 - [ ] a component which adds scroll support to UI scroll views using right stick up and down. Using hover events (cursor enter and exit)
 - [ ] consuming input manager
   - [ ] listen to all of VRChat's input events which fire every frame and put that those in local variables.
