@@ -2,6 +2,7 @@ using UdonSharp;
 
 namespace JanSharp
 {
+    /// <inheritdoc cref="CustomRaisedEventBaseAttribute(int)"/>
     [System.AttributeUsage(System.AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
     public abstract class CustomRaisedEventBaseAttribute : System.Attribute
     {
@@ -25,23 +26,27 @@ namespace JanSharp
         public int Order = 0; // Named parameter. Again, not a property even though it should be, but I can't.
 
         // Copy paste this annotation for the constructor of deriving attributes.
+        // Replace customEventTypeEnumValue with "eventType".
+        // Replace int with the enum type which defines the custom events.
 
         /// <summary>
         /// <para>The method this attribute gets applied to must be public.</para>
         /// <para>The name of the function this attribute is applied to must have the exact same name as the
-        /// name of the <paramref name="eventType"/>.</para>
+        /// name of the <paramref name="customEventTypeEnumValue"/>.</para>
         /// <para>Event registration is performed at OnBuild, which is to say that scripts with these kinds of
         /// event handlers must exist in the scene at build time, any runtime instantiated objects with these
         /// scripts on them will not receive these events.</para>
         /// <para>Disabled scripts still receive events.</para>
         /// </summary>
-        /// <param name="eventType">The event to register this function as a listener to.</param>
+        /// <param name="customEventTypeEnumValue">The event to register this function as a listener
+        /// to.</param>
         protected CustomRaisedEventBaseAttribute(int customEventTypeEnumValue)
         {
             CustomEventTypeEnumValue = customEventTypeEnumValue;
         }
     }
 
+    /// <inheritdoc cref="CustomRaisedEventsDispatcherAttribute(System.Type, System.Type, bool)"/>
     [System.AttributeUsage(System.AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     public sealed class CustomRaisedEventsDispatcherAttribute : System.Attribute
     {
@@ -52,6 +57,15 @@ namespace JanSharp
         public System.Type CustomRaisedEventAttributeType => customRaisedEventAttributeType;
         private readonly System.Type customEventEnumType;
         public System.Type CustomEventEnumType => customEventEnumType;
+
+        /// <summary>
+        /// <para>When <see langword="false"/> every dispatcher in the scene will get every listener in the
+        /// scene assigned to it.</para>
+        /// <para>When <see langword="true"/> dispatchers will only get listeners assigned to them which are
+        /// children of the dispatcher's object. A listener not having any parent dispatcher will never
+        /// receive any events. A listener on the same object as the dispatcher is considered a child.</para>
+        /// </summary>
+        public bool FindListenersInChildrenOnly { get; set; } = false;
 
         /// <summary>
         /// <para>Marks an <see cref="UdonSharpBehaviour"/> class as a dispatcher of custom raised events.</para>
@@ -71,7 +85,9 @@ namespace JanSharp
         /// value to an <see cref="int"/>, like for example: <c>: base((int)eventType)</c>.</param>
         /// <param name="customEventEnumType">The type of an enum where each enum member/field is the name of
         /// a custom event which should be able to be listened to by other scripts.</param>
-        public CustomRaisedEventsDispatcherAttribute(System.Type customRaisedEventAttributeType, System.Type customEventEnumType)
+        public CustomRaisedEventsDispatcherAttribute(
+            System.Type customRaisedEventAttributeType,
+            System.Type customEventEnumType)
         {
             this.customRaisedEventAttributeType = customRaisedEventAttributeType;
             this.customEventEnumType = customEventEnumType;

@@ -593,5 +593,19 @@ namespace JanSharp
             => assetObj != null && AssetDatabase.TryGetGUIDAndLocalFileIdentifier(assetObj, out string guid, out long _)
                 ? guid
                 : "";
+
+        public static bool IsChild(Transform parent, Transform child, bool trueOnEqual = true)
+        {
+            if (child == parent)
+                return trueOnEqual;
+            while (true)
+            {
+                child = child.parent;
+                if (child == null)
+                    return false;
+                if (child == parent)
+                    return true;
+            }
+        }
     }
 }

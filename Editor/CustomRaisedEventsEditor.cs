@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEditor;
-using UdonSharp;
 using System.Reflection;
+using UdonSharp;
+using UnityEditor;
+using UnityEngine;
 
 namespace JanSharp.Internal
 {
@@ -171,6 +171,7 @@ namespace JanSharp.Internal
             {
                 ubType = ubType,
                 eventTypeEnumType = dispatcherAttr.CustomEventEnumType,
+                findListenersInChildrenOnly = dispatcherAttr.FindListenersInChildrenOnly,
                 eventTypes = eventTypeNameValuePairs
                     .Select(e => (GetListenersFieldName(e.name), e.value))
                     .ToList(),
@@ -189,6 +190,7 @@ namespace JanSharp.Internal
         {
             public System.Type ubType;
             public System.Type eventTypeEnumType;
+            public bool findListenersInChildrenOnly;
             public List<(string name, int value)> eventTypes;
             public Dictionary<int, string> eventTypeToNameLut;
             public UdonSharpBehaviour[] dispatchers;
@@ -203,7 +205,7 @@ namespace JanSharp.Internal
                 return false;
             }
             foreach (RegisteredData data in allRegisteredData)
-                    data.allListeners.Clear();
+                data.allListeners.Clear();
             return true;
         }
 
@@ -270,10 +272,39 @@ namespace JanSharp.Internal
         private static bool PostOnBuild()
         {
             foreach (RegisteredData data in allRegisteredData)
+                if (data.findListenersInChildrenOnly)
+                    AssignAnyChildren(data);
+                else
+                    AssignFromAnywhereInScene(data);
+            return true;
+        }
+
+        private static void AssignFromAnywhereInScene(RegisteredData data)
+        {
+            if (data.dispatchers.Length == 0)
+                return;
+            SerializedObject dispatchersSo = new SerializedObject(data.dispatchers);
+            foreach (var eventType in data.eventTypes)
             {
-                if (data.dispatchers.Length == 0)
+                SerializedProperty listenersProperty = dispatchersSo.FindProperty(eventType.name);
+                if (!data.allListeners.TryGetValue(eventType.value, out var listeners))
+                {
+                    listenersProperty.arraySize = 0;
                     continue;
-                SerializedObject dispatchersSo = new SerializedObject(data.dispatchers);
+                }
+                EditorUtil.SetArrayProperty(listenersProperty,
+                    listeners.OrderBy(v => v.order).ThenBy(v => v.defaultExecutionOrder).ToList(),
+                    (p, v) => p.objectReferenceValue = v.ub);
+            }
+            dispatchersSo.ApplyModifiedProperties();
+        }
+
+        private static void AssignAnyChildren(RegisteredData data)
+        {
+            foreach (UdonSharpBehaviour dispatcher in data.dispatchers)
+            {
+                SerializedObject dispatchersSo = new SerializedObject(dispatcher);
+                Transform dispatcherTransform = dispatcher.transform;
                 foreach (var eventType in data.eventTypes)
                 {
                     SerializedProperty listenersProperty = dispatchersSo.FindProperty(eventType.name);
@@ -283,13 +314,15 @@ namespace JanSharp.Internal
                         continue;
                     }
                     EditorUtil.SetArrayProperty(listenersProperty,
-                        listeners.OrderBy(v => v.order).ThenBy(v => v.defaultExecutionOrder).ToList(),
+                        listeners
+                            .Where(v => EditorUtil.IsChild(dispatcherTransform, v.ub.transform))
+                            .OrderBy(v => v.order)
+                            .ThenBy(v => v.defaultExecutionOrder)
+                            .ToList(),
                         (p, v) => p.objectReferenceValue = v.ub);
                 }
                 dispatchersSo.ApplyModifiedProperties();
             }
-
-            return true;
         }
     }
 }
