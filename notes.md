@@ -89,3 +89,7 @@
     - [ ] callback registrations can be active or inactive (to make context aware inputs possible)
     - [ ] either the callbacks tell the manager that they consumed a key, or the registration as a whole is either consuming or non consuming
     - [ ] have the ability for other systems such as UIs to rebind inputs
+- [ ] add an editor window which lists all singletons in the scene
+  - [ ] show how many things depend on them
+  - [ ] have buttons to delete ones that nothing depends on
+  - [ ] have a button that deletes all the unused ones
