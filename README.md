@@ -48,6 +48,7 @@ Some [Library](#libraries)/[Manager](#managers) features are assisted by editor 
 - UIToggleSync to make synced toggles without writing scripts for them every time
 - UIToggleGroupSync to make synced toggle groups without writing scripts for them every time, as well as making it a little easier to setup toggle groups through the inspector
 - PickupSendLocalEvent to send events when a VRCPickup is picked up, dropped or used while held
+- PointerEnterExitProxy to pass along the OnPointerEnter and OnPointerExit events from an EventTrigger component, while also ensuring OnPointerExit runs in OnDisable if the pointer was on the UI graphic
 - BypassSingletonDependencyInstantiation: Prevents any script on this object or any of its children to trigger the singleton editor scripting to instantiate required prefabs. It effectively changes all dependencies of those scripts from required to optional
 
 ### Managers

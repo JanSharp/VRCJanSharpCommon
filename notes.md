@@ -93,3 +93,4 @@
   - [ ] show how many things depend on them
   - [ ] have buttons to delete ones that nothing depends on
   - [ ] have a button that deletes all the unused ones
+- [ ] add editor scripting for PointerEnterExitProxy
