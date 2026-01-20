@@ -50,6 +50,7 @@ Some [Library](#libraries)/[Manager](#managers) features are assisted by editor 
 - PickupSendLocalEvent to send events when a VRCPickup is picked up, dropped or used while held
 - PointerEnterExitProxy to pass along the OnPointerEnter and OnPointerExit events from an EventTrigger component, while also ensuring OnPointerExit runs in OnDisable if the pointer was on the UI graphic
 - BypassSingletonDependencyInstantiation: Prevents any script on this object or any of its children to trigger the singleton editor scripting to instantiate required prefabs. It effectively changes all dependencies of those scripts from required to optional
+- ShowObjectByPlatform and ShowObjectsByPlatform, to show (activate) objects only in VR or only in Desktop
 
 ### Managers
 
