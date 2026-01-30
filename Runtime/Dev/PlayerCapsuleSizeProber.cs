@@ -17,6 +17,10 @@ namespace JanSharp
         // capsule height: 1.320007
         // capsule width: 0.319946
 
+        // It would appear the player capsule can actually pretty exactly fit into a 0.425 wide gap.
+        // And it would appear it can just barely fit under 1.6625, while colliding with 1.65.
+        // Those observations have been made using a test setup in the RP Menu dev scene.
+
         public Transform bottomSphere;
         public Transform topSphere;
         public Transform cylinder;
