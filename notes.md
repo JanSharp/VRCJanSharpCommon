@@ -94,3 +94,5 @@
   - [ ] have buttons to delete ones that nothing depends on
   - [ ] have a button that deletes all the unused ones
 - [ ] add editor scripting for PointerEnterExitProxy
+- [ ] disable bone attachment manager proximity helpers in the prefab by default so they don't show up while working on the scene
+- [ ] change the log message when scripts got instantiated when entering play mode to an info message, not error message
