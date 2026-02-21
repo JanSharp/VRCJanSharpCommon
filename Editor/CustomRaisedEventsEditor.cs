@@ -214,7 +214,7 @@ namespace JanSharp.Internal
             if (ubTypeCache.TryGetValue(ubType, out var cached))
                 return cached;
             cached = new();
-            int defaultExecutionOrder = ubType.GetCustomAttribute<DefaultExecutionOrder>()?.order ?? 0;
+            int defaultExecutionOrder = ubType.GetCustomAttributes<DefaultExecutionOrder>().FirstOrDefault()?.order ?? 0;
 
             foreach (MethodInfo method in ubType.GetMethods(PrivateAndPublicFlags))
             {
