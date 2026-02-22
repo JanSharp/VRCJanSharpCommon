@@ -311,8 +311,8 @@ namespace JanSharp
 
             if (success && scriptsDidGetInstantiated && abortIfScriptsGotInstantiated)
             {
-                Debug.LogError("[JanSharpCommon] Udon scripts were instantiated during the OnBuild process, "
-                    + "VRChat may need to do some setup for those, I don't know, either way please try again.");
+                Debug.Log("[JanSharpCommon] Udon scripts were instantiated during the OnBuild process, "
+                    + "quite certain VRChat needs to do some setup for those, please go again.");
                 ShowNotification("Scripts were instantiated during OnBuild, please go again.");
                 return false;
             }
