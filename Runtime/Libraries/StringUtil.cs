@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace JanSharp
 {
     public static class StringUtil
@@ -26,6 +28,14 @@ namespace JanSharp
                 spacer = " ";
             }
             return $"{sign}{value}{spacer}{result}";
+        }
+
+        public static string GetHexFromColor(Color color, bool includeAlpha)
+        {
+            return Mathf.RoundToInt(color.r * 255f).ToString("x2")
+                + Mathf.RoundToInt(color.g * 255f).ToString("x2")
+                + Mathf.RoundToInt(color.b * 255f).ToString("x2")
+                + (includeAlpha ? Mathf.RoundToInt(color.a * 255f).ToString("x2") : "");
         }
     }
 }
