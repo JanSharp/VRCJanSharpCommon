@@ -27,6 +27,14 @@ namespace JanSharp
         private static bool isRunningOnBuildHandlers = false;
         public static bool IsRunningOnBuildHandlers => isRunningOnBuildHandlers;
 
+        private static bool isPublishingWorld = false;
+        /// <summary>
+        /// <para><see langword="true"/> when on build handlers are currently running specifically for a world
+        /// publish. <see langword="false"/> when running on build handlers for entering play mode, for
+        /// example.</para>
+        /// </summary>
+        public static bool IsPublishingWorld => isPublishingWorld;
+
         static OnBuildUtil()
         {
             registeredTypes = new Dictionary<Type, OnBuildCallbackData>();
@@ -233,11 +241,13 @@ namespace JanSharp
             RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: false, abortIfScriptsGotInstantiated: false);
         }
 
-        private static bool RunOnBuildIteration()
+        private static bool RunOnBuildIteration(bool isPublishingWorld)
         {
+            OnBuildUtil.isPublishingWorld = isPublishingWorld;
             isRunningOnBuildHandlers = true;
             bool result = RunOnBuildIterationInner();
             isRunningOnBuildHandlers = false;
+            OnBuildUtil.isPublishingWorld = false;
             return result;
         }
 
@@ -274,7 +284,11 @@ namespace JanSharp
             return true;
         }
 
-        public static bool RunOnBuild(bool showDialogOnFailure, bool useSceneViewNotification, bool abortIfScriptsGotInstantiated)
+        public static bool RunOnBuild(
+            bool showDialogOnFailure,
+            bool useSceneViewNotification,
+            bool abortIfScriptsGotInstantiated,
+            bool isPublishingWorld = false)
         {
             void ShowNotification(string msg)
             {
@@ -294,7 +308,7 @@ namespace JanSharp
             bool reachedMaxRerunRecursion = false;
             while (true)
             {
-                success = RunOnBuildIteration();
+                success = RunOnBuildIteration(isPublishingWorld);
                 if (!rerunDueToScriptInstantiation && !rerunDueToObjectDestruction)
                     break;
                 scriptsDidGetInstantiated |= rerunDueToScriptInstantiation;
@@ -486,7 +500,11 @@ namespace JanSharp
         {
             if (requestedBuildType == VRCSDKRequestedBuildType.Avatar)
                 return true;
-            return OnBuildUtil.RunOnBuild(showDialogOnFailure: false, useSceneViewNotification: false, abortIfScriptsGotInstantiated: true);
+            return OnBuildUtil.RunOnBuild(
+                showDialogOnFailure: false,
+                useSceneViewNotification: false,
+                abortIfScriptsGotInstantiated: true,
+                isPublishingWorld: true);
         }
     }
 }
