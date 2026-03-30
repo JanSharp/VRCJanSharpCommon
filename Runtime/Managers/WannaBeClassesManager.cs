@@ -1,8 +1,6 @@
 ﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.Data;
-using VRC.SDKBase;
-using VRC.Udon;
 
 namespace JanSharp
 {
@@ -84,7 +82,7 @@ namespace JanSharp
         {
             if (!manager.TryGetPrefabInternal(wannaBeClassName, out GameObject prefab))
                 return null;
-#if JAN_SHARP_COMMON_DEBUG
+#if JAN_SHARP_COMMON_STOPWATCH
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 #endif
@@ -92,15 +90,15 @@ namespace JanSharp
             // function, which then means that multiple scripts can call New inside of their
             // WannaBeConstructor without running into recursion issues.
             GameObject go = Object.Instantiate(prefab, manager.instancesParent);
-#if JAN_SHARP_COMMON_DEBUG
+#if JAN_SHARP_COMMON_STOPWATCH
             double instantiateMs = sw.Elapsed.TotalMilliseconds;
 #endif
             WannaBeClass inst = (WannaBeClass)go.GetComponent<UdonSharpBehaviour>();
             // inst.SetProgramVariable("wannaBeClasses", manager); // Not needed because the "prefab" already has it set.
             inst.WannaBeConstructor();
-#if JAN_SHARP_COMMON_DEBUG
+#if JAN_SHARP_COMMON_STOPWATCH
             double constructorMs = sw.Elapsed.TotalMilliseconds - instantiateMs;
-            Debug.Log($"[JanSharpCommonDebug] [sw] WannaBeClassesManager  NewDynamic (inner) - instantiateMs: {instantiateMs}, constructorMs: {constructorMs}, wannaBeClassName: {wannaBeClassName}");
+            Debug.Log($"[JanSharpCommonDebug] [sw] WannaBeClassesManager  NewDynamic (inner) - instantiateMs: {instantiateMs:f3}, constructorMs: {constructorMs:f3}, wannaBeClassName: {wannaBeClassName}");
 #endif
             return inst;
         }
