@@ -1,6 +1,46 @@
 
 # Changelog
 
+## [1.3.1] - 2026-04-04
+
+### Changed
+
+- Disable bone attachment helper colliders in prefab to prevent them from showing up while working in the scene ([`e6a28a7`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e6a28a70d02b2de8675473d98bb216b3c54d1f5c))
+- Use `JAN_SHARP_COMMON_STOPWATCH` rather than `JAN_SHARP_COMMON_DEBUG` in `WannaBeClassesManager` ([`8cc1993`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8cc1993b93bf7feaeadd5f9fcafb00413c9ace30))
+- Change `LICENSE_THIRD_PARTY` file extension to `txt` ([`d89e78e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d89e78ebbc15f25484429b5778d3c49943f7eef9))
+- Make info message about scripts getting instantiated on build more assertive and not an error ([`a34d800`](https://github.com/JanSharp/VRCJanSharpCommon/commit/a34d800730cf258ff2da10c064bc7c5b20ac6a41))
+- Rename `HasCustomEventListener` to `HasPersistentSendCustomEventListener` in `EditorUtil`. Old name is obsolete, will be removed in next minor version bump ([`6ac2947`](https://github.com/JanSharp/VRCJanSharpCommon/commit/6ac2947ed29a0379ecce0cce74ae90966de69903))
+- Ensure `WannaBeDestructor` only runs once ([`1f9b4e1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/1f9b4e14b88088ef9229abcee2fd069377158ef1))
+- Make `CheckLiveliness` return a bool, indicating whether the class instance is about to be destroyed or not ([`1f9b4e1`](https://github.com/JanSharp/VRCJanSharpCommon/commit/1f9b4e14b88088ef9229abcee2fd069377158ef1))
+- Remove self reference from LocalToggleOnInteract ([`bcaffac`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bcaffacd7f9e918a3d960ddab210592a25e15acf))
+- Improve handling of attaching to non existent bone ([`edb1e12`](https://github.com/JanSharp/VRCJanSharpCommon/commit/edb1e124e2a4a5c57f413ad5d2b064eee989bdcb))
+
+### Added
+
+- Add `IsPublishingWorld` to `OnBuildUtil` to allow on build handlers to run different logic on world publish ([`bd2ef46`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bd2ef46752e1667635deb1005be949b3f4d86fc4))
+- Add `StringUtil` with `FormatNumberWithSpaces` and `GetHexFromColor` ([`8ccaefe`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8ccaefe1d2729a1c6030dd35909cec18b79751e8), [`12fe12f`](https://github.com/JanSharp/VRCJanSharpCommon/commit/12fe12f2a9ee29c1b27e19bf0a86b94f1577d365))
+- Add notes about observations for player capsule sizes ([`1cc27b6`](https://github.com/JanSharp/VRCJanSharpCommon/commit/1cc27b6146048ef3a7f11dac24cfd8cec2d678b1))
+- Add `ShowObjectByPlatform` and `ShowObjectsByPlatform` components to show/hide objects in VR/Desktop ([`b03b822`](https://github.com/JanSharp/VRCJanSharpCommon/commit/b03b82236354ccadb9dcb2d8dc2db8b2eb0a2c25))
+- Add `PointerEnterExitProxy` unfortunately without editor scripting, requires setting up the `EventTrigger` component manually ([`d4d2a82`](https://github.com/JanSharp/VRCJanSharpCommon/commit/d4d2a82707ba1665400d25a9cf2cab61f6ef7e0d))
+- Automatically unset the scripting define `SYLAN_AUDIOMANAGER` if the `com.sylan.audiomanager` package is not present ([`0d2f11b`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0d2f11bc1577b5c5e0d394d5fdb464fb5419b718))
+- Add `FindListenersInChildrenOnly` to `CustomRaisedEventBaseAttribute` ([`0e5cea7`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0e5cea7a5e352374d8a6df21a38c47e0bed92cc3))
+- Add `IsChild` to `EditorUtil` ([`0e5cea7`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0e5cea7a5e352374d8a6df21a38c47e0bed92cc3))
+- Add `FindInParentAttribute` to find a script in any of the parents at build time ([`e7dd71a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e7dd71a9ca84306ef93a00fd2c2033977b58cbd2))
+- Add `mixedValueGUIContent` to `EditorUtil` ([`bc8ab85`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bc8ab85fbb4ca5c694a0d1f657fd26e41b67cd32))
+- Add `HasPersistentInteractListener` and `EnsureHasPersistentInteractListener` to `EditorUtil` ([`c5da6c2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/c5da6c20c9b9aca3e5485ccb7f5f542a9025d0bf))
+- Add `EnsureHasPersistentSendCustomEventListener` to `EditorUtil` ([`e54047d`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e54047d53cffa324461fc49acd8bf7f3337718da))
+- Add `GetAssetGuidOrNull` and `GetAssetGuidOrEmpty` to `EditorUtil` ([`1cfa293`](https://github.com/JanSharp/VRCJanSharpCommon/commit/1cfa29326f5be2d5a1ab8ae12ceb13764f49ae7e))
+- Add `GetHierarchyDepth` and `FindCommonParent` to `EditorUtil` ([`fb51e82`](https://github.com/JanSharp/VRCJanSharpCommon/commit/fb51e82e7a60279bfde6dedab1daa163eb8adce2))
+- Add xml annotations to copy whenever creating a `CustomRaisedEventBaseAttribute` ([`bace57c`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bace57c98176f663bebc7bdda43a217503b43abd))
+
+### Fixed
+
+- Fix potential build time exception involving `DefaultExecutionOrder` ([`c28284c`](https://github.com/JanSharp/VRCJanSharpCommon/commit/c28284c4725cd9532f4a22bb59d0c17793265b62))
+- Improve batched editor only caching ([`9954dd6`](https://github.com/JanSharp/VRCJanSharpCommon/commit/9954dd6c3be55f71fffee14da0fac87462fdb549))
+- Fix batched EditorOnly in `EditorUtil` checks not actually caching ([`547600a`](https://github.com/JanSharp/VRCJanSharpCommon/commit/547600a4c940567876ff13cb1d9482479aaa4bf8))
+- Fix `BuildTimeIdAssignmentAttribute` erroring on build when the class itself does not have the `SingletonScriptAttribute` but the base class does ([`8f9f35f`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8f9f35fffdbba957ac352ce966b1364a8f5cc695))
+- Fix readme for `ArrQueue`, elements can be added and removed from either side ([`eb0eb7f`](https://github.com/JanSharp/VRCJanSharpCommon/commit/eb0eb7fee332e6ecd37030e124dfabb957f252d3))
+
 ## [1.3.0] - 2025-09-08
 
 _The InterpolationManager should now have a more stable API going forward. It was not really finished before, thus the breaking change now._
@@ -308,6 +348,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.3.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.3.1
 [1.3.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.3.0
 [1.2.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.2.1
 [1.2.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.2.0
