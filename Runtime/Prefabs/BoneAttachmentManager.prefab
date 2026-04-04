@@ -146,7 +146,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2598644141988279344
 Transform:
   m_ObjectHideFlags: 0
@@ -223,6 +223,7 @@ MonoBehaviour:
   attachmentPrefab: {fileID: 7962961893374761608, guid: 33d0d42ee811c8d9fac6f9bbf8aeb3af,
     type: 3}
   proximityHelper: {fileID: 2598644141988279344}
+  qd: {fileID: 0}
 --- !u!114 &1355492994495615262
 MonoBehaviour:
   m_ObjectHideFlags: 0

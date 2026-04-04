@@ -59,6 +59,8 @@ namespace JanSharp
         {
             localPlayer = Networking.LocalPlayer;
             localPlayerId = localPlayer.playerId;
+            proximityHelper.position = localPlayer.GetPosition();
+            proximityHelper.gameObject.SetActive(true);
 #if JAN_SHARP_COMMON_STOPWATCH
             updateContainer = StopwatchUtil.CreateDataContainer();
 #endif
