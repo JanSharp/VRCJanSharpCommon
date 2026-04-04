@@ -96,3 +96,4 @@
 - [ ] add editor scripting for PointerEnterExitProxy
 - [x] disable bone attachment manager proximity helpers in the prefab by default so they don't show up while working on the scene
 - [x] change the log message when scripts got instantiated when entering play mode to an info message, not error message
+- [ ] Remove `HasCustomEventListener` in the next minor version bump
