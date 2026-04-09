@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5762720531288463856}
   - component: {fileID: 5775255814572579216}
   - component: {fileID: 1673429289353199388}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ProximityHelper (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -140,7 +140,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2598644141988279344}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ProximityHelpers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,7 +262,7 @@ GameObject:
   - component: {fileID: 2176305371543489797}
   - component: {fileID: 5468390547690085627}
   - component: {fileID: 2188598823850424186}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ProximityHelper (0)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
