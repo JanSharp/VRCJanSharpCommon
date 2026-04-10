@@ -6,8 +6,10 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public abstract class WannaBeClass : UdonSharpBehaviour
     {
-        [HideInInspector][SerializeField][SingletonReference] private WannaBeClassesManager wannaBeClasses;
-        public WannaBeClassesManager WannaBeClasses => wannaBeClasses;
+        /// <summary>
+        /// <para>Read only.</para>
+        /// </summary>
+        [HideInInspector][SingletonReference] public WannaBeClassesManager wannaBeClasses;
         private int referencesCount = 1;
         private bool hasBeenDestructed = false;
 
