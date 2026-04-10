@@ -191,15 +191,6 @@ namespace JanSharp
             listener.CallState = UnityEventCallState.RuntimeOnly;
         }
 
-        [System.Obsolete("Use HasPersistentSendCustomEventListener instead.")]
-        public static bool HasCustomEventListener(
-            SerializedProperty unityEventProp,
-            UdonBehaviour target,
-            string customEventName)
-        {
-            return HasPersistentSendCustomEventListener(unityEventProp, target, customEventName);
-        }
-
         public static bool HasPersistentSendCustomEventListener(
             SerializedProperty unityEventProp,
             UdonBehaviour target,
