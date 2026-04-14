@@ -53,9 +53,9 @@ namespace JanSharp
             }
             if (!ValidateWannaBeClasses())
                 return false;
-            foreach (var child in manager.prefabsParent.Cast<Transform>().Where(t => t.GetComponent<WannaBeClass>() == null).ToList())
+            foreach (var child in manager.PrefabsParent.Cast<Transform>().Where(t => t.GetComponent<WannaBeClass>() == null).ToList())
                 OnBuildUtil.UndoDestroyObjectImmediate(child.gameObject);
-            var existingPrefabs = manager.prefabsParent.Cast<Transform>()
+            var existingPrefabs = manager.PrefabsParent.Cast<Transform>()
                 .Select(t => t.GetComponent<WannaBeClass>())
                 .Select(c => (name: c.GetType().Name, inst: c))
                 .ToList();
@@ -70,7 +70,7 @@ namespace JanSharp
             // Which is really annoying for this here since it is an OnBuild handler which runs automatically
             // when entering play mode, and I'd rather not mark the scene as dirty every time play mode is
             // entered even when nothing changes.
-            // Undo.RegisterChildrenOrderUndo(manager.prefabsParent, "Generate WannaBeClass Prefabs");
+            // Undo.RegisterChildrenOrderUndo(manager.PrefabsParent, "Generate WannaBeClass Prefabs");
             Dictionary<string, WannaBeClass> existingPrefabsLut = existingPrefabs.ToDictionary(p => p.name, p => p.inst);
             for (int i = 0; i < wannaBeClassTypes.Count; i++)
             {
@@ -82,14 +82,14 @@ namespace JanSharp
                 }
                 GameObject newPrefab = new GameObject(wannaBeClassType.name);
                 Undo.RegisterCreatedObjectUndo(newPrefab, "Generate WannaBeClass Prefabs");
-                newPrefab.transform.SetParent(manager.prefabsParent, worldPositionStays: false);
+                newPrefab.transform.SetParent(manager.PrefabsParent, worldPositionStays: false);
                 newPrefab.transform.SetSiblingIndex(i);
                 UdonSharpUndo.AddComponent(newPrefab, wannaBeClassType.type);
                 OnBuildUtil.MarkForRerunDueToScriptInstantiation();
             }
             SerializedObject so = new SerializedObject(manager);
             EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassNames"), wannaBeClassTypes, (p, v) => p.stringValue = v.name);
-            EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassPrefabs"), manager.prefabsParent.Cast<Transform>().ToList(), (p, v) => p.objectReferenceValue = v.gameObject);
+            EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassPrefabs"), manager.PrefabsParent.Cast<Transform>().ToList(), (p, v) => p.objectReferenceValue = v.gameObject);
             so.ApplyModifiedProperties();
             return true;
         }
@@ -101,7 +101,7 @@ namespace JanSharp
             SerializedObject so = new SerializedObject(manager);
             EditorUtil.SetArrayProperty(
                 so.FindProperty("instancesExistingAtBuildTime"),
-                instances.Where(i => i.transform.parent != manager.prefabsParent).ToList(),
+                instances.Where(i => i.transform.parent != manager.PrefabsParent).ToList(),
                 (p, v) => p.objectReferenceValue = v);
             so.ApplyModifiedProperties();
             return true;

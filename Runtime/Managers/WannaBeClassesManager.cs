@@ -1,6 +1,5 @@
 ﻿using UdonSharp;
 using UnityEngine;
-using VRC.SDK3.Data;
 
 namespace JanSharp
 {
@@ -9,29 +8,20 @@ namespace JanSharp
     [SingletonScript("4fde516c38225afdf98eec7b044ed853")] // Runtime/Prefabs/WannaBeClassesManager.prefab
     public class WannaBeClassesManager : UdonSharpBehaviour
     {
-        /// <summary>
-        /// <para>Used for editor scripting.</para>
-        /// </summary>
-        public Transform prefabsParent;
-        public Transform instancesParent;
+        [SerializeField] private Transform prefabsParent;
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+        public Transform PrefabsParent => prefabsParent;
+#endif
+        [SerializeField] private Transform instancesParent;
         [SerializeField][HideInInspector] private string[] wannaBeClassNames;
         [SerializeField][HideInInspector] private GameObject[] wannaBeClassPrefabs;
         [SerializeField][HideInInspector] private WannaBeClass[] instancesExistingAtBuildTime;
 
-        private DataDictionary prefabsLut;
-        private DataDictionary PrefabsLut
-        {
-            get
-            {
-                if (prefabsLut != null)
-                    return prefabsLut;
-                prefabsLut = new DataDictionary();
-                int c = wannaBeClassNames.Length;
-                for (int i = 0; i < c; i++)
-                    prefabsLut.Add(wannaBeClassNames[i], wannaBeClassPrefabs[i]);
-                return prefabsLut;
-            }
-        }
+        /// <summary>
+        /// <para>For use by anything that is potentially recursive, and supports recursion.</para>
+        /// </summary>
+        private WannaBeClass[] classStack = new WannaBeClass[ArrList.MinCapacity];
+        private int classStackCount = 0;
 
         private void Start()
         {
@@ -49,16 +39,31 @@ namespace JanSharp
             instancesExistingAtBuildTime = null;
         }
 
-        public bool TryGetPrefabInternal(string wannaBeClassName, out GameObject prefab)
+        public WannaBeClass NewDynamic(string wannaBeClassName)
         {
-            prefab = null;
-            if (!PrefabsLut.TryGetValue(wannaBeClassName, out DataToken prefabToken))
+            int classIndex = System.Array.BinarySearch(wannaBeClassNames, wannaBeClassName);
+            if (classIndex < 0)
             {
-                Debug.LogError($"[JanSharpCommon] Attempt to construct an instance of the WannaBeClass {wannaBeClassName}, however no such class exists.");
-                return false;
+                Debug.LogError($"[JanSharpCommon] Attempt to construct an instance of a WannaBeClass by "
+                    + $"the name '{wannaBeClassName}', however no such class exists.");
+                return null;
             }
-            prefab = (GameObject)prefabToken.Reference;
-            return true;
+            GameObject prefab = wannaBeClassPrefabs[classIndex];
+
+#if JAN_SHARP_COMMON_STOPWATCH
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+#endif
+            GameObject go = Instantiate(prefab, instancesParent);
+#if JAN_SHARP_COMMON_STOPWATCH
+            double instantiateMs = sw.Elapsed.TotalMilliseconds;
+            Debug.Log($"[JanSharpCommonDebug] [sw] WannaBeClassesManager  NewDynamic (inner) - instantiateMs: {instantiateMs:f3}, wannaBeClassName: {wannaBeClassName}");
+#endif
+            WannaBeClass inst = (WannaBeClass)go.GetComponent<UdonSharpBehaviour>();
+            // inst.SetProgramVariable("wannaBeClasses", manager); // Not needed because the "prefab" already has it set.
+            ArrList.Add(ref classStack, ref classStackCount, inst);
+            inst.WannaBeConstructor(); // This could call NewDynamic, or in other words: be recursive.
+            return classStack[--classStackCount];
         }
     }
 
@@ -69,38 +74,6 @@ namespace JanSharp
         {
             // Can't use typeof(T).Name, unfortunately.
             return (T)manager.NewDynamic(wannaBeClassName);
-            // Having NewDynamic be a separate function without a generic type parameter enables UdonSharp to
-            // only generate 1 instance of the NewInternal function for each script that needs it, rather than
-            // generating one for each unique generic type parameter. So it's just deduplication resulting in
-            // ever so slightly smaller generated scripts.
-            // Additionally having it be a static extension function enables multiple script instances to call
-            // NewDynamic "recursively". It won't actually be recursive since it is separate instances of the
-            // same function.
-        }
-
-        public static WannaBeClass NewDynamic(this WannaBeClassesManager manager, string wannaBeClassName)
-        {
-            if (!manager.TryGetPrefabInternal(wannaBeClassName, out GameObject prefab))
-                return null;
-#if JAN_SHARP_COMMON_STOPWATCH
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-#endif
-            // By having this logic in a static function it gets put into each script which calls the New,
-            // function, which then means that multiple scripts can call New inside of their
-            // WannaBeConstructor without running into recursion issues.
-            GameObject go = Object.Instantiate(prefab, manager.instancesParent);
-#if JAN_SHARP_COMMON_STOPWATCH
-            double instantiateMs = sw.Elapsed.TotalMilliseconds;
-#endif
-            WannaBeClass inst = (WannaBeClass)go.GetComponent<UdonSharpBehaviour>();
-            // inst.SetProgramVariable("wannaBeClasses", manager); // Not needed because the "prefab" already has it set.
-            inst.WannaBeConstructor();
-#if JAN_SHARP_COMMON_STOPWATCH
-            double constructorMs = sw.Elapsed.TotalMilliseconds - instantiateMs;
-            Debug.Log($"[JanSharpCommonDebug] [sw] WannaBeClassesManager  NewDynamic (inner) - instantiateMs: {instantiateMs:f3}, constructorMs: {constructorMs:f3}, wannaBeClassName: {wannaBeClassName}");
-#endif
-            return inst;
         }
     }
 }
