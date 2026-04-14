@@ -78,13 +78,15 @@ namespace JanSharp
                 if (existingPrefabsLut.TryGetValue(wannaBeClassType.name, out WannaBeClass existing))
                 {
                     existing.transform.SetSiblingIndex(i);
+                    EnsureHasCorrectClassIndex(existing, i);
                     continue;
                 }
                 GameObject newPrefab = new GameObject(wannaBeClassType.name);
                 Undo.RegisterCreatedObjectUndo(newPrefab, "Generate WannaBeClass Prefabs");
                 newPrefab.transform.SetParent(manager.PrefabsParent, worldPositionStays: false);
                 newPrefab.transform.SetSiblingIndex(i);
-                UdonSharpUndo.AddComponent(newPrefab, wannaBeClassType.type);
+                WannaBeClass script = (WannaBeClass)UdonSharpUndo.AddComponent(newPrefab, wannaBeClassType.type);
+                EnsureHasCorrectClassIndex(script, i);
                 OnBuildUtil.MarkForRerunDueToScriptInstantiation();
             }
             SerializedObject so = new SerializedObject(manager);
@@ -92,6 +94,15 @@ namespace JanSharp
             EditorUtil.SetArrayProperty(so.FindProperty("wannaBeClassPrefabs"), manager.PrefabsParent.Cast<Transform>().ToList(), (p, v) => p.objectReferenceValue = v.gameObject);
             so.ApplyModifiedProperties();
             return true;
+        }
+
+        private static void EnsureHasCorrectClassIndex(WannaBeClass scriptOnPrefab, int index)
+        {
+            if (scriptOnPrefab.InternalClassIndex == index)
+                return;
+            SerializedObject so = new(scriptOnPrefab);
+            so.FindProperty("internalClassIndex").intValue = index;
+            so.ApplyModifiedProperties();
         }
 
         private static bool OnClassInstancesBuild(IEnumerable<WannaBeClass> instances)

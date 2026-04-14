@@ -97,5 +97,6 @@
 - [x] disable bone attachment manager proximity helpers in the prefab by default so they don't show up while working on the scene
 - [x] change the log message when scripts got instantiated when entering play mode to an info message, not error message
 - [x] Remove `HasCustomEventListener` in the next minor version bump
-- [ ] add a `ResetWannaBeClassToDefault` virtual function to `WannaBeClass`, returning false by default, which when overridden shall return true and with that indicate that the class instance can be reused - pooled - rather than having to delete it. This saves on script instantiations, which is a big performance gain
+- [x] add a `ResetWannaBeClassToDefault` virtual function to `WannaBeClass`, returning false by default, which when overridden shall return true and with that indicate that the class instance can be reused - pooled - rather than having to delete it. This saves on script instantiations, which is a big performance gain
+  - [ ] implement pooling for all of these: `\bclass\b.*:\s*((Serializable)?WannaBeClass|(Labeled)?WidgetData|EntityExtensionData|LockstepGameStateOptionsData|CustomPlayerData|(PerPlayer)?DynamicData)\b`
 - [x] change `CheckLiveliness` on `WannaBeClass` to an extension method, such that it can check if the instance is null already. As it is currently other scripts are forced to do both a null check as well as a liveliness check, which is annoying

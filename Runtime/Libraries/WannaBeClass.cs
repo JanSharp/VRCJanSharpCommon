@@ -10,19 +10,53 @@ namespace JanSharp
         /// <para>Read only.</para>
         /// </summary>
         [HideInInspector][SingletonReference] public WannaBeClassesManager wannaBeClasses;
+        /// <summary>
+        /// <para>Used by the <see cref="WannaBeClassesManager"/>.</para>
+        /// </summary>
+        [HideInInspector][SerializeField] private int internalClassIndex;
+#if UNITY_EDITOR && !COMPILER_UDONSHARP
+        /// <summary>
+        /// <para>Editor only, do not use.</para>
+        /// </summary>
+        public int InternalClassIndex => internalClassIndex;
+#endif
         private int referencesCount = 1;
         private bool hasBeenDestructed = false;
 
         public virtual void WannaBeConstructor() { }
         public virtual void WannaBeDestructor() { }
-        public void Delete()
-        {
-            if (hasBeenDestructed)
-                return;
-            hasBeenDestructed = true;
-            WannaBeDestructor();
-            Destroy(this.gameObject);
-        }
+        public void Delete() => wannaBeClasses.Delete(this);
+
+        /// <summary>
+        /// <para>Override this and return <see langword="true"/> in order to indicate that a class supports
+        /// its instances being reused.</para>
+        /// <para>In other words, when this is <see langword="true"/>, class instances of this type do not get
+        /// destroyed when the instance gets deleted. They never turn <see langword="null"/>. Rather the
+        /// manager keeps those instances around, and when a new instance is requested to be created it will
+        /// reuse an existing one if there are any.</para>
+        /// <para>When this is <see langword="true"/>, <see cref="ResetWannaBeClassToDefault"/> must be
+        /// implemented, see its intellisense.</para>
+        /// <para>When implementing support for pooling one must be extra mindful of delayed events sent to
+        /// instances of this class. Such delayed events may run on an already "destroyed" instance. Or worse,
+        /// a delayed event might get sent, the class instance gets "destroyed", a new instance gets created
+        /// reusing said instance, the previously mentioned delayed event finally runs. This means using
+        /// <see cref="WannaBeClassExtensions.CheckLiveliness(WannaBeClass)"/> would not be a reliable way to
+        /// check if a delayed event is supposed to actually run.</para>
+        /// </summary>
+        public virtual bool WannaBeClassSupportsPooling => false;
+        /// <summary>
+        /// <para>When <see cref="WannaBeClassSupportsPooling"/> is <see langword="true"/>, this method must
+        /// be overridden and used to set all the variables of the class to the same values as the field
+        /// initializers do. Ensure to truly reset all variables, after
+        /// <see cref="ResetWannaBeClassToDefault"/> got run any and all instances of this class should look
+        /// perfectly identical. Identical to both those that ran <see cref="ResetWannaBeClassToDefault"/> as
+        /// well as entirely freshly created class instances. (There are some valid exceptions to this rule in
+        /// cases where handling of delayed events is involved.)</para>
+        /// <para>For classes supporting pooling, <see cref="ResetWannaBeClassToDefault"/> gets called when an
+        /// instance of this class got destroyed. Importantly it does not run for freshly created class
+        /// instances, this being the origin of the importance of matching what field initializers do.</para>
+        /// </summary>
+        public virtual void ResetWannaBeClassToDefault() { }
 
         /// <summary>
         /// <para>Think about this like <c>std::move()</c>.</para>

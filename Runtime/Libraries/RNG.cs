@@ -48,7 +48,6 @@ namespace JanSharp
         /// <summary>0x1p-23 * 2f</summary>
         public const float X1P23Times2 = 0.00000011920928955078125f * 2f;
 
-        // These initial values are what they would be when doing SetSeed(0uL).
         /// <summary>
         /// <para><see cref="seed"/>, <see cref="lcg"/> and <see cref="hash"/> combined form the entire
         /// internal state of the random number generator.</para>
@@ -58,6 +57,15 @@ namespace JanSharp
         [System.NonSerialized] public ulong lcg = 0xB5E2CC2FE9F0B35BuL;
         /// <inheritdoc cref="seed"/>
         [System.NonSerialized] public ulong hash = 0x949B5E0A608D76D5uL;
+
+        public override bool WannaBeClassSupportsPooling => true;
+        public override void ResetWannaBeClassToDefault()
+        {
+            // These initial values are what they would be when doing SetSeed(0uL).
+            seed = 0x217992B44669F46AuL;
+            lcg = 0xB5E2CC2FE9F0B35BuL;
+            hash = 0x949B5E0A608D76D5uL;
+        }
 
         public void SetSeed(ulong seed)
         {
