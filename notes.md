@@ -100,3 +100,4 @@
 - [x] add a `ResetWannaBeClassToDefault` virtual function to `WannaBeClass`, returning false by default, which when overridden shall return true and with that indicate that the class instance can be reused - pooled - rather than having to delete it. This saves on script instantiations, which is a big performance gain
   - [x] implement pooling for all of these: `\bclass\b.*:\s*((Serializable)?WannaBeClass|(Labeled)?WidgetData|EntityExtensionData|LockstepGameStateOptionsData|CustomPlayerData|(PerPlayer)?DynamicData)\b`
 - [x] change `CheckLiveliness` on `WannaBeClass` to an extension method, such that it can check if the instance is null already. As it is currently other scripts are forced to do both a null check as well as a liveliness check, which is annoying
+- [ ] have a thing that can show in the inspector for singleton scripts how many things are referencing or depending on that singleton
