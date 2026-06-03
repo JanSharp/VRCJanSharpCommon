@@ -1,5 +1,5 @@
 
 # Filters from https://github.com/JanSharp/UdonGitFilters
-*.unity filter=udon-git-filters diff=lfs merge=lfs -text
-*.prefab filter=udon-git-filters diff=lfs merge=lfs -text
+*.unity filter=udon-git-filters-with-compression merge=unityyamlmerge -text
+*.prefab filter=udon-git-filters merge=unityyamlmerge -text
 *.asset filter=udon-git-filters merge=unityyamlmerge -text
