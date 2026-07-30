@@ -41,6 +41,7 @@ namespace JanSharp
         }
 
         public static T Peek<T>(ref T[] queue, ref int startIndex, ref int count) where T : WannaBeClass => ArrQueue.Peek(ref queue, ref startIndex, ref count);
+        public static T PeekBack<T>(ref T[] queue, ref int startIndex, ref int count) where T : WannaBeClass => ArrQueue.PeekBack(ref queue, ref startIndex, ref count);
 
         public static void Clear<T>(ref T[] queue, ref int startIndex, ref int count)
             where T : WannaBeClass

@@ -91,9 +91,17 @@ namespace JanSharp
             return queue[(startIndex + (--count)) % queue.Length];
         }
 
+        /// <summary>
+        /// <para>Peeks the front.</para>
+        /// </summary>
         public static T Peek<T>(ref T[] queue, ref int startIndex, ref int count)
         {
             return queue[startIndex];
+        }
+
+        public static T PeekBack<T>(ref T[] queue, ref int startIndex, ref int count)
+        {
+            return queue[(startIndex + count - 1) % queue.Length];
         }
 
         public static void Clear<T>(ref T[] queue, ref int startIndex, ref int count)
