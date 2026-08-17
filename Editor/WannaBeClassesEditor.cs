@@ -23,7 +23,7 @@ namespace JanSharp
         private static bool ValidateWannaBeClasses()
         {
             wannaBeClassTypes ??= OnAssemblyLoadUtil.AllUdonSharpBehaviourTypes
-                .Where(t => EditorUtil.DerivesFrom(t, typeof(WannaBeClass)) && !t.IsAbstract)
+                .Where(t => typeof(WannaBeClass).IsAssignableFrom(t) && !t.IsAbstract)
                 .Select(t => (name: t.Name, type: t))
                 .OrderBy(t => t.name)
                 .ToList();

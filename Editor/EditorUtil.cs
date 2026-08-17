@@ -335,6 +335,7 @@ namespace JanSharp
             // Similarly, foo * Inverse(foo) * bar == bar, however foo * bar * Inverse(foo) != bar.
         }
 
+        [System.Obsolete("Use IsAssignableFrom instead, even though it's not exactly equivalent.")]
         public static bool DerivesFrom(System.Type typeToCheck, System.Type baseTypeToSearchFor)
         {
             while (typeToCheck != null)

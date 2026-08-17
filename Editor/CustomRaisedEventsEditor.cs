@@ -64,7 +64,7 @@ namespace JanSharp.Internal
                     + $"{ubType.Name} is missing the attribute type argument.");
                 return false;
             }
-            if (!EditorUtil.DerivesFrom(attr.CustomRaisedEventAttributeType, typeof(CustomRaisedEventBaseAttribute)))
+            if (!typeof(CustomRaisedEventBaseAttribute).IsAssignableFrom(attr.CustomRaisedEventAttributeType))
             {
                 Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is referencing {attr.CustomRaisedEventAttributeType.Name} as its attribute type argument "
@@ -98,7 +98,7 @@ namespace JanSharp.Internal
                     + $"{ubType.Name} is missing the enum type argument.");
                 return false;
             }
-            if (!EditorUtil.DerivesFrom(attr.CustomEventEnumType, typeof(System.Enum)))
+            if (!attr.CustomEventEnumType.IsEnum)
             {
                 Debug.LogError($"[JanSharpCommon] The {nameof(CustomRaisedEventsDispatcherAttribute)} for the class "
                     + $"{ubType.Name} is referencing the type {attr.CustomEventEnumType.Name} as its enum type argument "

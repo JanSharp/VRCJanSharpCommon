@@ -67,7 +67,7 @@ namespace JanSharp
                 if (attr == null)
                     continue;
 
-                if (!EditorUtil.DerivesFrom(field.FieldType, typeof(Component)))
+                if (!typeof(Component).IsAssignableFrom(field.FieldType))
                 {
                     Debug.LogError($"[PermissionSystem] The {ubType.Name}.{field.Name} field has the {nameof(FindInParentAttribute)} "
                         + $"however its type is {field.FieldType.Name}. It must be any type deriving from {nameof(Component)}.");

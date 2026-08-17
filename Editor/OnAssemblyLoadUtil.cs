@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
-using UnityEditor;
 using UdonSharp;
+using UnityEditor;
+using UnityEngine;
 
 namespace JanSharp
 {
@@ -20,7 +20,7 @@ namespace JanSharp
             AllUdonSharpBehaviourTypes = System.AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => IsCustomAssemblyWeAreInterestedIn(a))
                 .SelectMany(d => d.GetTypes())
-                .Where(t => EditorUtil.DerivesFrom(t, typeof(UdonSharpBehaviour)))
+                .Where(t => typeof(UdonSharpBehaviour).IsAssignableFrom(t))
                 .ToList()
                 .AsReadOnly();
             // Debug.Log($"Checking types took: {sw.Elapsed}, Found {AllUdonSharpBehaviourTypes.Count} UdonSharpBehaviour deriving classes");

@@ -76,7 +76,7 @@ namespace JanSharp
             int order = 0,
             bool includeEditorOnly = false)
         {
-            if (!EditorUtil.DerivesFrom(type, typeof(Component)))
+            if (!typeof(Component).IsAssignableFrom(type))
                 throw new ArgumentException($"The given type to register must derive from the Component class.");
             RegisterTypeInternal(type, callback, order, includeEditorOnly, usesCustomCallbackParamType: false, null);
         }
@@ -87,7 +87,7 @@ namespace JanSharp
             int order = 0,
             bool includeEditorOnly = false)
         {
-            if (!EditorUtil.DerivesFrom(type, typeof(Component)))
+            if (!typeof(Component).IsAssignableFrom(type))
                 throw new ArgumentException($"The given type to register must derive from the Component class.");
             RegisterTypeInternal(type, callback, order, includeEditorOnly, usesCustomCallbackParamType: true, c => c.AsReadOnly());
         }

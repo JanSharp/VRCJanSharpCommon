@@ -101,7 +101,7 @@ namespace JanSharp.Internal
                         return false;
                     }
                     System.Type entryType = field.FieldType.GetElementType();
-                    if (!EditorUtil.DerivesFrom(entryType, typeof(UdonSharpBehaviour)))
+                    if (!typeof(UdonSharpBehaviour).IsAssignableFrom(entryType))
                     {
                         Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
                             + $"{nameof(BuildTimeIdAssignmentAttribute)}, however the field's array element "
@@ -208,7 +208,7 @@ namespace JanSharp.Internal
             if (associatedEntriesCache.TryGetValue(ubType, out associatedEntries))
                 return true;
             associatedEntries = managersList.SelectMany(m => m.allEntries)
-                .Where(e => EditorUtil.DerivesFrom(ubType, e.entryType))
+                .Where(e => e.entryType.IsAssignableFrom(ubType))
                 .ToList();
             associatedEntriesCache.Add(ubType, associatedEntries);
             return true;
