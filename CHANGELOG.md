@@ -1,6 +1,30 @@
 
 # Changelog
 
+## [1.4.0] - 2026-08-23
+
+### Changed
+
+- **Breaking:** Remove `WannaBeClasses` property in favor of a field (called `wannaBeClasses`, lower case) ([`77f4736`](https://github.com/JanSharp/VRCJanSharpCommon/commit/77f473665318cd25a7837f3e0278ddd004ce9668))
+- **Breaking:** Move proximity helpers off of the default layer, onto the walkthrough layer, to conflict with fewer scripts ([`15e9731`](https://github.com/JanSharp/VRCJanSharpCommon/commit/15e9731aefcbd800989ee55c97f189017723d564), [`91cd665`](https://github.com/JanSharp/VRCJanSharpCommon/commit/91cd665937c87df52e831e4f0f1989bd66c18bf8))
+- Deprecate `DerivesFrom` in favor of `IsAssignableFrom` ([`25892b5`](https://github.com/JanSharp/VRCJanSharpCommon/commit/25892b57b1f49f7b98e39dbc7ac10dea86d5790d))
+- Enable WannaBeClass CheckLiveliness to be called on null instances ([`503c878`](https://github.com/JanSharp/VRCJanSharpCommon/commit/503c878aec6d5f09cfc11e3884f31350bd942b97))
+
+### Added
+
+- Add `OrderedInitializeOnLoad` attribute for editor scripting relying on specific order on assembly reload ([`cc6260b`](https://github.com/JanSharp/VRCJanSharpCommon/commit/cc6260b256ae17d6bece72a75a975e4a950f553e))
+- Add `LocalEventOnLocalStationExited` ([`ed78aff`](https://github.com/JanSharp/VRCJanSharpCommon/commit/ed78affad4d9f2f9c3d5cdb0cb66e027a63b1ccd))
+- Add `PeekBack` to `ArrQueue` ([`8c840f3`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8c840f36c94cf66b6e5fe106daae5793ffc37475))
+- Add optional pooling support to `WannaBeClass`es, for those annoyed by script instantiation taking up to several milliseconds, depending on script size ([`0b02cf0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0b02cf0789bf63b09a4b8d8852ca22174dbf41fc))
+
+### Removed
+
+- **Breaking:** Remove obsolete `HasCustomEventListener`, use `HasPersistentSendCustomEventListener` instead ([`8be670c`](https://github.com/JanSharp/VRCJanSharpCommon/commit/8be670c5fe38a980c3c4bc4867433d59c2d36301))
+
+### Fixed
+
+- Properly handle recursively creating `WannaBeClass`es ([`f622edf`](https://github.com/JanSharp/VRCJanSharpCommon/commit/f622edff6edee85e52c0945712f6a7374070ffac))
+
 ## [1.3.1] - 2026-04-04
 
 ### Changed
@@ -348,6 +372,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.4.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.4.0
 [1.3.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.3.1
 [1.3.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.3.0
 [1.2.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.2.1
