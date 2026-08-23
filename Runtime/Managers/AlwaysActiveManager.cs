@@ -16,7 +16,7 @@ namespace JanSharp
         private void Start()
         {
             Transform parent = this.transform;
-            foreach (var toMove in allTransformsToMove)
+            foreach (Transform toMove in allTransformsToMove)
                 if (toMove != null)
                     toMove.SetParent(parent, worldPositionStays: false);
         }
