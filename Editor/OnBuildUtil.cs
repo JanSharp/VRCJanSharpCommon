@@ -12,14 +12,15 @@ using VRC.SDKBase.Editor.BuildPipeline;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
-    [DefaultExecutionOrder(-1000)]
     public static class OnBuildUtil
     {
-        private static Dictionary<Type, OnBuildCallbackData> registeredTypes;
-        private static List<OrderedOnBuildCallbackData> typesToLookForList;
-        private static HashSet<Type> typesToSearchForCache;
-        private static Dictionary<Type, List<OnBuildCallbackData>> matchingDataInBaseTypesCache;
+        // According to testing, and it makes sense according to logic too, Unity does reset resets all
+        // these variables upon assembly reload anyway, to the value defined in their field initializers.
+        // I hope this is reliable.
+        private static Dictionary<Type, OnBuildCallbackData> registeredTypes = new();
+        private static List<OrderedOnBuildCallbackData> typesToLookForList = new();
+        private static HashSet<Type> typesToSearchForCache = null;
+        private static Dictionary<Type, List<OnBuildCallbackData>> matchingDataInBaseTypesCache = new();
         private static bool rerunDueToScriptInstantiation = false;
         private static bool rerunDueToObjectDestruction = false;
         private static int runCounter = 1;
@@ -35,12 +36,9 @@ namespace JanSharp
         /// </summary>
         public static bool IsPublishingWorld => isPublishingWorld;
 
-        static OnBuildUtil()
+        [OrderedInitializeOnLoad(Order = -1000)]
+        private static void OnAssemblyLoad()
         {
-            registeredTypes = new Dictionary<Type, OnBuildCallbackData>();
-            typesToLookForList = new List<OrderedOnBuildCallbackData>();
-            typesToSearchForCache = null;
-            matchingDataInBaseTypesCache = new Dictionary<Type, List<OnBuildCallbackData>>();
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged; // Idk if this is needed. Probably not?
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }

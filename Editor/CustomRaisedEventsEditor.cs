@@ -7,10 +7,10 @@ using UnityEngine;
 
 namespace JanSharp.Internal
 {
-    [InitializeOnLoad]
-    [DefaultExecutionOrder(-1000)]
+    [InitializeOnLoad] // [DefaultExecutionOrder] has no effect on [InitializeOnLoad]
     public static class CustomRaisedEvents
     {
+        // See the comment in the OnBuildUtil file about these variables getting reset by Unity.
         private static bool didRegisterCoreHandlers = false;
         private static List<RegisteredData> allRegisteredData = new();
         private static Dictionary<System.Type, RegisteredData> registeredDataByCustomRaisedEventAttributeType = new();
@@ -21,9 +21,6 @@ namespace JanSharp.Internal
 
         static CustomRaisedEvents()
         {
-            hasValidationErrors = false;
-            didRegisterCoreHandlers = false;
-            ubTypeCache.Clear();
             ProcessAllUBTypes();
         }
 

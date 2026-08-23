@@ -8,10 +8,10 @@ using VRC.Udon;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
     public static class UIToggleEditor
     {
-        static UIToggleEditor()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             // Specifically -204 because it's random to not conflict with other scripts wanting all toggles.
             OnBuildUtil.RegisterType<Toggle>(OnToggleBuild, order: -204);

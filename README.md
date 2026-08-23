@@ -15,9 +15,11 @@ This project uses [custom git filters](.gitattributes) to reduce the amount of n
 
 ## Editor
 
+- `[OrderedInitializeOnLoad]` attribute, to be applied to static void methods in an editor script without parameters
+  - Because turns out [`[DefaultExecutionOrder]`](https://docs.unity3d.com/ScriptReference/DefaultExecutionOrder.html) has no effect on [`[InitializeOnLoad]`](https://docs.unity3d.com/ScriptReference/InitializeOnLoadAttribute.html), and some editor scripting relies on specific order during assembly reload
 - OnBuildUtil: Allowing multiple registrations and a defined order
-  - In an editor script, mark a class with the [InitializeOnLoad](https://docs.unity3d.com/ScriptReference/InitializeOnLoadAttribute.html) attribute
-  - In its static constructor call `OnBuildUtil.RegisterType<T>(...)` passing in a function with type T as a parameter and returning a boolean
+  - In an editor script, define a method such as `[OrderedInitializeOnLoad] private static void OnAssemblyLoad() { }`
+  - In its body call `OnBuildUtil.RegisterType<T>(...)` passing in a function with type T as a parameter and returning a boolean
   - The registered callbacks will run on every component of the registered type T and any types deriving from T in the current scene when entering play mode and when VRChat builds the project
   - If your callback returns false it indicates failure and prevents VRChat from publishing. Entering play mode does not get aborted however
     - You should always `Debug.LogError` the reason for the abort

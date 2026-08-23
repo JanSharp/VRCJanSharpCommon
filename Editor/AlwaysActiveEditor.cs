@@ -7,12 +7,12 @@ using UnityEngine;
 
 namespace JanSharp.Internal
 {
-    [InitializeOnLoad]
     public static class AlwaysActiveOnBuild
     {
         private static List<Transform> allAlwaysActives = new();
 
-        static AlwaysActiveOnBuild()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             SingletonScriptEditor.RegisterCustomDependencyResolver(new Resolver());
             OnBuildUtil.RegisterAction(OnPreBuild, order: -143);

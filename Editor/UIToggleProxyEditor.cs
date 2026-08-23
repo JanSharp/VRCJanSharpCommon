@@ -8,13 +8,13 @@ using UnityEngine.UI;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
     public static class UIToggleProxyOnBuild
     {
-        static UIToggleProxyOnBuild()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
-            JanSharp.OnBuildUtil.RegisterType<UIToggleInteractProxy>(p => OnBuild(p));
-            JanSharp.OnBuildUtil.RegisterType<UIToggleSendLocalEvent>(p => OnBuild(p));
+            OnBuildUtil.RegisterType<UIToggleInteractProxy>(p => OnBuild(p));
+            OnBuildUtil.RegisterType<UIToggleSendLocalEvent>(p => OnBuild(p));
         }
 
         private static bool OnBuild<T>(T uiToggleProxy)

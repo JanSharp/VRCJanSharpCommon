@@ -6,10 +6,10 @@ using UnityEditor;
 
 namespace JanSharp.Internal
 {
-    [InitializeOnLoad]
     public static class TrulyPostLateUpdateEditor
     {
-        static TrulyPostLateUpdateEditor()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             SingletonScriptEditor.RegisterCustomDependencyResolver(new Resolver());
         }

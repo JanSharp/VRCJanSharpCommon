@@ -4,13 +4,13 @@ using UnityEditor;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
     public static class ShowObjectsByPlatformOnBuild
     {
         private static List<ShowObjectByPlatform> showObjectScripts;
         private static List<ShowObjectsByPlatform> showObjectsScripts;
 
-        static ShowObjectsByPlatformOnBuild()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             OnBuildUtil.RegisterTypeCumulative<ShowObjectByPlatform>(s => OnShowObjectScriptsBuild(s), order: -1204);
             OnBuildUtil.RegisterTypeCumulative<ShowObjectsByPlatform>(s => OnShowObjectsScriptsBuild(s), order: -1204);

@@ -7,8 +7,6 @@ using UnityEngine;
 
 namespace JanSharp.Internal
 {
-    [InitializeOnLoad]
-    [DefaultExecutionOrder(-980)]
     public static class BuildTimeIdAssignmentEditor
     {
         private class Manager
@@ -50,7 +48,8 @@ namespace JanSharp.Internal
         private static Dictionary<System.Type, List<Entry>> associatedEntriesCache = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
-        static BuildTimeIdAssignmentEditor()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             OnBuildUtil.RegisterAction(PreOnBuild, order: -141);
             OnBuildUtil.RegisterType<UdonSharpBehaviour>(OnBuild, order: -140);

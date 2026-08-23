@@ -7,10 +7,10 @@ using VRC.Udon;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
     public static class UIToggleSyncOnBuild
     {
-        static UIToggleSyncOnBuild() => OnBuildUtil.RegisterType<UIToggleSync>(OnBuild);
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad() => OnBuildUtil.RegisterType<UIToggleSync>(OnBuild);
 
         private static bool OnBuild(UIToggleSync uiToggleSync)
         {

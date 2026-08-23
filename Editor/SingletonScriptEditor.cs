@@ -19,8 +19,6 @@ namespace JanSharp.Internal
         public IEnumerable<(string fieldName, System.Type singletonType, bool optional)> Resolve(System.Type ubType);
     }
 
-    [InitializeOnLoad]
-    [DefaultExecutionOrder(-990)]
     public static class SingletonScriptEditor
     {
         private class SingletonData
@@ -48,7 +46,8 @@ namespace JanSharp.Internal
         private static List<ISingletonDependencyResolver> customDependencyResolvers = new();
         private const BindingFlags PrivateAndPublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
-        static SingletonScriptEditor()
+        [OrderedInitializeOnLoad(Order = -990)]
+        private static void OnAssemblyLoad()
         {
             singletonManager = null; // Just for cleanliness. The rest are very much needed.
             singletons.Clear();

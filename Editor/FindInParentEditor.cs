@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
     public static class FindInParentOnBuild
     {
         /// <summary>
@@ -27,7 +26,8 @@ namespace JanSharp
             }
         }
 
-        static FindInParentOnBuild()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             ubTypeCache.Clear();
             invalidUbTypes.Clear();

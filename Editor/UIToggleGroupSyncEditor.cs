@@ -8,12 +8,12 @@ using VRC.Udon;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
     public static class UIToggleGroupSyncOnBuild
     {
         private static Dictionary<ToggleGroup, List<Toggle>> togglesByGroup;
 
-        static UIToggleGroupSyncOnBuild()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             // Specifically -104 because it's random to not conflict with other scripts wanting all toggles.
             OnBuildUtil.RegisterTypeCumulative<Toggle>(OnPreBuild, order: -104);

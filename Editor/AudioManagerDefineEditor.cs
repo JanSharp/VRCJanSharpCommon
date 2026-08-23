@@ -4,10 +4,10 @@ using UnityEditor;
 
 namespace JanSharp.Internal
 {
-    [InitializeOnLoad]
-    public class AudioManagerDefineManager
+    public static class AudioManagerDefineManager
     {
-        static AudioManagerDefineManager()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             // This only runs if SYLAN_AUDIOMANAGER_VERSION is unset, in other words only if the audio manager
             // package is not in the project. Which is perfect, exactly what we want.

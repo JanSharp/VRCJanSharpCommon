@@ -6,13 +6,13 @@ using UnityEngine;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
     public static class WannaBeClassesEditor
     {
         private static WannaBeClassesManager manager = null;
         private static List<(string name, System.Type type)> wannaBeClassTypes = null;
 
-        static WannaBeClassesEditor()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             wannaBeClassTypes = null;
             ValidateWannaBeClasses();
