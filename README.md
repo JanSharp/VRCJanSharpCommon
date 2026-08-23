@@ -31,6 +31,7 @@ Some [Library](#libraries)/[Manager](#managers) features are assisted by editor 
 
 - BuildTimeIdAssignmentEditor
 - CustomRaisedEventsEditor
+- FindInParent
 - SingletonScriptEditor
 - WannaBeClassesEditor
 
