@@ -1,7 +1,4 @@
 ﻿using UdonSharp;
-using UnityEngine;
-using VRC.SDKBase;
-using VRC.Udon;
 
 namespace JanSharp
 {
@@ -18,7 +15,7 @@ namespace JanSharp
 
         private void Update()
         {
-            for (int i = listenerCount - 1; i >= 0 ; i--)
+            for (int i = listenerCount - 1; i >= 0; i--)
                 if (i < listenerCount) // If 2 listeners get removed in one CustomUpdate call, i could be out of bounds.
                     listeners[i].SendCustomEvent(CustomUpdateMethodName);
         }
@@ -44,8 +41,9 @@ namespace JanSharp
             listenerCount--;
             if (index != listenerCount)
             {
-                listeners[index] = listeners[listenerCount];
-                listeners[index].SetProgramVariable(InternalIndexFieldName, index + 1);
+                UdonSharpBehaviour top = listeners[listenerCount];
+                listeners[index] = top;
+                top.SetProgramVariable(InternalIndexFieldName, index + 1);
             }
             listeners[listenerCount] = null;
         }
