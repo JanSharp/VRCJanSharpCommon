@@ -85,7 +85,10 @@ namespace JanSharp
         /// </summary>
         /// <returns><see langword="true"/> if the instance is still alive. When <see langword="false"/> Unity
         /// has already been instructed to destroy this game object, it will turn <see langword="null"/>
-        /// soon.</returns>
+        /// soon. Except when <see cref="WannaBeClassSupportsPooling"/> is <see langword="true"/> in which
+        /// case it will not turn <see langword="null"/> and it is likely best avoided using
+        /// <see cref="WannaBeClassExtensions.CheckLiveliness(WannaBeClass)"/> and better to use strong
+        /// references instead.</returns>
         public bool CheckLivelinessInternal()
         {
             if (referencesCount <= 0)
@@ -105,9 +108,11 @@ namespace JanSharp
         /// <summary>
         /// <para>Can be called on instances which are <see langword="null"/>.</para>
         /// </summary>
-        /// <returns><see langword="true"/> if the instance is still alive. When <see langword="false"/> the
-        /// instance is either already <see langword="null"/> or Unity has already been instructed to destroy
-        /// this game object, in which case it will turn <see langword="null"/> soon.</returns>
+        /// <returns><see langword="true"/> if the instance is still alive. When <see langword="false"/> Unity
+        /// has already been instructed to destroy this game object, it will turn <see langword="null"/>
+        /// soon. Except when <see cref="WannaBeClass.WannaBeClassSupportsPooling"/> is <see langword="true"/>
+        /// in which case it will not turn <see langword="null"/> and it is likely best avoided using
+        /// <see cref="CheckLiveliness(WannaBeClass)"/> and better to use strong references instead.</returns>
         public static bool CheckLiveliness(this WannaBeClass instance)
         {
             return instance != null && instance.CheckLivelinessInternal();
