@@ -16,7 +16,6 @@ namespace JanSharp
 
         public static void SetArrayProperty<T>(SerializedProperty property, ICollection<T> newValues, System.Action<SerializedProperty, T> setValue)
         {
-            property.ClearArray();
             property.arraySize = newValues.Count;
             int i = 0;
             foreach (T value in newValues)
