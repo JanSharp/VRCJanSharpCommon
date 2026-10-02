@@ -17,7 +17,7 @@ This project uses [custom git filters](.gitattributes) to reduce the amount of n
 
 - `[OrderedInitializeOnLoad]` attribute, to be applied to static void methods in an editor script without parameters
   - Because turns out [`[DefaultExecutionOrder]`](https://docs.unity3d.com/ScriptReference/DefaultExecutionOrder.html) has no effect on [`[InitializeOnLoad]`](https://docs.unity3d.com/ScriptReference/InitializeOnLoadAttribute.html), and some editor scripting relies on specific order during assembly reload
-- OnBuildUtil: Allowing multiple registrations and a defined order
+- `OnBuildUtil`: Allowing multiple registrations and a defined order
   - In an editor script, define a method such as `[OrderedInitializeOnLoad] private static void OnAssemblyLoad() { }`
   - In its body call `OnBuildUtil.RegisterType<T>(...)` passing in a function with type T as a parameter and returning a boolean
   - The registered callbacks will run on every component of the registered type T and any types deriving from T in the current scene when entering play mode and when VRChat builds the project
@@ -26,8 +26,8 @@ This project uses [custom git filters](.gitattributes) to reduce the amount of n
   - Since the RegisterType method takes an optional order argument, it is supported to register the same type twice but with different order
     - The order means that all lowest order registrations for all types are handled first, then the next order and so on
   - Enable the `JAN_SHARP_COMMON_ON_BUILD_TRACE` define to see which on build callbacks are being run. Can help for example when something is infinitely looping and therefore freezing the editor (Edit -> Project Settings... -> Player -> Scripting Define Symbols)
-- EditorUtil: Helps working with SerializedObjects and SerializedProperties and other editor only utils
-- OnAssemblyLoadUtil: A generic way for other editor scripts to obtain a list of all UdonSharpBehaviour classes in the entire project
+- `EditorUtil`: Helps working with SerializedObjects and SerializedProperties and other editor only utils
+- `OnAssemblyLoadUtil`: A generic way for other editor scripts to obtain a list of all UdonSharpBehaviour classes in the entire project
 
 Some [Library](#libraries)/[Manager](#managers) features are assisted by editor scripting:
 
@@ -41,65 +41,65 @@ Some [Library](#libraries)/[Manager](#managers) features are assisted by editor 
 
 ### Components
 
-- LocalEventOnInteract to send a custom event to any Udon behaviour locally
-- LocalEventOnLocalPlayerTriggerEnter to send a custom event to any Udon behaviour locally
-- LocalEventOnLocalPlayerTriggerExit to send a custom event to any Udon behaviour locally
-- LocalEventOnLocalStationExited to send a custom event to any Udon behaviour locally
-- LocalToggleOnInteract to toggle a single GameObject locally
-- LocalToggleMultipleOnInteract to toggle multiple GameObjects locally
-- LocalToggleOnValueChanged to toggle multiple objects to match the state of a UI Toggle
-- InteractProxy to pass VRChat's interact event from one object to another. Useful when the interact is on an object that gets toggled, but the script should not get toggled
-- UIToggleInteractProxy to send an Interact event whenever a UI Toggle gets turned on, turned off or both. Allows for generic OnInteract scripts to be hooked up to toggles. For that to makes sense it usually requires a pair of OnInteract scripts, one for turning on one for turning off
-- UIToggleSendLocalEvent is very similar to UIToggleInteractProxy except that it sends a given custom event to the target udon behaviour instead of only supporting interacts
-- UIToggleSync to make synced toggles without writing scripts for them every time
-- UIToggleGroupSync to make synced toggle groups without writing scripts for them every time, as well as making it a little easier to setup toggle groups through the inspector
-- PickupSendLocalEvent to send events when a VRCPickup is picked up, dropped or used while held
-- PointerEnterExitProxy to pass along the OnPointerEnter and OnPointerExit events from an EventTrigger component, while also ensuring OnPointerExit runs in OnDisable if the pointer was on the UI graphic
-- BypassSingletonDependencyInstantiation: Prevents any script on this object or any of its children to trigger the singleton editor scripting to instantiate required prefabs. It effectively changes all dependencies of those scripts from required to optional
-- ShowObjectByPlatform and ShowObjectsByPlatform, to show (activate) objects only in VR or only in Desktop
+- `LocalEventOnInteract` to send a custom event to any Udon behaviour locally
+- `LocalEventOnLocalPlayerTriggerEnter` to send a custom event to any Udon behaviour locally
+- `LocalEventOnLocalPlayerTriggerExit` to send a custom event to any Udon behaviour locally
+- `LocalEventOnLocalStationExited` to send a custom event to any Udon behaviour locally
+- `LocalToggleOnInteract` to toggle a single GameObject locally
+- `LocalToggleMultipleOnInteract` to toggle multiple GameObjects locally
+- `LocalToggleOnValueChanged` to toggle multiple objects to match the state of a UI Toggle
+- `InteractProxy` to pass VRChat's interact event from one object to another. Useful when the interact is on an object that gets toggled, but the script should not get toggled
+- `UIToggleInteractProxy` to send an Interact event whenever a UI Toggle gets turned on, turned off or both. Allows for generic OnInteract scripts to be hooked up to toggles. For that to makes sense it usually requires a pair of OnInteract scripts, one for turning on one for turning off
+- `UIToggleSendLocalEvent` is very similar to `UIToggleInteractProxy` except that it sends a given custom event to the target udon behaviour instead of only supporting interacts
+- `UIToggleSync` to make synced toggles without writing scripts for them every time
+- `UIToggleGroupSync` to make synced toggle groups without writing scripts for them every time, as well as making it a little easier to setup toggle groups through the inspector
+- `PickupSendLocalEvent` to send events when a VRCPickup is picked up, dropped or used while held
+- `PointerEnterExitProxy` to pass along the OnPointerEnter and OnPointerExit events from an EventTrigger component, while also ensuring OnPointerExit runs in OnDisable if the pointer was on the UI graphic
+- `BypassSingletonDependencyInstantiation`: Prevents any script on this object or any of its children to trigger the singleton editor scripting to instantiate required prefabs. It effectively changes all dependencies of those scripts from required to optional
+- `ShowObjectByPlatform` and `ShowObjectsByPlatform`, to show (activate) objects only in VR or only in Desktop
 
 ### Managers
 
 Managers are singleton scripts with associated prefabs. When there are any singleton references in any scripts in a scene, these prefabs get automatically instantiated into the scene, thanks to the singleton editor scripting which is also part of this package.
 
-- BoneAttachmentManager: To simplify the process of attaching any game object to bones of players, or tracking data for local players
-- SingletonManager: A manager which is a singleton itself which holds references to all singleton scripts which exist in the scene. See [Libraries](#libraries) for details about singletons
-- TrulyPostLateUpdateManager
+- `BoneAttachmentManager`: To simplify the process of attaching any game object to bones of players, or tracking data for local players
+- `SingletonManager`: A manager which is a singleton itself which holds references to all singleton scripts which exist in the scene. See [Libraries](#libraries) for details about singletons
+- `TrulyPostLateUpdateManager`
   - Put the `[OnTrulyPostLateUpdate]` attribute on a `public OnTrulyPostLateUpdate()` method
   - Make an object with that script on it in the scene (notably instantiated objects with that script on it will not work)
   - `OnTrulyPostLateUpdate` will now run inside of `OnWillRenderObject` which happens after `LateUpdate` and truly after the last time VRChat fetches tracking data, to my knowledge
   - The active state of the listening object is ignored, even inactive objects will receive the event
-- UpdateManager: Register and deregister any behaviour for a CustomUpdate function at runtime (runs on Update)
+- `UpdateManager`: Register and deregister any behaviour for a `CustomUpdate` function at runtime (runs on `Update`)
   - Udon behaviours used with this require a `CustomUpdate` event (public method) and an int variable `customUpdateInternalIndex`
   - Registering an already registered behaviour is supported, it does nothing, same goes for deregistering an already deregistered behaviour
   - Note that I'm unsure how performance compares to using `SendCustomEventDelayedFrames` to effectively create an update loop
-- WannaBeClassesManager: A manager to enable creating instances of UdonSharpBehaviours which are pretending to be custom data structures. See [WannaBeClasses](#wannabeclasses) for details
-- InterpolationManager: A manager to linearly interpolate the position, rotation and or scale of objects, with callbacks once done
-- QuickDebugUI: Display/Monitor some real time values in a screen space overlay UI (Desktop UI) with relatively minimal setup
+- `WannaBeClassesManager`: A manager to enable creating instances of `UdonSharpBehaviour`s which are pretending to be custom data structures. See [WannaBeClasses](#wannabeclasses) for details
+- `InterpolationManager`: A manager to linearly interpolate the position, rotation and or scale of objects, with callbacks once done
+- `QuickDebugUI`: Display/Monitor some real time values in a screen space overlay UI (Desktop UI) with relatively minimal setup
 
 ### Libraries
 
-- ArrList: Makes it easier to make list like arrays. They are statically typed, unlike DataLists
-- ArrQueue: Makes it easier to make queue like arrays. Statically typed. Elements can be enqueued and dequeued from either side (front or back), though it would likely be used in cases where first in first out is desired
-- Base64: Validate base 64 encoded strings to prevent throwing exceptions on invalid input
-- BuildTimeIdAssignment: Associates ids with custom script instances in the scene at build time, while ensuring an id never gets reused, even ids for deleted script instances do not get reused
-  - The BypassBuildTimeIdAssignment component can be used to mark an object and its children to be ignored by this system, meaning they will not get ids assigned to them
-- CRC32: Calculate a crc 32 checksum of a byte array
-- CustomRaisedEvents: Helps creating scripts, likely singletons, which raise events other scripts may listen to. Uses attributes and enums
-- FindInParent: An attribute to populate a field effectively equivalently to doing `GetComponentInParent`, but at build time rather than runtime
-- DataStream: For binary serialization and deserialization using byte arrays
-- SingletonScript: Attributes to
+- `ArrList`: Makes it easier to make list like arrays. They are statically typed, unlike `DataList`s
+- `ArrQueue`: Makes it easier to make queue like arrays. Statically typed. Elements can be enqueued and dequeued from either side (front or back), though it would likely be used in cases where first in first out is desired
+- `Base64`: Validate base 64 encoded strings to prevent throwing exceptions on invalid input
+- `BuildTimeIdAssignment`: Associates ids with custom script instances in the scene at build time, while ensuring an id never gets reused, even ids for deleted script instances do not get reused
+  - The `BypassBuildTimeIdAssignment` component can be used to mark an object and its children to be ignored by this system, meaning they will not get ids assigned to them
+- `CRC32`: Calculate a crc 32 checksum of a byte array
+- `CustomRaisedEvents`: Helps creating scripts, likely singletons, which raise events other scripts may listen to. Uses attributes and enums
+- `FindInParent`: An attribute to populate a field effectively equivalently to doing `GetComponentInParent`, but at build time rather than runtime
+- `DataStream`: For binary serialization and deserialization using byte arrays
+- `SingletonScript`: Attributes to
   - Define a script as being a singleton, it only being allowed to exist once in the scene
   - Define prefabs of singletons which automatically get instantiated into the scene at build time if other scripts depend on this singleton
   - Define a field as a reference to a singleton script which gets set by editor scripting automatically at build time
-- WannaBeArrList: An extension of ArrList, however holding strong references to WannaBeClass instances
-- WannaBeArrQueue: An extension of ArrQueue, however holding strong references to WannaBeClass instances
-- WannaBeClass: These are an unfortunately complex concept so they get [their own section](#wannabeclasses)
-- StringUtil: A little utility currently just containing a number formatting function outputting `1 234 567 890` for example, and a unity color to hex string converter
-- RNG: A random number generator in the form of a WannaBeClass, which is to say that multiple instances of rng can be created each with their own seed, and the internal `seed`, `lcg` and `hash` state can be read and set. Also supports shuffling arrays and DatLists
-- LocalPlayerCapsule: Get the height and radius of the local player's capsule. They appear to be constants currently, but that might change
-- StopwatchUtil: Make it easier to display stopwatch values as "average | min | max" while doing performance tests
-- ArithBitConverter: Deprecated, was useful when BitConverter wasn't exposed yet. Uses arithmetics to convert floating point numbers to their binary representation and back
+- `WannaBeArrList`: An extension of `ArrList`, however holding strong references to `WannaBeClass` instances
+- `WannaBeArrQueue`: An extension of `ArrQueue`, however holding strong references to `WannaBeClass` instances
+- `WannaBeClass`: These are an unfortunately complex concept so they get [their own section](#wannabeclasses)
+- `StringUtil`: A little utility currently just containing a number formatting function outputting `1 234 567 890` for example, and a unity color to hex string converter
+- `RNG`: A random number generator in the form of a `WannaBeClass`, which is to say that multiple instances of rng can be created each with their own seed, and the internal `seed`, `lcg` and `hash` state can be read and set. Also supports shuffling arrays and `DataList`s
+- `LocalPlayerCapsule`: Get the height and radius of the local player's capsule. They appear to be constants currently, but that might change
+- `StopwatchUtil`: Make it easier to display stopwatch values as "average | min | max" while doing performance tests
+- `ArithBitConverter`: Deprecated, was useful when `BitConverter` wasn't exposed yet. Uses arithmetics to convert floating point numbers to their binary representation and back
 
 ### WannaBeClasses
 
