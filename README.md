@@ -113,7 +113,7 @@ Importantly for weak references, great care must be taken with them when a Wanna
 
 Sometimes something may hold a strong reference to a WannaBeClass and wish to pass this "ownership" to another function or script. For this there is a `StdMove` function on WannaBeClasses, the name is inspired by C++ move semantics. All it does is decrement the reference counter, however it does not immediately check if the counter reached 0. The receiving code shall then increment the reference counter, which is effectively it taking ownership of this WannaBeClass instance. If the reference counter does not get incremented, the instance gets deleted 1 frame later automatically, or until some code calls `CheckLiveliness`.
 
-There's support for WannaBeClass instances to already exist in the scene. They'll get moved out of their original location in the hierarchy at build time, making them managed by the WannaBeClassesManager. They also start at a reference counter of 1.
+There's support for WannaBeClass instances to already exist in the scene. They'll get moved out of their original location in the hierarchy on Start (DefaultExecutionOrder of -100000), making them managed by the WannaBeClassesManager. They also start at a reference counter of 1, and get their `WannaBeConstructor` called on Start.
 
 ### Textures
 
