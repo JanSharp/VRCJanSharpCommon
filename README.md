@@ -42,6 +42,9 @@ Some [Library](#libraries)/[Manager](#managers) features are assisted by editor 
 ### Components
 
 - LocalEventOnInteract to send a custom event to any Udon behaviour locally
+- LocalEventOnLocalPlayerTriggerEnter to send a custom event to any Udon behaviour locally
+- LocalEventOnLocalPlayerTriggerExit to send a custom event to any Udon behaviour locally
+- LocalEventOnLocalStationExited to send a custom event to any Udon behaviour locally
 - LocalToggleOnInteract to toggle a single GameObject locally
 - LocalToggleMultipleOnInteract to toggle multiple GameObjects locally
 - LocalToggleOnValueChanged to toggle multiple objects to match the state of a UI Toggle
