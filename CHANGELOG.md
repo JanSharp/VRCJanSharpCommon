@@ -1,6 +1,23 @@
 
 # Changelog
 
+## [1.4.1] - 2026-10-02
+
+### Changed
+
+- Clarify how `WannaBeClass`es existing at build time get handled ([`f206eaa`](https://github.com/JanSharp/VRCJanSharpCommon/commit/f206eaa61dd741653a222d58cadda9b9a38b667a))
+- Fix xml annotations for `CheckLiveliness`, mention pooling and how instances do not turn null in that case ([`658a775`](https://github.com/JanSharp/VRCJanSharpCommon/commit/658a775bda8c6630604306fe0bff3d745a46b5c2))
+- Improve docs for weak references to `WannaBeClass`es ([`368d8fd`](https://github.com/JanSharp/VRCJanSharpCommon/commit/368d8fd089a5cc6547c332dd0631ca076885b19f))
+
+### Added
+
+- Add LocalEventOnLocalPlayerTriggerEnter/Exit ([`9a4563e`](https://github.com/JanSharp/VRCJanSharpCommon/commit/9a4563e3817ef2aa2f76a7c7d99476496a45e983))
+- Add ExplicitlyNotSuperSampledUI material, for when intentionally not wishing to use VRChat's super sampled material ([`7efa243`](https://github.com/JanSharp/VRCJanSharpCommon/commit/7efa243d96668cdb8f0a41fe793443f9f5799785))
+
+### Fixed
+
+- Make SetArrayProperty not mark the SerializedProperty as modified even when it ultimately did not change ([`3d62916`](https://github.com/JanSharp/VRCJanSharpCommon/commit/3d6291628bb97830622e9e281a9ba78bea83a452))
+
 ## [1.4.0] - 2026-08-23
 
 ### Changed
@@ -372,6 +389,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.4.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.4.1
 [1.4.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.4.0
 [1.3.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.3.1
 [1.3.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.3.0
