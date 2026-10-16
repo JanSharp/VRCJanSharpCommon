@@ -1,6 +1,18 @@
 
 # Changelog
 
+## [1.4.2] - 2026-10-16
+
+### Added
+
+- Add FindInChildren and FindInScene attributes ([`e19bbae`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e19bbae82e6c3f5ec48eca73e7cc06c42a6db1c4))
+- Add utils to try to help with FieldInfo validation ([`5bc1b47`](https://github.com/JanSharp/VRCJanSharpCommon/commit/5bc1b47010f95aa5562085fdf013295eea5d82ce))
+
+### Fixed
+
+- Do not run FindInParent logic for abstract classes ([`efb4929`](https://github.com/JanSharp/VRCJanSharpCommon/commit/efb49297d604b4acd9ebad37980f7720700d02a2))
+- Do not run BuildTimeIdAssignment logic for abstract classes ([`e049ee2`](https://github.com/JanSharp/VRCJanSharpCommon/commit/e049ee212b87646e262e6cfad7f79e3731bf27be))
+
 ## [1.4.1] - 2026-10-02
 
 ### Changed
@@ -389,6 +401,7 @@ _First version of this package that is in the VCC listing._
 - Add UI Color Changer to update colors of selectable UIs ([`1348553`](https://github.com/JanSharp/VRCJanSharpCommon/commit/134855335360925369c9f24b51e7e6922e592167), [`bdd8755`](https://github.com/JanSharp/VRCJanSharpCommon/commit/bdd8755ea6483e13a40c63f260f8de71a1f5a069), [`0456770`](https://github.com/JanSharp/VRCJanSharpCommon/commit/0456770c8541b7ca2e33b69d215c926deab37077))
 - Add features list and installation instructions to the README ([`08677d0`](https://github.com/JanSharp/VRCJanSharpCommon/commit/08677d0df3601b46ef734703380856ff5c4bf942), [`63c2d27`](https://github.com/JanSharp/VRCJanSharpCommon/commit/63c2d27715efb4fbecd4f3bb5d1521ae9f7f0fa8))
 
+[1.4.2]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.4.2
 [1.4.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.4.1
 [1.4.0]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.4.0
 [1.3.1]: https://github.com/JanSharp/VRCJanSharpCommon/releases/tag/v1.3.1
