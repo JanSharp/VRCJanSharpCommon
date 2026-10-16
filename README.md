@@ -33,7 +33,8 @@ Some [Library](#libraries)/[Manager](#managers) features are assisted by editor 
 
 - BuildTimeIdAssignmentEditor
 - CustomRaisedEventsEditor
-- FindInParent
+- FindInParentEditor
+- FindInChildren & FindInScene (see FindInSceneOrChildrenEditor)
 - SingletonScriptEditor
 - WannaBeClassesEditor
 
@@ -87,6 +88,8 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 - `CRC32`: Calculate a crc 32 checksum of a byte array
 - `CustomRaisedEvents`: Helps creating scripts, likely singletons, which raise events other scripts may listen to. Uses attributes and enums
 - `FindInParent`: An attribute to populate a field effectively equivalently to doing `GetComponentInParent`, but at build time rather than runtime
+- `FindInChildren`: An attribute to populate a field effectively equivalently to doing `GetComponentsInChildren`, but at build time rather than runtime
+- `FindInScene`: An attribute to populate a field with all instances of a given component in the scene at build time
 - `DataStream`: For binary serialization and deserialization using byte arrays
 - `SingletonScript`: Attributes to
   - Define a script as being a singleton, it only being allowed to exist once in the scene
