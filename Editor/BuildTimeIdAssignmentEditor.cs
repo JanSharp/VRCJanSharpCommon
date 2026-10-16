@@ -73,6 +73,8 @@ namespace JanSharp.Internal
 
             foreach (var managerType in OnAssemblyLoadUtil.AllUdonSharpBehaviourTypes)
             {
+                if (managerType.IsAbstract)
+                    continue;
                 foreach (FieldInfo field in EditorUtil.GetFieldsIncludingBase(managerType, PrivateAndPublicFlags, stopAtType: typeof(UdonSharpBehaviour)))
                 {
                     var attr = field.GetCustomAttribute<BuildTimeIdAssignmentAttribute>(inherit: true);
