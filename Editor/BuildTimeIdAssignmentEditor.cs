@@ -87,105 +87,59 @@ namespace JanSharp.Internal
                             + $"does not have the {nameof(SingletonScriptAttribute)}.");
                         return false;
                     }
-                    if (!field.FieldType.IsArray)
+                    if (!EditorUtil.ValidateArrayField(
+                        EditorUtil.MustDeriveFromTypeValidatorFactory(typeof(UdonSharpBehaviour), isArray: true),
+                        field,
+                        "[JanSharpCommon]",
+                        () => EditorUtil.GetFieldWithAttrErrorMessageIntro<BuildTimeIdAssignmentAttribute>(field)))
                     {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, however the field's type is not an "
-                            + $"array.");
-                        return false;
-                    }
-                    if (field.FieldType.GetArrayRank() != 1)
-                    {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, however the field's type is a "
-                            + $"jagged array. It must be a simple array (so with rank 1).");
-                        return false;
-                    }
-                    System.Type entryType = field.FieldType.GetElementType();
-                    if (!typeof(UdonSharpBehaviour).IsAssignableFrom(entryType))
-                    {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, however the field's array element "
-                            + $"type does not derive from {nameof(UdonSharpBehaviour)}.");
-                        return false;
-                    }
-                    if (entryType.IsDefined(typeof(SingletonScriptAttribute)))
-                    {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, it is an array of {entryType.Name}, "
-                            + $"however the {entryType.Name} class has the {nameof(SingletonScriptAttribute)} "
-                            + $"which makes no sense because then there could only ever be 1 entry.");
-                        return false;
-                    }
-                    if (!EditorUtil.IsSerializedField(field))
-                    {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, however it is not serialized by unity.");
                         return false;
                     }
 
                     FieldInfo idsArrayField = EditorUtil.GetFieldIncludingBase(managerType, attr.IdsArrayFieldName, PrivateAndPublicFlags);
                     if (idsArrayField == null)
                     {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
+                        Debug.LogError($"[JanSharpCommon] The field {field.DeclaringType.Name}.{field.Name} has the "
                             + $"{nameof(BuildTimeIdAssignmentAttribute)}, however the referenced ids array "
-                            + $"field {managerType.Name}.{attr.IdsArrayFieldName} does not exist.");
+                            + $"field {attr.IdsArrayFieldName} does not exist.");
                         return false;
                     }
-                    if (!idsArrayField.FieldType.IsArray)
+                    if (!EditorUtil.ValidateArrayField(
+                        EditorUtil.MustBeOfTypeValidatorFactory(typeof(uint), isArray: true),
+                        idsArrayField,
+                        "[JanSharpCommon]",
+                        () => $"The field {field.DeclaringType.Name}.{field.Name} has the "
+                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, it is referencing the "
+                            + $"ids array field {field.DeclaringType.Name}.{attr.IdsArrayFieldName}"))
                     {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, it is referencing the ids array "
-                            + $"field {managerType.Name}.{attr.IdsArrayFieldName}, however said field is not "
-                            + $"an array.");
-                        return false;
-                    }
-                    if (idsArrayField.FieldType.GetArrayRank() != 1)
-                    {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, it is referencing the ids array "
-                            + $"field {managerType.Name}.{attr.IdsArrayFieldName}, however said field's type "
-                            + $"is a jagged array. It must be a simple array (so with rank 1).");
-                        return false;
-                    }
-                    if (idsArrayField.FieldType.GetElementType() != typeof(uint))
-                    {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, it is referencing the ids array "
-                            + $"field {managerType.Name}.{attr.IdsArrayFieldName}, however said field's "
-                            + $"element type does not have the required type of UInt32 (uint).");
-                        return false;
-                    }
-                    if (!EditorUtil.IsSerializedField(field))
-                    {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, it is referencing the ids array "
-                            + $"field {managerType.Name}.{attr.IdsArrayFieldName}, however said field is not "
-                            + $"serialized by unity.");
                         return false;
                     }
 
                     FieldInfo highestIdField = EditorUtil.GetFieldIncludingBase(managerType, attr.HighestIdFieldName, PrivateAndPublicFlags);
                     if (highestIdField == null)
                     {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
+                        Debug.LogError($"[JanSharpCommon] The field {field.DeclaringType.Name}.{field.Name} has the "
                             + $"{nameof(BuildTimeIdAssignmentAttribute)}, however the {managerType.Name} class "
                             + $"does not have any field with the name {attr.HighestIdFieldName}.");
                         return false;
                     }
-                    if (highestIdField.FieldType != typeof(uint))
+                    if (!EditorUtil.ValidateMustBeOfType(
+                        typeof(uint),
+                        highestIdField,
+                        "[JanSharpCommon]",
+                        () => $"The field {field.DeclaringType.Name}.{field.Name} has the "
+                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, it is referencing the "
+                            + $"ids array field {field.DeclaringType.Name}.{attr.HighestIdFieldName}"))
                     {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, however the "
-                            + $"{managerType.Name}.{attr.HighestIdFieldName} field does not have the required "
-                            + $"type of Uint32 (uint)");
                         return false;
                     }
-                    if (!EditorUtil.IsSerializedField(highestIdField))
+                    if (!EditorUtil.ValidateMustBeSerializedByUnity(
+                        highestIdField,
+                        "[JanSharpCommon]",
+                        () => $"The field {field.DeclaringType.Name}.{field.Name} has the "
+                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, it is referencing the "
+                            + $"ids array field {field.DeclaringType.Name}.{attr.HighestIdFieldName}"))
                     {
-                        Debug.LogError($"[JanSharpCommon] The field {managerType.Name}.{field.Name} has the "
-                            + $"{nameof(BuildTimeIdAssignmentAttribute)}, however the "
-                            + $"{managerType.Name}.{attr.HighestIdFieldName} field is not serialized by unity.");
                         return false;
                     }
 
@@ -193,7 +147,7 @@ namespace JanSharp.Internal
                     manager.allEntries.Add(new Entry()
                     {
                         manager = manager,
-                        entryType = entryType,
+                        entryType = field.FieldType.GetElementType(),
                         idsArrayFieldName = attr.IdsArrayFieldName,
                         entriesFieldName = field.Name,
                         highestIdFieldName = attr.HighestIdFieldName,

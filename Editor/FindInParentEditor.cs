@@ -69,18 +69,10 @@ namespace JanSharp
                 if (attr == null)
                     continue;
 
-                if (!typeof(Component).IsAssignableFrom(field.FieldType))
-                {
-                    Debug.LogError($"[PermissionSystem] The {ubType.Name}.{field.Name} field has the {nameof(FindInParentAttribute)} "
-                        + $"however its type is {field.FieldType.Name}. It must be any type deriving from {nameof(Component)}.");
-                    isValid = false;
-                }
-                if (!EditorUtil.IsSerializedField(field))
-                {
-                    Debug.LogError($"[JanSharpCommon] The {ubType.Name}.{field.Name} field has the {nameof(FindInParentAttribute)} "
-                        + $"however it is not a serialized field. It must either be public or have the {nameof(SerializeField)} attribute.");
-                    isValid = false;
-                }
+                string ErrorMessageIntroGetter() => EditorUtil.GetFieldWithAttrErrorMessageIntro<FindInParentAttribute>(field);
+
+                isValid &= EditorUtil.ValidateMustDeriveFromType(typeof(Component), field, "[JanSharpCommon]", ErrorMessageIntroGetter);
+                isValid &= EditorUtil.ValidateMustBeSerializedByUnity(field, "[JanSharpCommon]", ErrorMessageIntroGetter);
 
                 if (isValid && !validateOnly)
                     cached.fields.Add((field.Name, field.FieldType));

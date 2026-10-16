@@ -598,5 +598,141 @@ namespace JanSharp
                     return true;
             }
         }
+
+        #region Reflection Validation Helpers
+
+        public static string GetFieldErrorMessageIntro(FieldInfo field)
+        {
+            return $"The field {field.DeclaringType.Name}.{field.Name} is declared to be set at build time";
+        }
+
+        public static string GetFieldWithAttrErrorMessageIntro<T>(FieldInfo field)
+            where T : System.Attribute
+        {
+            return GetFieldWithAttrErrorMessageIntro(field, typeof(T));
+        }
+
+        public static string GetFieldWithAttrErrorMessageIntro(FieldInfo field, System.Type attributeType)
+        {
+            return $"The field {field.DeclaringType.Name}.{field.Name} has the {attributeType.Name}";
+        }
+
+        public delegate bool FieldTypeValidator(
+            FieldInfo field,
+            string errorMessagePrefix,
+            System.Func<string> errorMessageIntroGetter);
+
+        /// <summary>
+        /// <para>Matches the <see cref="FieldTypeValidator"/> signature.</para>
+        /// </summary>
+        /// <param name="errorMessagePrefix">Such as <c>[JanSharpCommon]<c>.</param>
+        public static bool ValidateMustBeSerializedByUnity(
+            FieldInfo field,
+            string errorMessagePrefix,
+            System.Func<string> errorMessageIntroGetter)
+        {
+            if (!IsSerializedField(field))
+            {
+                Debug.LogError($"{errorMessagePrefix} {errorMessageIntroGetter()}, "
+                    + $"however it is not a Unity serialized property. "
+                    + $"It must either be public or have the {nameof(SerializeField)} attribute, "
+                    + $"and must not have the {nameof(System.NonSerializedAttribute)}.");
+                return false;
+            }
+            return true;
+        }
+
+        /// <param name="errorMessagePrefix">Such as <c>[JanSharpCommon]<c>.</param>
+        public static bool ValidateArrayField(
+            FieldTypeValidator fieldTypeValidator,
+            FieldInfo field,
+            string errorMessagePrefix,
+            System.Func<string> errorMessageIntroGetter)
+        {
+            return ArrayFieldValidatorFactory(fieldTypeValidator)(field, errorMessagePrefix, errorMessageIntroGetter);
+        }
+
+        /// <param name="errorMessagePrefix">Such as <c>[JanSharpCommon]<c>.</param>
+        public static bool ValidateMustDeriveFromType(
+            System.Type mustDeriveFromType,
+            FieldInfo field,
+            string errorMessagePrefix,
+            System.Func<string> errorMessageIntroGetter,
+            bool isArray = false)
+        {
+            return MustDeriveFromTypeValidatorFactory(mustDeriveFromType, isArray)(field, errorMessagePrefix, errorMessageIntroGetter);
+        }
+
+        /// <param name="errorMessagePrefix">Such as <c>[JanSharpCommon]<c>.</param>
+        public static bool ValidateMustBeOfType(
+            System.Type expectedType,
+            FieldInfo field,
+            string errorMessagePrefix,
+            System.Func<string> errorMessageIntroGetter,
+            bool isArray = false)
+        {
+            return MustBeOfTypeValidatorFactory(expectedType, isArray)(field, errorMessagePrefix, errorMessageIntroGetter);
+        }
+
+        public static FieldTypeValidator ArrayFieldValidatorFactory(FieldTypeValidator fieldTypeValidator)
+        {
+            return (field, errorMessagePrefix, errorMessageIntroGetter) =>
+            {
+                if (!field.FieldType.IsArray)
+                {
+                    Debug.LogError($"{errorMessagePrefix} {errorMessageIntroGetter()}, however the type is not an array.");
+                    return false;
+                }
+                if (field.FieldType.GetArrayRank() != 1)
+                {
+                    Debug.LogError($"{errorMessagePrefix} {errorMessageIntroGetter()}, however the type is a "
+                        + $"jagged array. It must be a simple array (so with rank 1).");
+                    return false;
+                }
+                if (!ValidateMustBeSerializedByUnity(field, errorMessagePrefix, errorMessageIntroGetter))
+                    return false;
+                System.Type entryType = field.FieldType.GetElementType();
+                return fieldTypeValidator(field, errorMessagePrefix, () => $"{errorMessageIntroGetter()}, it is an array of {entryType.Name}");
+            };
+        }
+
+        public static FieldTypeValidator MustDeriveFromTypeValidatorFactory(System.Type mustDeriveFromType, bool isArray = false)
+        {
+            return (field, errorMessagePrefix, errorMessageIntroGetter) =>
+            {
+                System.Type entryType = isArray ? field.FieldType.GetElementType() : field.FieldType;
+                if (!mustDeriveFromType.IsAssignableFrom(entryType))
+                {
+                    Debug.LogError($"{errorMessagePrefix} {errorMessageIntroGetter()}, "
+                        + $"however the type must derive from {mustDeriveFromType.Name}.");
+                    return false;
+                }
+                if (entryType.IsDefined(typeof(SingletonScriptAttribute)))
+                {
+                    Debug.LogError($"{errorMessagePrefix} {errorMessageIntroGetter()}, "
+                        + $"however the {entryType.Name} class has the {nameof(SingletonScriptAttribute)} "
+                        + $"which makes no sense because then there could only ever be 1 entry.");
+                    return false;
+                }
+                return true;
+            };
+        }
+
+        public static FieldTypeValidator MustBeOfTypeValidatorFactory(System.Type expectedType, bool isArray = false)
+        {
+            return (field, errorMessagePrefix, errorMessageIntroGetter) =>
+            {
+                System.Type entryType = isArray ? field.FieldType.GetElementType() : field.FieldType;
+                if (entryType != typeof(uint))
+                {
+                    Debug.LogError($"{errorMessagePrefix} {errorMessageIntroGetter()}, "
+                        + $"however the type must be {expectedType.Name}.");
+                    return false;
+                }
+                return true;
+            };
+        }
+
+        #endregion
     }
 }
