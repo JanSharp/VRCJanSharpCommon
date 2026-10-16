@@ -57,6 +57,8 @@ namespace JanSharp
 
         private static void TryGenerateTypeCache(System.Type ubType, bool validateOnly = false)
         {
+            if (ubType.IsAbstract)
+                return;
             TypeCache cached = validateOnly ? null : new(ubType);
 
             bool isValid = true;
