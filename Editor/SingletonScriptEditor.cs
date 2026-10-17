@@ -95,7 +95,7 @@ namespace JanSharp.Internal
                 throw new System.Exception($"[JanSharpCommon] Attempt to EnsureSingletonExists outside of an "
                     + $"on build handler. Use one of the register functions on the OnBuildUtil and call "
                     + $"EnsureSingletonExists from within a registered callback.");
-            if (Object.FindObjectsByType<T>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+            if (Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None)
                 .Any(c => !EditorUtil.IsEditorOnly(c)))
             {
                 return;
