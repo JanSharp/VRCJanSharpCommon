@@ -599,6 +599,13 @@ namespace JanSharp
             }
         }
 
+        public static void SetLayerName(int layerIndex, string layerName)
+        {
+            SerializedObject tagManager = new(AssetDatabase.LoadMainAssetAtPath("ProjectSettings/TagManager.asset"));
+            tagManager.FindProperty("layers").GetArrayElementAtIndex(layerIndex).stringValue = layerName;
+            tagManager.ApplyModifiedProperties();
+        }
+
         #region Serialized Property Drawing
 
         public static void DrawLayerField(SerializedProperty prop, GUIContent label)
