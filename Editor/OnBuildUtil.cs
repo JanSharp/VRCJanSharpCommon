@@ -233,7 +233,7 @@ namespace JanSharp
                 data.components.Add((component, editorOnly));
         }
 
-        [MenuItem("Tools/JanSharp/Run All OnBuild handlers", priority = 10005)]
+        [MenuItem("Tools/JanSharp/Run All OnBuild Handlers", priority = 10005)]
         public static void RunOnBuildMenuItem()
         {
             RunOnBuild(showDialogOnFailure: true, useSceneViewNotification: false, abortIfScriptsGotInstantiated: false);
