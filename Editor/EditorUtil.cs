@@ -599,6 +599,22 @@ namespace JanSharp
             }
         }
 
+        #region Serialized Property Drawing
+
+        public static void DrawLayerField(SerializedProperty prop, GUIContent label)
+        {
+            Rect rect = EditorGUILayout.GetControlRect(hasLabel: true);
+            EditorGUI.BeginProperty(rect, label: null, prop); // LayerField draws the label.
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = prop.hasMultipleDifferentValues;
+            int newLayer = EditorGUI.LayerField(rect, label, prop.intValue);
+            if (EditorGUI.EndChangeCheck())
+                prop.intValue = newLayer;
+            EditorGUI.EndProperty();
+        }
+
+        #endregion
+
         #region Reflection Validation Helpers
 
         public static string GetFieldErrorMessageIntro(FieldInfo field)
