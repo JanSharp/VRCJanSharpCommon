@@ -289,7 +289,8 @@ namespace JanSharp.Internal
                     listenersProperty.arraySize = 0;
                     continue;
                 }
-                EditorUtil.SetArrayProperty(listenersProperty,
+                EditorUtil.SetArrayProperty(
+                    listenersProperty,
                     listeners.OrderBy(v => v.order).ThenBy(v => v.defaultExecutionOrder).ToList(),
                     (p, v) => p.objectReferenceValue = v.ub);
             }
@@ -310,7 +311,8 @@ namespace JanSharp.Internal
                         listenersProperty.arraySize = 0;
                         continue;
                     }
-                    EditorUtil.SetArrayProperty(listenersProperty,
+                    EditorUtil.SetArrayProperty(
+                        listenersProperty,
                         listeners
                             .Where(v => EditorUtil.IsChild(dispatcherTransform, v.ub.transform))
                             .OrderBy(v => v.order)
