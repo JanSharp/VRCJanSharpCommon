@@ -68,6 +68,13 @@ namespace JanSharp
         public bool FindListenersInChildrenOnly { get; set; } = false;
 
         /// <summary>
+        /// <para>When <see cref="FindListenersInChildrenOnly"/> is <see langword="true"/>, this here defines
+        /// whether it would be allowed for a listener to exist in the scene without an associated event
+        /// dispatcher in its parents.</para>
+        /// </summary>
+        public bool AllowOrphanedListeners { get; set; } = false;
+
+        /// <summary>
         /// <para>Marks an <see cref="UdonSharpBehaviour"/> class as a dispatcher of custom raised events.</para>
         /// <para>This class must have a serialized field (so public or using
         /// <see cref="UnityEngine.SerializeField"/>) field with the type <see cref="UdonSharpBehaviour[]"/>

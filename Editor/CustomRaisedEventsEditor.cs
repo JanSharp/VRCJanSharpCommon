@@ -169,6 +169,7 @@ namespace JanSharp.Internal
                 ubType = ubType,
                 eventTypeEnumType = dispatcherAttr.CustomEventEnumType,
                 findListenersInChildrenOnly = dispatcherAttr.FindListenersInChildrenOnly,
+                allowOrphanedListeners = dispatcherAttr.AllowOrphanedListeners,
                 eventTypes = eventTypeNameValuePairs
                     .Select(e => (GetListenersFieldName(e.name), e.value))
                     .ToList(),
@@ -188,10 +189,29 @@ namespace JanSharp.Internal
             public System.Type ubType;
             public System.Type eventTypeEnumType;
             public bool findListenersInChildrenOnly;
+            public bool allowOrphanedListeners;
             public List<(string name, int value)> eventTypes;
             public Dictionary<int, string> eventTypeToNameLut;
             public UdonSharpBehaviour[] dispatchers;
-            public Dictionary<int, List<(UdonSharpBehaviour ub, int order, int defaultExecutionOrder)>> allListeners = new();
+            public Dictionary<int, List<ListenerData>> allListeners = new();
+        }
+
+        private class ListenerData
+        {
+            public UdonSharpBehaviour ub;
+            public int order;
+            public int defaultExecutionOrder;
+            /// <summary>
+            /// <para>Only used when <see cref="RegisteredData.findListenersInChildrenOnly"/> is <see langword="true"/>.</para>
+            /// </summary>
+            public bool hasDispatcherInParent = false;
+
+            public ListenerData(UdonSharpBehaviour ub, int order, int defaultExecutionOrder)
+            {
+                this.ub = ub;
+                this.order = order;
+                this.defaultExecutionOrder = defaultExecutionOrder;
+            }
         }
 
         private static bool PreOnBuild()
@@ -255,12 +275,12 @@ namespace JanSharp.Internal
 
             foreach (var listener in cached)
             {
-                if (!listener.data.allListeners.TryGetValue(listener.eventTypeValue, out var listeners))
+                if (!listener.data.allListeners.TryGetValue(listener.eventTypeValue, out List<ListenerData> listeners))
                 {
-                    listeners = new();
+                    listeners = new List<ListenerData>();
                     listener.data.allListeners.Add(listener.eventTypeValue, listeners);
                 }
-                listeners.Add((ub, listener.order, listener.defaultExecutionOrder));
+                listeners.Add(new ListenerData(ub, listener.order, listener.defaultExecutionOrder));
             }
 
             return true;
@@ -268,12 +288,13 @@ namespace JanSharp.Internal
 
         private static bool PostOnBuild()
         {
+            bool valid = true;
             foreach (RegisteredData data in allRegisteredData)
                 if (data.findListenersInChildrenOnly)
-                    AssignAnyChildren(data);
+                    valid &= AssignAnyChildren(data);
                 else
                     AssignFromAnywhereInScene(data);
-            return true;
+            return valid;
         }
 
         private static void AssignFromAnywhereInScene(RegisteredData data)
@@ -284,7 +305,7 @@ namespace JanSharp.Internal
             foreach (var eventType in data.eventTypes)
             {
                 SerializedProperty listenersProperty = dispatchersSo.FindProperty(eventType.name);
-                if (!data.allListeners.TryGetValue(eventType.value, out var listeners))
+                if (!data.allListeners.TryGetValue(eventType.value, out List<ListenerData> listeners))
                 {
                     listenersProperty.arraySize = 0;
                     continue;
@@ -297,7 +318,7 @@ namespace JanSharp.Internal
             dispatchersSo.ApplyModifiedProperties();
         }
 
-        private static void AssignAnyChildren(RegisteredData data)
+        private static bool AssignAnyChildren(RegisteredData data)
         {
             foreach (UdonSharpBehaviour dispatcher in data.dispatchers)
             {
@@ -306,22 +327,50 @@ namespace JanSharp.Internal
                 foreach (var eventType in data.eventTypes)
                 {
                     SerializedProperty listenersProperty = dispatchersSo.FindProperty(eventType.name);
-                    if (!data.allListeners.TryGetValue(eventType.value, out var listeners))
+                    if (!data.allListeners.TryGetValue(eventType.value, out List<ListenerData> listeners))
                     {
                         listenersProperty.arraySize = 0;
                         continue;
                     }
+
+                    List<ListenerData> listenersInChildren = listeners
+                        .Where(v => EditorUtil.IsChild(dispatcherTransform, v.ub.transform))
+                        .OrderBy(v => v.order)
+                        .ThenBy(v => v.defaultExecutionOrder)
+                        .ToList();
+                    foreach (ListenerData listener in listenersInChildren)
+                        listener.hasDispatcherInParent = true;
+
                     EditorUtil.SetArrayProperty(
                         listenersProperty,
-                        listeners
-                            .Where(v => EditorUtil.IsChild(dispatcherTransform, v.ub.transform))
-                            .OrderBy(v => v.order)
-                            .ThenBy(v => v.defaultExecutionOrder)
-                            .ToList(),
+                        listenersInChildren,
                         (p, v) => p.objectReferenceValue = v.ub);
                 }
                 dispatchersSo.ApplyModifiedProperties();
             }
+
+            return ValidateOrphanedListeners(data);
+        }
+
+        private static bool ValidateOrphanedListeners(RegisteredData data)
+        {
+            if (data.allowOrphanedListeners)
+                return true;
+
+            bool valid = true;
+            foreach (UdonSharpBehaviour listener in data.allListeners
+                .SelectMany(kvp => kvp.Value)
+                .Where(l => !l.hasDispatcherInParent)
+                .Select(l => l.ub)
+                .Distinct())
+            {
+                Debug.LogError($"[JanSharpCommon] A script listening to {data.eventTypeEnumType.Name} event(s), "
+                    + $"which are events which only get dispatched to scripts which are children of {data.ubType.Name}, "
+                    + $"is orphaned.\nThe listener on the {listener.name} object is not a child of any such dispatcher, "
+                    + $"which is prohibited to prevent unexpected behaviour.", listener);
+                valid = false;
+            }
+            return valid;
         }
     }
 }
