@@ -30,31 +30,31 @@
     - [ ] "Auto" - Choses "Yes" as soon as the object to move has any component on it that isn't a custom script. May also "whitelist" other components, like ToggleGroup for example.
     - [ ] "Yes" - If this is the case then the editor script has to build a replica of the transform tree specifically to be able to maintain non uniform scaling. Uniformly scaled transforms can be collapsed into their parent
     - [ ] "No" - The object gets moved into the manager as a child with "world position stays" set to false. The resulting transform does not matter
-- [ ] Zones and a ZoneManager
-  - [ ] keep track of which zones the local player is in - a list or lut in the manager
-  - [ ] optionally keep track of which zones remote players are in - a list or lut in the manager
-    - [ ] auto enable remote player tracking if `OnRemotePlayerZoneEnter` or `OnRemotePlayerZoneExit` events are listened to for a specific zone
-    - [ ] attribute on the class depending on the Zone component to tell it that it requires remote player tracking
-    - [ ] checkbox on each zone to force it to track remote players
-    - [ ] checkbox on the manager to force every zone to track remote players
-  - [ ] api to get the list of all zone listeners of a given type a given player is in currently
-    - [ ] support inheritance, so asking for a class that multiple zone listeners inherit from gets all those deriving class instances too
-  - [ ] automatically register listeners by having other scripts on the same object as the zone script, where said scripts have at least one of the 4 functions
-    - [ ] `OnLocalPlayerZoneEnter` (no parameter)
-    - [ ] `OnLocalPlayerZoneExit` (no parameter)
-    - [ ] `OnRemotePlayerZoneEnter` (1 parameter, the VRCPlayerApi of the remote player - only when using the abstract base class)
-    - [ ] `OnRemotePlayerZoneExit` (1 parameter, the VRCPlayerApi of the remote player - only when using the abstract base class)
-  - [ ] an abstract base class, ZoneListener, to have intellisense for the 4 events. Also makes it easy to have parameters for the remote player events
-    - [ ] probably has to be optional, which is unfortunate but probably manageable
-    - [ ] when not using the abstract class, the `OnRemotePlayerZoneEnter` and `OnRemotePlayerZoneExit` events won't be able to take parameters, so have an api field on the Zone script as well to get the remote player in question. Set that player field even for `OnLocalPlayerZoneEnter` and `OnLocalPlayerZoneExit` even though those 2 events do not have parameters
-  - [ ] the scripts using the zones can have a serialized Zone field which gets populated at build time automatically too. This enables access to
-    - [ ] whether or not the local player is in the zone
-    - [ ] the list of players in the zone
-  - [ ] upon loading into the world determine which zones the local or remote players are in
-    - [ ] create capsule colliders, scaled according to eye height
-    - [ ] iterate all colliders and check which colliders they collide with
-    - [ ] zones which have players inside of them due to this method must periodically check if the players are still within the colliders, using the same collision checking method. They can stop doing so once the players has left, at which point trigger enter and exit events can be relied upon
-  - [ ] an option to have some proxy (primitive) collider take precedence over the player trigger events to support tracking which zones a player is in while they are in a station
+- [x] Zones and a ZoneManager - **Marked as complete, see the [Player Zones](https://github.com/JanSharp/VRCPlayerZones) package**
+  - [x] keep track of which zones the local player is in - a list or lut in the manager
+  - [x] optionally keep track of which zones remote players are in - a list or lut in the manager
+    - [x] auto enable remote player tracking if `OnRemotePlayerZoneEnter` or `OnRemotePlayerZoneExit` events are listened to for a specific zone
+    - [x] attribute on the class depending on the Zone component to tell it that it requires remote player tracking
+    - [x] checkbox on each zone to force it to track remote players
+    - [x] checkbox on the manager to force every zone to track remote players
+  - [x] api to get the list of all zone listeners of a given type a given player is in currently
+    - [x] support inheritance, so asking for a class that multiple zone listeners inherit from gets all those deriving class instances too
+  - [x] automatically register listeners by having other scripts on the same object as the zone script, where said scripts have at least one of the 4 functions
+    - [x] `OnLocalPlayerZoneEnter` (no parameter)
+    - [x] `OnLocalPlayerZoneExit` (no parameter)
+    - [x] `OnRemotePlayerZoneEnter` (1 parameter, the VRCPlayerApi of the remote player - only when using the abstract base class)
+    - [x] `OnRemotePlayerZoneExit` (1 parameter, the VRCPlayerApi of the remote player - only when using the abstract base class)
+  - [x] an abstract base class, ZoneListener, to have intellisense for the 4 events. Also makes it easy to have parameters for the remote player events
+    - [x] probably has to be optional, which is unfortunate but probably manageable
+    - [x] when not using the abstract class, the `OnRemotePlayerZoneEnter` and `OnRemotePlayerZoneExit` events won't be able to take parameters, so have an api field on the Zone script as well to get the remote player in question. Set that player field even for `OnLocalPlayerZoneEnter` and `OnLocalPlayerZoneExit` even though those 2 events do not have parameters
+  - [x] the scripts using the zones can have a serialized Zone field which gets populated at build time automatically too. This enables access to
+    - [x] whether or not the local player is in the zone
+    - [x] the list of players in the zone
+  - [x] upon loading into the world determine which zones the local or remote players are in
+    - [x] create capsule colliders, scaled according to eye height
+    - [x] iterate all colliders and check which colliders they collide with
+    - [x] zones which have players inside of them due to this method must periodically check if the players are still within the colliders, using the same collision checking method. They can stop doing so once the players has left, at which point trigger enter and exit events can be relied upon
+  - [x] an option to have some proxy (primitive) collider take precedence over the player trigger events to support tracking which zones a player is in while they are in a station
 - [x] ~~automaticallyUseChildToggles for synced toggle groups is just broken~~ Just remove that feature entirely and have it automatically find toggles in that group on build
 - [x] automatically set the toggle OnValueChanged listeners for all toggles in a group
 - [x] automatically remove the listener if a toggle is no longer in a group
