@@ -100,6 +100,7 @@ Managers are singleton scripts with associated prefabs. When there are any singl
 - `WannaBeClass`: These are an unfortunately complex concept so they get [their own section](#wannabeclasses)
 - `StringUtil`: A little utility currently just containing a number formatting function outputting `1 234 567 890` for example, and a unity color to hex string converter
 - `RNG`: A random number generator in the form of a `WannaBeClass`, which is to say that multiple instances of rng can be created each with their own seed, and the internal `seed`, `lcg` and `hash` state can be read and set. Also supports shuffling arrays and `DataList`s
+- `CallbackInfo`: A [dark class](#dark-classes) to help make callbacks at least slightly less annoying
 - `LocalPlayerCapsule`: Get the height and radius of the local player's capsule. They appear to be constants currently, but that might change
 - `StopwatchUtil`: Make it easier to display stopwatch values as "average | min | max" while doing performance tests
 - `ArithBitConverter`: Deprecated, was useful when `BitConverter` wasn't exposed yet. Uses arithmetics to convert floating point numbers to their binary representation and back
@@ -117,6 +118,60 @@ Importantly for weak references, great care must be taken with them when a Wanna
 Sometimes something may hold a strong reference to a WannaBeClass and wish to pass this "ownership" to another function or script. For this there is a `StdMove` function on WannaBeClasses, the name is inspired by C++ move semantics. All it does is decrement the reference counter, however it does not immediately check if the counter reached 0. The receiving code shall then increment the reference counter, which is effectively it taking ownership of this WannaBeClass instance. If the reference counter does not get incremented, the instance gets deleted 1 frame later automatically, or until some code calls `CheckLiveliness`.
 
 There's support for WannaBeClass instances to already exist in the scene. They'll get moved out of their original location in the hierarchy on Start (DefaultExecutionOrder of -100000), making them managed by the WannaBeClassesManager. They also start at a reference counter of 1, and get their `WannaBeConstructor` called on Start.
+
+### Dark Classes
+
+Dark Classes are ultimately the same thing as abusing an `object[]` or `DataList` as a custom data structure. However they rely on a quirk of the UdonSharp compiler which makes them a bit more useful in organizing code than plain `object[]`s or `DataList`s, which is that one can derive from the `DataList` (or `DataDictionary`) class, then create an instance of a `DataList` (or `DataDictionary`) and cast it to the custom class.
+
+This is an invalid cast in C#, however in the Udon runtime custom classes do not exist and UdonSharp happens to compile it just as though the custom class was a plain `DataList`.
+
+At build time the custom class does "exist" though, which provides both clarity for what data structure is expected somewhere, as well as enabling writing extension methods for this custom class.
+
+A limitation with these custom types is that class level fields cannot be of that type, else errors get thrown upon entering play mode. Fields must be of type `DataList` (or `DataDictionary`, or `object`), and be cast to the custom class when using it. A helper wrapper property can be made, which is annoying as that now comes with a runtime cost, but likely worth the better maintainability.
+
+The dark classes quirk may have been discovered by [nuruwo8](https://github.com/nuruwo8/vrchat-dark-class-generator), or it may have been discovered by somebody else, I do not know.
+
+Example:
+
+```cs
+using UnityEngine;
+using VRC.SDK3.Data;
+
+public enum MyClassField
+{
+    /// <summary><see cref="string"/></summary>
+    FirstName,
+    /// <summary><see cref="string"/></summary>
+    LastName,
+
+    FieldCount,
+}
+
+public class MyClass : DataList
+{
+    public static MyClass New(string firstName, string lastName)
+    {
+        DataToken[] fields = new DataToken[(int)MyClassField.FieldCount];
+        fields[(int)MyClassField.FirstName] = firstName;
+        fields[(int)MyClassField.LastName] = new DataToken(lastName);
+        return (MyClass)new DataList(fields);
+    }
+}
+
+public static class MyClassExtensions
+{
+    public static string GetFirstName(this MyClass myClass) => myClass[(int)MyClassField.FirstName].String;
+    public static string GetLastName(this MyClass myClass) => myClass[(int)MyClassField.LastName].String;
+
+    public static void SetFirstName(this MyClass myClass, string firstName) => myClass[(int)MyClassField.FirstName] = firstName;
+    public static void SetLastName(this MyClass myClass, string lastName) => myClass[(int)MyClassField.LastName] = lastName;
+
+    public static void PrintName(this MyClass myClass)
+    {
+        Debug.Log($"{myClass.GetFirstName()} {myClass.GetLastName()}");
+    }
+}
+```
 
 ### Textures
 
